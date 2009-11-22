@@ -4,9 +4,11 @@
 #
 #-------------------------------------------------
 
+QT       += network webkit xml
+
 TARGET = sample
 TEMPLATE = app
-
+DESTDIR = ../debug
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -14,3 +16,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
+
+
+INCLUDEPATH = ../inc/
+win32:LIBS += ../debug/libqfacebookconnect.a
