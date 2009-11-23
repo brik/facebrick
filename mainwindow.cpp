@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    iFBSession = FBSession::sessionForApplication("b4db7267221ecf6333e60c1213d724cb", "f054071e18bd026c0b2e2f97ff68a7c5", QString());
+    iFBSession = FBSession::sessionForApplication("PUT SOMETHING HERE", "PUT SOMETHING HERE", QString());
 }
 
 MainWindow::~MainWindow()
