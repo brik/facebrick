@@ -31,5 +31,7 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::on_pushButton_clicked()
 {
-    iLoginDialog.load();
+    iLoginDialog = new FBLoginDialog();
+    iLoginDialog->setFixedSize(640,320);
+    iLoginDialog->show();
 }
