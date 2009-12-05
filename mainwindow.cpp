@@ -75,6 +75,23 @@ void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
 
 void MainWindow::requestDidLoad(FBContainer aContainer)
 {
+    switch (aContainer.type())
+    {
+    case FBContainer::ContainerTypeQList:
+        QVariantList* list = (QVariantList*) aContainer.object();
+        QVariant var = list->at(0);
+        QVariantHash dict = var.toHash();
+
+        QHashIterator<QString, QVariant> i(dict);
+
+        while (i.hasNext())
+        {
+            i.next();
+            QString key = i.key();
+            QString val = i.value().toString();
+        }
+
+    }
 
 
 }
