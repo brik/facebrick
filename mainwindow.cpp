@@ -3,6 +3,12 @@
 
 #include <QtGlobal>
 #include <QDebug>
+#include <QMessageBox>
+
+#include "fbrequest.h"
+#include "fberror.h"
+
+static QString UserId;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,13 +39,42 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::on_pushButton_clicked()
 {
-    iLoginDialog = new FBLoginDialog();
-    iLoginDialog->setFixedSize(640,320);
-    iLoginDialog->show();
+    if (iFBSession->resume() == false)
+    {
+        iLoginDialog = new FBLoginDialog();
+        iLoginDialog->setFixedSize(640,320);
+        iLoginDialog->show();
+    }
 }
 
-void MainWindow::sessionDidLogin(FBSession*,FBUID)
+void MainWindow::sessionDidLogin(FBSession*,FBUID aUid)
 {
-    qDebug() << "yipee";
+    QMessageBox msgbox;
+    UserId = QString::number(aUid,10);
+    QString msg ("Logged in sucessfully, your FBUID is " + UserId);
+    msgbox.setText(msg);
+    msgbox.exec();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+    QString query = "select name from user where uid == " + UserId;
+    params["query"] = query;
+    connect (request, SIGNAL(requestDidLoad(FBContainer)), this, SLOT(requestDidLoad(FBContainer)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
+    request->call("facebook.fql.query",params);
+
+}
+
+void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
+{
+    qDebug() << "facebook error is " << aError.code() << " - " << aError.description();
+}
+
+void MainWindow::requestDidLoad(FBContainer aContainer)
+{
+
 
 }

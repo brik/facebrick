@@ -16,9 +16,13 @@ public:
     ~MainWindow();
 
 private slots:
+    void on_pushButton_2_clicked();
     void on_pushButton_clicked();
 
     void sessionDidLogin(FBSession*,FBUID);
+    void requestDidLoad(FBContainer);
+
+    void requestFailedWithFacebookError ( const FBError& aError );
 
 protected:
     void changeEvent(QEvent *e);
