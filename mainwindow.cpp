@@ -94,4 +94,16 @@ void MainWindow::requestDidLoad(FBContainer aContainer)
     }
 
 
+    sender()->deleteLater();
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+    QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
+    params["query"] = query;
+    connect (request, SIGNAL(requestDidLoad(FBContainer)), this, SLOT(requestDidLoad(FBContainer)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
+    request->call("facebook.fql.query",params);
 }
