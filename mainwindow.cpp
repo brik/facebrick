@@ -12,7 +12,8 @@ static QString UserId;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    iLoginDialog ( NULL )
 {
     ui->setupUi(this);
 
@@ -61,13 +62,14 @@ void MainWindow::sessionDidLogin(FBSession*,FBUID aUid)
         delete iLoginDialog;
         iLoginDialog = NULL;
     }
+
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
     FBRequest* request = FBRequest::request();
     Dictionary params;
-    QString query = "select name from user where uid == " + UserId;
+    QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
     params["query"] = query;
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
@@ -86,29 +88,19 @@ void MainWindow::requestDidLoad(const QVariant& aContainer)
     {
         QVariantList list = aContainer.toList();
 
-        QVariantHash dictionary = list.at(0).toHash();
-
-        QHashIterator<QString, QVariant> i(dictionary);
-
-        while (i.hasNext())
+        for (int i = 0 ; i < list.count(); i ++)
         {
-            i.next();
-            QString key = i.key();
-            QString val = i.value().toString();
+            QVariantHash dictionary = list.at(i).toHash();
+            QHashIterator<QString, QVariant> iterator(dictionary);
+
+            QString name = dictionary.value("name").toString();
+            ui->listWidget->addItem(name);
+
+
         }
 
+        sender()->deleteLater();
     }
-
-    sender()->deleteLater();
 }
 
-void MainWindow::on_pushButton_3_clicked()
-{
-    FBRequest* request = FBRequest::request();
-    Dictionary params;
-    QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
-    params["query"] = query;
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-    request->call("facebook.fql.query",params);
-}
+
