@@ -21,7 +21,7 @@ private slots:
     void on_pushButton_clicked();
 
     void sessionDidLogin(FBSession*,FBUID);
-    void requestDidLoad(FBContainer);
+    void requestDidLoad(const QVariant&);
 
     void requestFailedWithFacebookError ( const FBError& aError );
 

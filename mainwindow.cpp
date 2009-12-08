@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete iFBSession;
     delete ui;
 }
 
@@ -54,6 +55,12 @@ void MainWindow::sessionDidLogin(FBSession*,FBUID aUid)
     QString msg ("Logged in sucessfully, your FBUID is " + UserId);
     msgbox.setText(msg);
     msgbox.exec();
+
+    if (iLoginDialog)
+    {
+        delete iLoginDialog;
+        iLoginDialog = NULL;
+    }
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -62,7 +69,7 @@ void MainWindow::on_pushButton_2_clicked()
     Dictionary params;
     QString query = "select name from user where uid == " + UserId;
     params["query"] = query;
-    connect (request, SIGNAL(requestDidLoad(FBContainer)), this, SLOT(requestDidLoad(FBContainer)));
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
     request->call("facebook.fql.query",params);
 
@@ -73,16 +80,15 @@ void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
     qDebug() << "facebook error is " << aError.code() << " - " << aError.description();
 }
 
-void MainWindow::requestDidLoad(FBContainer aContainer)
+void MainWindow::requestDidLoad(const QVariant& aContainer)
 {
-    switch (aContainer.type())
+    if (aContainer.type() == QVariant::List)
     {
-    case FBContainer::ContainerTypeQList:
-        QVariantList* list = (QVariantList*) aContainer.object();
-        QVariant var = list->at(0);
-        QVariantHash dict = var.toHash();
+        QVariantList list = aContainer.toList();
 
-        QHashIterator<QString, QVariant> i(dict);
+        QVariantHash dictionary = list.at(0).toHash();
+
+        QHashIterator<QString, QVariant> i(dictionary);
 
         while (i.hasNext())
         {
@@ -93,7 +99,6 @@ void MainWindow::requestDidLoad(FBContainer aContainer)
 
     }
 
-
     sender()->deleteLater();
 }
 
@@ -103,7 +108,7 @@ void MainWindow::on_pushButton_3_clicked()
     Dictionary params;
     QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
     params["query"] = query;
-    connect (request, SIGNAL(requestDidLoad(FBContainer)), this, SLOT(requestDidLoad(FBContainer)));
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
     request->call("facebook.fql.query",params);
 }
