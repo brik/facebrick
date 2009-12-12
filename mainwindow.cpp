@@ -44,7 +44,6 @@ void MainWindow::on_pushButton_clicked()
     if (iFBSession->resume() == false)
     {
         iLoginDialog = new FBLoginDialog();
-        iLoginDialog->setFixedSize(640,320);
         iLoginDialog->show();
     }
 }
