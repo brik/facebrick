@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    iFBSession = FBSession::sessionForApplication("b4db7267221ecf6333e60c1213d724cb", "f054071e18bd026c0b2e2f97ff68a7c5", QString());
+    iFBSession = FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString());
     connect (iFBSession,SIGNAL(sessionDidLogin(FBSession*,FBUID)), this, SLOT(sessionDidLogin(FBSession*,FBUID)));
 }
 
