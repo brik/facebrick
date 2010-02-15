@@ -20,3 +20,4 @@ FORMS    += mainwindow.ui
 
 INCLUDEPATH = ../inc/
 win32:LIBS += ../debug/libqfacebookconnect.a
+unix:LIBS += ../debug/libqfacebookconnect.so

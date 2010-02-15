@@ -20,7 +20,7 @@ private slots:
     void on_pushButton_2_clicked();
     void on_pushButton_clicked();
 
-    void sessionDidLogin(FBSession*,FBUID);
+    void sessionDidLogin(FBUID);
     void requestDidLoad(const QVariant&);
 
     void requestFailedWithFacebookError ( const FBError& aError );

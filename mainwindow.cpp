@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     iFBSession = FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString());
-    connect (iFBSession,SIGNAL(sessionDidLogin(FBSession*,FBUID)), this, SLOT(sessionDidLogin(FBSession*,FBUID)));
+    connect (iFBSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
 }
 
 MainWindow::~MainWindow()
@@ -48,7 +48,7 @@ void MainWindow::on_pushButton_clicked()
     }
 }
 
-void MainWindow::sessionDidLogin(FBSession*,FBUID aUid)
+void MainWindow::sessionDidLogin(FBUID aUid)
 {
     QMessageBox msgbox;
     UserId = QString::number(aUid,10);
