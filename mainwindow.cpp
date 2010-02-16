@@ -58,7 +58,7 @@ void MainWindow::sessionDidLogin(FBUID aUid)
 
     if (iLoginDialog)
     {
-        delete iLoginDialog;
+        iLoginDialog->deleteLater();;
         iLoginDialog = NULL;
     }
 
@@ -103,3 +103,8 @@ void MainWindow::requestDidLoad(const QVariant& aContainer)
 }
 
 
+
+void MainWindow::on_buttonForget_clicked()
+{
+    iFBSession->logout();
+}
