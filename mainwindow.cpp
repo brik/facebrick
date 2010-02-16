@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     iFBSession = FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString());
     connect (iFBSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
+    connect (iFBSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 }
 
 MainWindow::~MainWindow()
@@ -61,7 +62,13 @@ void MainWindow::sessionDidLogin(FBUID aUid)
         iLoginDialog->deleteLater();;
         iLoginDialog = NULL;
     }
+}
 
+void MainWindow::sessionDidLogout()
+{
+    QMessageBox msgbox;
+    msgbox.setText("logged out");
+    msgbox.exec();
 }
 
 void MainWindow::on_pushButton_2_clicked()

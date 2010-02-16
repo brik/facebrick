@@ -23,6 +23,7 @@ private slots:
 
     void sessionDidLogin(FBUID);
     void requestDidLoad(const QVariant&);
+    void sessionDidLogout();
 
     void requestFailedWithFacebookError ( const FBError& aError );
 
