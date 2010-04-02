@@ -20,7 +20,7 @@ private slots:
     void on_buttonForget_clicked();
 
     void sessionDidLogin(FBUID);
-    void requestDidLoad(const QVariant&);
+    void friendsRequestLoaded(const QVariant&);
     void sessionDidLogout();
 
     void requestFailedWithFacebookError ( const FBError& aError );

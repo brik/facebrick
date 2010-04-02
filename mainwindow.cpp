@@ -64,7 +64,7 @@ void MainWindow::sessionDidLogin(FBUID aUid)
     Dictionary params;
     QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
     params["query"] = query;
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(friendsRequestLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
     request->call("facebook.fql.query",params);
 }
@@ -81,7 +81,7 @@ void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
     qDebug() << "facebook error is " << aError.code() << " - " << aError.description();
 }
 
-void MainWindow::requestDidLoad(const QVariant& aContainer)
+void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
 {
     if (aContainer.type() == QVariant::List)
     {
