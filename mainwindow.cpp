@@ -20,6 +20,12 @@ MainWindow::MainWindow(QWidget *parent) :
     iFBSession = FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString());
     connect (iFBSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (iFBSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
+
+    if (iFBSession->resume() == false)
+    {
+        iLoginDialog = new FBLoginDialog();
+        iLoginDialog->show();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -40,15 +46,6 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    if (iFBSession->resume() == false)
-    {
-        iLoginDialog = new FBLoginDialog();
-        iLoginDialog->show();
-    }
-}
-
 void MainWindow::sessionDidLogin(FBUID aUid)
 {
     QMessageBox msgbox;
@@ -62,17 +59,7 @@ void MainWindow::sessionDidLogin(FBUID aUid)
         iLoginDialog->deleteLater();;
         iLoginDialog = NULL;
     }
-}
 
-void MainWindow::sessionDidLogout()
-{
-    QMessageBox msgbox;
-    msgbox.setText("logged out");
-    msgbox.exec();
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
     FBRequest* request = FBRequest::request();
     Dictionary params;
     QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
@@ -80,7 +67,13 @@ void MainWindow::on_pushButton_2_clicked()
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(requestDidLoad(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
     request->call("facebook.fql.query",params);
+}
 
+void MainWindow::sessionDidLogout()
+{
+    QMessageBox msgbox;
+    msgbox.setText("logged out");
+    msgbox.exec();
 }
 
 void MainWindow::requestFailedWithFacebookError ( const FBError& aError )

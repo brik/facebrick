@@ -23,20 +23,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Login to facebook</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>Get all my friends</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QListWidget" name="listWidget"/>
     </item>
     <item>
