@@ -39,7 +39,6 @@ MainWindow::~MainWindow()
     if (m_fbLoginDialog)
         delete m_fbLoginDialog;
     delete m_fbSession;
-    delete m_newsFeedModel;
 }
 
 void MainWindow::changeEvent(QEvent *e)
