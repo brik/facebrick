@@ -16,29 +16,29 @@ static QString UserId;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    iLoginDialog ( NULL ),
+    m_ui(new Ui::MainWindow),
+    m_fbSession(FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString())),
+    m_fbLoginDialog ( NULL ),
     m_newsFeedModel(new NewsFeedModel(this))
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
-    iFBSession = FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString());
-    connect (iFBSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
-    connect (iFBSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
+    connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
+    connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
-    if (iFBSession->resume() == false)
+    if (m_fbSession->resume() == false)
     {
-        iLoginDialog = new FBLoginDialog();
-        iLoginDialog->show();
+        m_fbLoginDialog = new FBLoginDialog();
+        m_fbLoginDialog->show();
     }
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    if (iLoginDialog)
-        delete iLoginDialog;
-    delete iFBSession;
+    delete m_ui;
+    if (m_fbLoginDialog)
+        delete m_fbLoginDialog;
+    delete m_fbSession;
     delete m_newsFeedModel;
 }
 
@@ -47,7 +47,7 @@ void MainWindow::changeEvent(QEvent *e)
     QMainWindow::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
         break;
     default:
         break;
@@ -62,10 +62,10 @@ void MainWindow::sessionDidLogin(FBUID aUid)
     msgbox.setText(msg);
     msgbox.exec();
 
-    if (iLoginDialog)
+    if (m_fbLoginDialog)
     {
-        iLoginDialog->deleteLater();;
-        iLoginDialog = NULL;
+        m_fbLoginDialog->deleteLater();;
+        m_fbLoginDialog = NULL;
     }
 
     FBRequest* request = FBRequest::request();
@@ -101,7 +101,7 @@ void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
             QHashIterator<QString, QVariant> iterator(dictionary);
 
             QString name = dictionary.value("name").toString();
-            ui->listWidget->addItem(name);
+            m_ui->listWidget->addItem(name);
 
 
         }
@@ -114,5 +114,5 @@ void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
 
 void MainWindow::on_buttonForget_clicked()
 {
-    iFBSession->logout();
+    m_fbSession->logout();
 }

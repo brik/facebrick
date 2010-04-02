@@ -33,10 +33,10 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow * const m_ui;
 
-    FBSession*      iFBSession;
-    FBLoginDialog*  iLoginDialog;
+    FBSession * const m_fbSession;
+    FBLoginDialog *m_fbLoginDialog;
     NewsFeedModel * const m_newsFeedModel;
 };
 
