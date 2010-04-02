@@ -11,9 +11,11 @@ TEMPLATE = app
 DESTDIR = ../debug
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    newsfeedmodel.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    newsfeedmodel.h
 
 FORMS    += mainwindow.ui
 

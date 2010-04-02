@@ -7,13 +7,18 @@
 
 #include "fbrequest.h"
 #include "fberror.h"
+#include "fblogindialog.h"
+#include "fbsession.h"
+
+#include "newsfeedmodel.h"
 
 static QString UserId;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    iLoginDialog ( NULL )
+    iLoginDialog ( NULL ),
+    m_newsFeedModel(new NewsFeedModel(this))
 {
     ui->setupUi(this);
 
@@ -30,8 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete iFBSession;
     delete ui;
+    if (iLoginDialog)
+        delete iLoginDialog;
+    delete iFBSession;
+    delete m_newsFeedModel;
 }
 
 void MainWindow::changeEvent(QEvent *e)

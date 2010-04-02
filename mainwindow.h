@@ -2,12 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "fbsession.h"
-#include "fblogindialog.h"
 
 namespace Ui {
     class MainWindow;
 }
+
+class NewsFeedModel;
+class FBError;
+class FBSession;
+class FBLoginDialog;
+#include "fbconnectglobal.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -33,6 +37,7 @@ private:
 
     FBSession*      iFBSession;
     FBLoginDialog*  iLoginDialog;
+    NewsFeedModel * const m_newsFeedModel;
 };
 
 #endif // MAINWINDOW_H
