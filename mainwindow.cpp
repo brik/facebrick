@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->postsListView->setModel(m_newsFeedModel);
     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
+    connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(on_buttonForget_clicked()));
     connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
