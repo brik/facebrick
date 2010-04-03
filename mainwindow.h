@@ -41,8 +41,9 @@ public:
 
 
 private slots:
-    void on_buttonForget_clicked();
-
+    void onLogoutMenuAction();
+    void sendStatusUpdate();
+    void statusUpdated(const QVariant &);
     void sessionDidLogin(FBUID);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);

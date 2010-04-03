@@ -47,7 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->postsListView->setModel(m_newsFeedModel);
     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
-    connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(on_buttonForget_clicked()));
+    connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
+    connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
     connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
@@ -119,6 +120,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 {
     if (container.type() == QVariant::List) {
         //qDebug() << container.toList();
+
         QVariantList list = container.toList();
 
         // Item #0 will be our result set on news items
@@ -168,8 +170,24 @@ void MainWindow::newsFeedListClicked(QModelIndex index)
     QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
 }
 
-void MainWindow::on_buttonForget_clicked()
+void MainWindow::onLogoutMenuAction()
 {
     m_fbSession->logout();
 }
 
+void MainWindow::sendStatusUpdate()
+{
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+    params["status"] = m_ui->statusText->toPlainText();
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(statusUpdated(QVariant)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
+    request->call("Status.set",params);
+}
+
+void MainWindow::statusUpdated(const QVariant &)
+{
+    qDebug() << "Status updated!";
+    m_ui->statusText->setPlainText(QLatin1String(""));
+}
