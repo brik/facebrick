@@ -62,11 +62,7 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::sessionDidLogin(FBUID aUid)
 {
-    QMessageBox msgbox;
     UserId = QString::number(aUid,10);
-    QString msg ("Logged in sucessfully, your FBUID is " + UserId);
-    msgbox.setText(msg);
-    msgbox.exec();
 
     if (m_fbLoginDialog)
     {
