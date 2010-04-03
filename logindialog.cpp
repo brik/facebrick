@@ -25,7 +25,7 @@
 #include "logindialog.h"
 
 LoginDialog::LoginDialog(FBSession *session) :
-    QDialog(0),
+    QObject(0),
     m_session(session)
 {
     connect (m_session,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
@@ -43,13 +43,12 @@ void LoginDialog::sessionDidLogin(FBUID uid)
     // Request stream_read permissions (needed to show stupid newsfeed, and stupid FB API won't tell us we don't have it.)
     // TODO: it might be nice to investigate if we can check if we have this perm already to avoid showing multiple times.
     // TODO: permission dialog is leaked, see note in constructor
-            // TODO: this is really weirdly broken if read_stream is already had. sigh.
-//    FBPermissionDialog *d = new FBPermissionDialog(this->m_session);
-//    connect(d, SIGNAL(dialogDidSucceed()), this, SLOT(close()));
-//    connect(d, SIGNAL(dialogDidCancel()), this, SLOT(unableToGetStreamRead()));
-//    connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(errorRequestingPermission(FBError)));
-//    d->setPermissionToRequest("read_stream");
-//    d->show();
+    FBPermissionDialog *d = new FBPermissionDialog(this->m_session);
+    connect(d, SIGNAL(dialogDidSucceed()), this, SLOT(close()));
+    connect(d, SIGNAL(dialogDidCancel()), this, SLOT(unableToGetStreamRead()));
+    connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(errorRequestingPermission(FBError)));
+    d->setPermissionToRequest("read_stream");
+    d->show();
 }
 
 void LoginDialog::errorRequestingPermission(const FBError &error)
@@ -61,9 +60,6 @@ void LoginDialog::errorRequestingPermission(const FBError &error)
         // How delightful.
         // Well, let's handle it by pretending it worked
         qDebug() << "Faking success, closing stuff";
-        FBPermissionDialog *d = qobject_cast<FBPermissionDialog *>(sender());
-        d->close();
-        close();
     }
     else {
         unableToGetStreamRead();

@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
     if (session->resume() == false)
     {
         LoginDialog d(session);
-        d.exec();
     }
 
     MainWindow w(0, session);

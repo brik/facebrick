@@ -26,7 +26,7 @@
 class FBSession;
 class FBError;
 
-class LoginDialog : public QDialog
+class LoginDialog : public QObject
 {
 Q_OBJECT
 public:
