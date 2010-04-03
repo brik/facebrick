@@ -12,10 +12,12 @@ DESTDIR = ../debug
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    newsfeedmodel.cpp
+    newsfeedmodel.cpp \
+    newsfeedpost.cpp
 
 HEADERS  += mainwindow.h \
-    newsfeedmodel.h
+    newsfeedmodel.h \
+    newsfeedpost.h
 
 FORMS    += mainwindow.ui
 

@@ -1,4 +1,7 @@
+#include "fbconnectglobal.h"
+
 #include "newsfeedmodel.h"
+#include "newsfeedpost.h"
 
 NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -6,10 +9,27 @@ NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 
 int NewsFeedModel::rowCount(const QModelIndex&) const
 {
-    return 0;
+    return m_posts.count();
 }
 
-QVariant NewsFeedModel::data(const QModelIndex&, int) const
+QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
 {
+    if (index.row() < 0 || index.row() > m_posts.length())
+        return QVariant();
+
+    switch (role) {
+    case Qt::DisplayRole:
+        NewsFeedPost *np = m_posts[index.row()];
+        return np->author() + ": " + np->message();
+        break;
+    }
+
     return QVariant();
+}
+
+void NewsFeedModel::createNewsItem(FBUID userId, const QString &url, const QString &message)
+{
+    beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
+    m_posts.append(new NewsFeedPost(userId, url, message));
+    endInsertRows();
 }

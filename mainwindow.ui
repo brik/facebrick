@@ -23,7 +23,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidget"/>
+     <widget class="QListView" name="postsListView"/>
     </item>
     <item>
      <spacer name="verticalSpacer">

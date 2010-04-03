@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_newsFeedModel(new NewsFeedModel(this))
 {
     m_ui->setupUi(this);
+    m_ui->postsListView->setModel(m_newsFeedModel);
 
     connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
@@ -69,11 +70,15 @@ void MainWindow::sessionDidLogin(FBUID aUid)
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
-    QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
-    params["query"] = query;
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(friendsRequestLoaded(QVariant)));
+    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink FROM stream WHERE source_id in (SELECT target_id FROM connection WHERE source_id=" + UserId + " AND is_following=1) AND is_hidden = 0";
+    QString queryTwo = "SELECT name, url, pic FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
+    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
+    params["queries"] = fql;
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-    request->call("facebook.fql.query",params);
+    request->call("facebook.fql.multiquery",params);
 }
 
 void MainWindow::sessionDidLogout()
@@ -90,6 +95,7 @@ void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
 
 void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
 {
+    /*
     if (aContainer.type() == QVariant::List)
     {
         QVariantList list = aContainer.toList();
@@ -106,6 +112,41 @@ void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
         }
 
         sender()->deleteLater();
+    }
+    */
+}
+
+void MainWindow::newsFeedLoaded(const QVariant &container)
+{
+    if (container.type() == QVariant::List) {
+        //qDebug() << container.toList();
+        QVariantList list = container.toList();
+
+        // Item #0 will be our result set on news items
+        foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
+            QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
+
+            // Available fields:
+            // message, target_id, post_id, actor_id, permalink
+            qDebug() << newsFeedPostData["actor_id"] << " said: "
+                    << newsFeedPostData["message"]
+                    << " at " << newsFeedPostData["permalink"];
+
+            m_newsFeedModel->createNewsItem(newsFeedPostData["actor_id"].toInt(),
+                                            newsFeedPostData["permalink"].toString(),
+                                            newsFeedPostData["message"].toString());
+            //QHash<QString, QVariant> messageData = newsFeedPost.toHash();
+            //qDebug() << messageData["message"];
+        }
+
+        //QVariantList secondList = list.at(0).toHash().begin().value().toList();
+        //qDebug() << secondList;
+
+        // Item #1 will be our result set on user details
+        //for (int i = 0; i < list.length(); ++i) {
+        //    qDebug() << list.at(i);
+        //    qDebug() << "*** END OF ITEM ***";
+        //}
     }
 }
 

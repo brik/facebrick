@@ -25,6 +25,7 @@ private slots:
 
     void sessionDidLogin(FBUID);
     void friendsRequestLoaded(const QVariant&);
+    void newsFeedLoaded(const QVariant&);
     void sessionDidLogout();
 
     void requestFailedWithFacebookError ( const FBError& aError );
