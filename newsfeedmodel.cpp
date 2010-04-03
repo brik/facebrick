@@ -7,6 +7,13 @@ NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
+NewsFeedModel::~NewsFeedModel()
+{
+    foreach (NewsFeedPost *post, m_posts) {
+        delete post;
+    }
+}
+
 int NewsFeedModel::rowCount(const QModelIndex&) const
 {
     return m_posts.count();
@@ -36,6 +43,7 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
 void NewsFeedModel::createNewsItem(FBUID userId, const QString &url, const QString &message)
 {
     beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
-    m_posts.append(new NewsFeedPost(userId, url, message));
+    m_posts.append(new NewsFeedPost(this, userId, url, message));
     endInsertRows();
 }
+

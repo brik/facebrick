@@ -75,7 +75,7 @@ void MainWindow::sessionDidLogin(FBUID aUid)
     Dictionary params;
     //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
     QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink FROM stream WHERE source_id in (SELECT target_id FROM connection WHERE source_id=" + UserId + " AND is_following=1) AND is_hidden = 0";
-    QString queryTwo = "SELECT name, url, pic FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
+    QString queryTwo = "SELECT id, name, url, pic FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
     QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
     params["queries"] = fql;
 
@@ -119,7 +119,11 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             //qDebug() << messageData["message"];
         }
 
-        //QVariantList secondList = list.at(0).toHash().begin().value().toList();
+        foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
+            QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
+            qDebug() << newsFeedUserData;
+        }
+
         //qDebug() << secondList;
 
         // Item #1 will be our result set on user details
@@ -139,3 +143,4 @@ void MainWindow::on_buttonForget_clicked()
 {
     m_fbSession->logout();
 }
+

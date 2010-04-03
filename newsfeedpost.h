@@ -1,12 +1,15 @@
 #ifndef NEWSFEEDPOST_H
 #define NEWSFEEDPOST_H
 
+#include <QObject>
+
 #include "fbconnectglobal.h"
 
-class NewsFeedPost
+class NewsFeedPost : QObject
 {
+Q_OBJECT
 public:
-    explicit NewsFeedPost(FBUID userId, const QString &url, const QString &message);
+    explicit NewsFeedPost(QObject *parent, FBUID userId, const QString &url, const QString &message);
 
     const QString &url() const;
     const QString &message() const;

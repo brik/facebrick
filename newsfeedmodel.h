@@ -11,6 +11,7 @@ class NewsFeedModel : public QAbstractListModel
 {
 public:
     explicit NewsFeedModel(QObject *parent);
+    virtual ~NewsFeedModel();
 
     enum Roles
     {
