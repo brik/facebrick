@@ -13,11 +13,15 @@ DESTDIR = ../debug
 SOURCES += main.cpp\
         mainwindow.cpp \
     newsfeedmodel.cpp \
-    newsfeedpost.cpp
+    newsfeedpost.cpp \
+    facebookaccountmodel.cpp \
+    facebookaccount.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
-    newsfeedpost.h
+    newsfeedpost.h \
+    facebookaccountmodel.h \
+    facebookaccount.h
 
 FORMS    += mainwindow.ui
 
