@@ -21,6 +21,8 @@ public:
     void setName(const QString &name);
     const QImage &avatar() const;
     void setAvatar(const QUrl &url);
+signals:
+    void modified();
 private slots:
     void onAvatarDownloaded(QNetworkReply *);
 private:

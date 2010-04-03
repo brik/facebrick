@@ -7,7 +7,7 @@
 
 class FacebookAccount;
 
-class NewsFeedPost : QObject
+class NewsFeedPost : public QObject
 {
 Q_OBJECT
 public:
@@ -16,7 +16,8 @@ public:
     const QString &url() const;
     const QString &message() const;
     FacebookAccount *author() const;
-
+signals:
+    void modified();
 private:
     FacebookAccount *m_account;
     QString m_url;

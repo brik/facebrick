@@ -48,7 +48,23 @@ QSize sz ;
 void NewsFeedModel::createNewsItem(FacebookAccount *account, const QString &url, const QString &message)
 {
     beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
-    m_posts.append(new NewsFeedPost(this, account, url, message));
+    NewsFeedPost *np = new NewsFeedPost(this, account, url, message);
+    connect(np, SIGNAL(modified()), this, SLOT(onChildModified()));
+    m_posts.append(np);
     endInsertRows();
 }
 
+void NewsFeedModel::onChildModified()
+{
+    // Find the child that was modified
+    NewsFeedPost *np = qobject_cast<NewsFeedPost *>(sender());
+    Q_ASSERT(np);
+
+    qDebug("onChildModified for %p", np);
+    for (int i = 0; i < m_posts.count(); ++i) {
+        if (np == m_posts[i]) {
+            dataChanged(createIndex(i, 0), createIndex(i, 0));
+            return;
+        }
+    }
+}

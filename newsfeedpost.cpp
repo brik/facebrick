@@ -7,6 +7,7 @@ NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QStr
     m_url(url),
     m_message(message)
 {
+    connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
 }
 
 const QString &NewsFeedPost::url() const

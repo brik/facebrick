@@ -29,6 +29,7 @@ const QString &FacebookAccount::name() const
 void FacebookAccount::setName(const QString &name)
 {
     m_name = name;
+    emit modified();
 }
 
 const QImage &FacebookAccount::avatar() const
@@ -40,6 +41,8 @@ void FacebookAccount::setAvatar(const QUrl &url)
 {
     QNetworkRequest request(url);
     m_networkaccessmgr.get(request);
+
+    // modified() is emitted when avatar download is done.
 }
 
 void FacebookAccount::onAvatarDownloaded(QNetworkReply *reply)
@@ -48,4 +51,5 @@ void FacebookAccount::onAvatarDownloaded(QNetworkReply *reply)
     m_avatar = QImage::fromData(reply->readAll());
 
     reply->deleteLater();
+    emit modified();
 }
