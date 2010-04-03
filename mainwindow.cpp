@@ -115,9 +115,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
                     << newsFeedPostData["message"]
                     << " at " << newsFeedPostData["permalink"];
 
-            FacebookAccount *account = NULL;
-            if (!(account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong())))
-                account = m_facebookAccountModel->createAccount(newsFeedPostData["actor_id"].toLongLong());
+            FacebookAccount *account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong());
 
             m_newsFeedModel->createNewsItem(account,
                                             newsFeedPostData["permalink"].toString(),

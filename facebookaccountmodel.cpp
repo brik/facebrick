@@ -16,7 +16,7 @@ QVariant FacebookAccountModel::data(const QModelIndex&, int) const
     return QVariant();
 }
 
-FacebookAccount *FacebookAccountModel::account(FBUID uid) const
+FacebookAccount *FacebookAccountModel::account(FBUID uid)
 {
     foreach (FacebookAccount *account, m_accounts) {
         if (account->uid() == uid) {
@@ -24,11 +24,6 @@ FacebookAccount *FacebookAccountModel::account(FBUID uid) const
         }
     }
 
-    return NULL;
-}
-
-FacebookAccount *FacebookAccountModel::createAccount(FBUID uid)
-{
     FacebookAccount *account = new FacebookAccount(this, uid);
     beginInsertRows(QModelIndex(), m_accounts.length(), m_accounts.length());
     m_accounts.append(account);
