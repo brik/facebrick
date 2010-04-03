@@ -12,6 +12,8 @@
 #include "fbsession.h"
 
 #include "newsfeedmodel.h"
+#include "facebookaccountmodel.h"
+#include "facebookaccount.h"
 
 static QString UserId;
 
@@ -20,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow),
     m_fbSession(FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString())),
     m_fbLoginDialog ( NULL ),
-    m_newsFeedModel(new NewsFeedModel(this))
+    m_newsFeedModel(new NewsFeedModel(this)),
+    m_facebookAccountModel(new FacebookAccountModel(this))
 {
     m_ui->setupUi(this);
     m_ui->postsListView->setModel(m_newsFeedModel);
@@ -112,7 +115,11 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
                     << newsFeedPostData["message"]
                     << " at " << newsFeedPostData["permalink"];
 
-            m_newsFeedModel->createNewsItem(newsFeedPostData["actor_id"].toInt(),
+            FacebookAccount *account = NULL;
+            if (!(account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong())))
+                account = m_facebookAccountModel->createAccount(newsFeedPostData["actor_id"].toLongLong());
+
+            m_newsFeedModel->createNewsItem(account,
                                             newsFeedPostData["permalink"].toString(),
                                             newsFeedPostData["message"].toString());
             //QHash<QString, QVariant> messageData = newsFeedPost.toHash();
@@ -122,6 +129,13 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
             QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
             qDebug() << newsFeedUserData;
+
+            // Available fields:
+            // name,pic_big, status,birthday_date, timezone
+            FacebookAccount *account = m_facebookAccountModel->account(newsFeedUserData["id"].toLongLong());
+            Q_ASSERT(account);
+
+            account->setName(newsFeedUserData["name"].toString());
         }
 
         //qDebug() << secondList;

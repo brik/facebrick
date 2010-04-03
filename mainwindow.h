@@ -9,9 +9,11 @@ namespace Ui {
 }
 
 class NewsFeedModel;
+class FacebookAccountModel;
 class FBError;
 class FBSession;
 class FBLoginDialog;
+
 #include "fbconnectglobal.h"
 
 class MainWindow : public QMainWindow {
@@ -41,6 +43,7 @@ private:
     FBSession * const m_fbSession;
     FBLoginDialog *m_fbLoginDialog;
     NewsFeedModel * const m_newsFeedModel;
+    FacebookAccountModel * const m_facebookAccountModel;
 };
 
 #endif // MAINWINDOW_H

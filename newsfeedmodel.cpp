@@ -2,6 +2,7 @@
 
 #include "newsfeedmodel.h"
 #include "newsfeedpost.h"
+#include "facebookaccount.h"
 
 NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -40,10 +41,10 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void NewsFeedModel::createNewsItem(FBUID userId, const QString &url, const QString &message)
+void NewsFeedModel::createNewsItem(FacebookAccount *account, const QString &url, const QString &message)
 {
     beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
-    m_posts.append(new NewsFeedPost(this, userId, url, message));
+    m_posts.append(new NewsFeedPost(this, account, url, message));
     endInsertRows();
 }
 

@@ -6,6 +6,7 @@
 #include "fbconnectglobal.h"
 
 class NewsFeedPost;
+class FacebookAccount;
 
 class NewsFeedModel : public QAbstractListModel
 {
@@ -20,7 +21,7 @@ public:
 
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
-    void createNewsItem(FBUID userId, const QString &url, const QString &message);
+    void createNewsItem(FacebookAccount *account, const QString &url, const QString &message);
 private:
     QList<NewsFeedPost *> m_posts;
 };

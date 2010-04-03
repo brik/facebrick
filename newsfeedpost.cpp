@@ -1,8 +1,9 @@
 #include "newsfeedpost.h"
+#include "facebookaccount.h"
 
-NewsFeedPost::NewsFeedPost(QObject *parent, FBUID userId, const QString &url, const QString &message)
+NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &url, const QString &message)
     : QObject(parent),
-    m_userId(userId),
+    m_account(account),
     m_url(url),
     m_message(message)
 {
@@ -18,8 +19,8 @@ const QString &NewsFeedPost::message() const
     return m_message;
 }
 
-const QString NewsFeedPost::author() const
+const QString &NewsFeedPost::author() const
 {
-    return QString::number(m_userId);
+    return m_account->name();
 }
 
