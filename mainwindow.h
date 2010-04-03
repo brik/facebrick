@@ -25,7 +25,6 @@ private slots:
     void on_buttonForget_clicked();
 
     void sessionDidLogin(FBUID);
-    void friendsRequestLoaded(const QVariant&);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
 

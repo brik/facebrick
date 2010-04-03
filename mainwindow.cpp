@@ -96,29 +96,6 @@ void MainWindow::requestFailedWithFacebookError ( const FBError& aError )
     qDebug() << "facebook error is " << aError.code() << " - " << aError.description();
 }
 
-void MainWindow::friendsRequestLoaded(const QVariant& aContainer)
-{
-    /*
-    if (aContainer.type() == QVariant::List)
-    {
-        QVariantList list = aContainer.toList();
-
-        for (int i = 0 ; i < list.count(); i ++)
-        {
-            QVariantHash dictionary = list.at(i).toHash();
-            QHashIterator<QString, QVariant> iterator(dictionary);
-
-            QString name = dictionary.value("name").toString();
-            m_ui->listWidget->addItem(name);
-
-
-        }
-
-        sender()->deleteLater();
-    }
-    */
-}
-
 void MainWindow::newsFeedLoaded(const QVariant &container)
 {
     if (container.type() == QVariant::List) {
