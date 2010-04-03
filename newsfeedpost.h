@@ -15,7 +15,7 @@ public:
 
     const QString &url() const;
     const QString &message() const;
-    const QString &author() const;
+    FacebookAccount *author() const;
 
 private:
     FacebookAccount *m_account;

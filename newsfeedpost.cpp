@@ -19,8 +19,8 @@ const QString &NewsFeedPost::message() const
     return m_message;
 }
 
-const QString &NewsFeedPost::author() const
+FacebookAccount *NewsFeedPost::author() const
 {
-    return m_account->name();
+    return m_account;
 }
 

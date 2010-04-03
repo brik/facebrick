@@ -25,15 +25,19 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     if (index.row() < 0 || index.row() > m_posts.length())
         return QVariant();
 
-    NewsFeedPost *np = NULL;
-
+    NewsFeedPost *np = m_posts[index.row()];
+QSize sz ;
     switch (role) {
+    case Qt::SizeHintRole:
+        return QSize(-1, qMax(np->author()->avatar().height(), 55));
+        break;
     case Qt::DisplayRole:
-        np = m_posts[index.row()];
-        return np->author() + ": " + np->message();
+        return np->author()->name() + ": " + np->message();
+        break;
+    case Qt::DecorationRole:
+        return np->author()->avatar();
         break;
     case NewsFeedModel::UrlRole:
-        np = m_posts[index.row()];
         return np->url();
         break;
     }
