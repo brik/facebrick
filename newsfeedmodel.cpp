@@ -17,10 +17,16 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     if (index.row() < 0 || index.row() > m_posts.length())
         return QVariant();
 
+    NewsFeedPost *np = NULL;
+
     switch (role) {
     case Qt::DisplayRole:
-        NewsFeedPost *np = m_posts[index.row()];
+        np = m_posts[index.row()];
         return np->author() + ": " + np->message();
+        break;
+    case NewsFeedModel::UrlRole:
+        np = m_posts[index.row()];
+        return np->url();
         break;
     }
 

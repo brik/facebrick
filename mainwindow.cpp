@@ -4,6 +4,7 @@
 #include <QtGlobal>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 #include "fbrequest.h"
 #include "fberror.h"
@@ -26,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
+
+    connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
     if (m_fbSession->resume() == false)
     {
@@ -150,7 +153,10 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
     }
 }
 
-
+void MainWindow::newsFeedListClicked(QModelIndex index)
+{
+    QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
+}
 
 void MainWindow::on_buttonForget_clicked()
 {

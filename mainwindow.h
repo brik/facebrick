@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 
 namespace Ui {
     class MainWindow;
@@ -26,6 +27,8 @@ private slots:
     void sessionDidLogin(FBUID);
     void friendsRequestLoaded(const QVariant&);
     void newsFeedLoaded(const QVariant&);
+    void newsFeedListClicked(QModelIndex);
+
     void sessionDidLogout();
 
     void requestFailedWithFacebookError ( const FBError& aError );

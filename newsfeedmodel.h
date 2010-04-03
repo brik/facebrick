@@ -12,6 +12,11 @@ class NewsFeedModel : public QAbstractListModel
 public:
     explicit NewsFeedModel(QObject *parent);
 
+    enum Roles
+    {
+        UrlRole = Qt::UserRole
+    };
+
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
     void createNewsItem(FBUID userId, const QString &url, const QString &message);
