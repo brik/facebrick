@@ -13,13 +13,21 @@ NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    int height = 60;
-
     QSize imageSize = index.data(Qt::DecorationRole).value<QImage>().size();
-    QSize fontSize = option.fontMetrics.boundingRect(option.rect, 0, index.data(Qt::DisplayRole).toString()).size();
-    QSize fontSizeTwo = option.fontMetrics.boundingRect(option.rect, 0, index.data(NewsFeedModel::NameRole).toString()).size();
 
-    return QSize(imageSize.width() + qMax(fontSize.width(), fontSizeTwo.width()) + 20, height);
+    // Left offset of text is imagesize + total padding
+    QRect textRect = option.rect.adjusted(imageSize.width() + 20, 0, 0, 0);
+
+    // Bounding size for name, in bold, at the top
+    QSize fontSize = option.fontMetrics.boundingRect(textRect, Qt::TextWordWrap, index.data(NewsFeedModel::NameRole).toString()).size();
+
+    // Bounding size for message, at the bottom
+    QSize fontSizeTwo = option.fontMetrics.boundingRect(textRect, Qt::TextWordWrap, index.data(Qt::DisplayRole).toString()).size();
+
+    // Max height is both bits of text added
+    int height = fontSize.height() + fontSizeTwo.height();
+
+    return QSize(imageSize.width() + qMax(fontSize.width(), fontSizeTwo.width()) + 20, qMax(height, 60));
 }
 
 void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -31,7 +39,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->drawImage(option.rect.left() + 10, option.rect.top() + 5, img);
 
     // Adjust text to push further right, leave 10px padding either side of the image, plus image width
-    QRect textRect = option.rect.adjusted(20 + img.width(), 5, 0, 0);
+    QRect textRect = option.rect.adjusted(20 + img.width(), 0, 0, 0);
 
     // Set bold
     painter->save();
@@ -43,12 +51,12 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QRect nameTextMetrics;
 
     // Draw name role, saving offset rect for later reuse
-    painter->drawText(textRect, Qt::AlignTop, index.data(NewsFeedModel::NameRole).toString(), &nameTextMetrics);
+    painter->drawText(textRect, Qt::TextWordWrap | Qt::AlignTop, index.data(NewsFeedModel::NameRole).toString(), &nameTextMetrics);
 
     // Reset bold
     painter->restore();
 
     // Move message below name, using calculated offset
     textRect.adjust(0, nameTextMetrics.height(), 0, 0);
-    painter->drawText(textRect, Qt::AlignTop, index.data(Qt::DisplayRole).toString());
+    painter->drawText(textRect, Qt::TextWordWrap | Qt::AlignTop, index.data(Qt::DisplayRole).toString());
 }
