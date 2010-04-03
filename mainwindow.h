@@ -36,7 +36,7 @@ class FBLoginDialog;
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent, FBSession *session);
     ~MainWindow();
 
 
@@ -44,7 +44,6 @@ private slots:
     void onLogoutMenuAction();
     void sendStatusUpdate();
     void statusUpdated(const QVariant &);
-    void sessionDidLogin(FBUID);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
 
@@ -62,7 +61,6 @@ private:
     Ui::MainWindow * const m_ui;
 
     FBSession * const m_fbSession;
-    FBLoginDialog *m_fbLoginDialog;
     NewsFeedModel * const m_newsFeedModel;
     FacebookAccountModel * const m_facebookAccountModel;
 };

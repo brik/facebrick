@@ -16,14 +16,16 @@ SOURCES += main.cpp\
     newsfeedpost.cpp \
     facebookaccountmodel.cpp \
     facebookaccount.cpp \
-    newsfeeddelegate.cpp
+    newsfeeddelegate.cpp \
+    logindialog.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
     newsfeedpost.h \
     facebookaccountmodel.h \
     facebookaccount.h \
-    newsfeeddelegate.h
+    newsfeeddelegate.h \
+    logindialog.h
 
 FORMS    += mainwindow.ui
 

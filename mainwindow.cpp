@@ -36,11 +36,10 @@
 
 static QString UserId;
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow),
-    m_fbSession(FBSession::sessionForApplication("df51def3e750a350ddb961a70b5ab5ab", "3b86a756f77967dea4674f080fa5d345", QString())),
-    m_fbLoginDialog ( NULL ),
+    m_fbSession(session),
     m_newsFeedModel(new NewsFeedModel(this)),
     m_facebookAccountModel(new FacebookAccountModel(this))
 {
@@ -50,23 +49,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
-    connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
-    if (m_fbSession->resume() == false)
-    {
-        m_fbLoginDialog = new FBLoginDialog();
-        m_fbLoginDialog->show();
-    }
+    UserId = QString::number(m_fbSession->uid(), 10);
+
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + UserId + " AND type='newsfeed') AND is_hidden = 0";
+    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
+    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
+    params["queries"] = fql;
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
+    request->call("facebook.fql.multiquery",params);
 }
 
 MainWindow::~MainWindow()
 {
     delete m_ui;
-    if (m_fbLoginDialog)
-        delete m_fbLoginDialog;
     delete m_fbSession;
 }
 
@@ -82,34 +86,10 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::sessionDidLogin(FBUID aUid)
-{
-    UserId = QString::number(aUid,10);
-
-    if (m_fbLoginDialog)
-    {
-        m_fbLoginDialog->deleteLater();;
-        m_fbLoginDialog = NULL;
-    }
-
-    FBRequest* request = FBRequest::request();
-    Dictionary params;
-    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink FROM stream WHERE source_id in (SELECT target_id FROM connection WHERE source_id=" + UserId + " AND is_following=1) AND is_hidden = 0";
-    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
-    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
-    params["queries"] = fql;
-
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-    request->call("facebook.fql.multiquery",params);
-}
-
 void MainWindow::sessionDidLogout()
 {
-    QMessageBox msgbox;
-    msgbox.setText("logged out");
-    msgbox.exec();
+    // TODO: go back to logindialog?
+    QApplication::exit();
 }
 
 void MainWindow::requestFailedWithFacebookError(const FBError &error)
