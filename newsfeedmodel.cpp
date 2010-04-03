@@ -28,14 +28,14 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     NewsFeedPost *np = m_posts[index.row()];
 QSize sz ;
     switch (role) {
-    case Qt::SizeHintRole:
-        return QSize(-1, qMax(np->author()->avatar().height(), 55));
-        break;
     case Qt::DisplayRole:
-        return np->author()->name() + ": " + np->message();
+        return np->message();
         break;
     case Qt::DecorationRole:
         return np->author()->avatar();
+        break;
+    case NewsFeedModel::NameRole:
+        return np->author()->name();
         break;
     case NewsFeedModel::UrlRole:
         return np->url();

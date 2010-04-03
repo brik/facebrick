@@ -11,6 +11,7 @@
 #include "fblogindialog.h"
 #include "fbsession.h"
 
+#include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
 #include "facebookaccountmodel.h"
 #include "facebookaccount.h"
@@ -27,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->postsListView->setModel(m_newsFeedModel);
+    m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     connect (m_fbSession,SIGNAL(sessionDidLogin(FBUID)), this, SLOT(sessionDidLogin(FBUID)));
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));

@@ -17,7 +17,8 @@ public:
 
     enum Roles
     {
-        UrlRole = Qt::UserRole
+        UrlRole = Qt::UserRole,
+        NameRole
     };
 
     int rowCount(const QModelIndex&) const;
