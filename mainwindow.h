@@ -48,6 +48,9 @@ private slots:
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
 
+    void permissionGranted();
+    void permissionDeniedOrCancelled();
+
     void sessionDidLogout();
 
     void requestFailedWithFacebookError ( const FBError& aError );
