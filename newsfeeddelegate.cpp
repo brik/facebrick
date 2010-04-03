@@ -19,6 +19,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QDebug>
+#include <QApplication>
 
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
@@ -49,6 +50,11 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
 
 void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return;
+
+    QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
+
     // Fetch image
     QImage img = index.data(Qt::DecorationRole).value<QImage>();
 
