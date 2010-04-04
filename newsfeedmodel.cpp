@@ -62,12 +62,19 @@ QSize sz ;
     return QVariant();
 }
 
-void NewsFeedModel::createNewsItem(FacebookAccount *account, const QString &url, const QString &message)
+void NewsFeedModel::appendNewsItem(NewsFeedPost * const newsItem)
 {
     beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
-    NewsFeedPost *np = new NewsFeedPost(this, account, url, message);
-    connect(np, SIGNAL(modified()), this, SLOT(onChildModified()));
-    m_posts.append(np);
+    connect(newsItem, SIGNAL(modified()), this, SLOT(onChildModified()));
+    m_posts.append(newsItem);
+    endInsertRows();
+}
+
+void NewsFeedModel::prependNewsItem(NewsFeedPost * const newsItem)
+{
+    beginInsertRows(QModelIndex(), 0, 0);
+    connect(newsItem, SIGNAL(modified()), this, SLOT(onChildModified()));
+    m_posts.prepend(newsItem);
     endInsertRows();
 }
 
@@ -84,4 +91,12 @@ void NewsFeedModel::onChildModified()
             return;
         }
     }
+}
+
+long long NewsFeedModel::newestCreatedTime() const
+{
+    if (m_posts.count() == 0)
+        return 0;
+
+    return m_posts.at(0)->createdTime();
 }

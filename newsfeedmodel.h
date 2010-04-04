@@ -40,7 +40,9 @@ public:
 
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
-    void createNewsItem(FacebookAccount *account, const QString &url, const QString &message);
+    void appendNewsItem(NewsFeedPost * const newsItem);
+    void prependNewsItem(NewsFeedPost * const newsItem);
+    long long newestCreatedTime() const;
 private slots:
     void onChildModified();
 private:

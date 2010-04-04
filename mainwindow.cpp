@@ -18,7 +18,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QtGlobal>
+#include <QTimer>
 #include <QDebug>
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -31,6 +31,7 @@
 
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
+#include "newsfeedpost.h"
 #include "facebookaccountmodel.h"
 #include "facebookaccount.h"
 
@@ -55,17 +56,12 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
 
     UserId = QString::number(m_fbSession->uid(), 10);
 
-    FBRequest* request = FBRequest::request();
-    Dictionary params;
-    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + UserId + " AND type='newsfeed') AND is_hidden = 0";
-    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
-    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
-    params["queries"] = fql;
+    fetchNewsFeed();
 
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-    request->call("facebook.fql.multiquery",params);
+    //QTimer *t = new QTimer(this);
+    //connect(t, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
+    //t->start(5000);
+    connect(m_ui->checkForNewPosts, SIGNAL(clicked()), this, SLOT(fetchNewsFeed()));
 }
 
 MainWindow::~MainWindow()
@@ -130,7 +126,8 @@ void MainWindow::permissionDeniedOrCancelled()
 void MainWindow::newsFeedLoaded(const QVariant &container)
 {
     if (container.type() == QVariant::List) {
-        //qDebug() << container.toList();
+        // TODO: this should really not be needed, just insertItem() and have the model handle inserting/sorting by timestamp.
+        bool prepend = m_newsFeedModel->rowCount(QModelIndex()) != 0;
 
         QVariantList list = container.toList();
 
@@ -146,9 +143,16 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 
             FacebookAccount *account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong());
 
-            m_newsFeedModel->createNewsItem(account,
-                                            newsFeedPostData["permalink"].toString(),
-                                            newsFeedPostData["message"].toString());
+            NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
+                                                account,
+                                                newsFeedPostData["created_time"].toLongLong(),
+                                                newsFeedPostData["permalink"].toString(),
+                                                newsFeedPostData["message"].toString());
+            if (prepend)
+                m_newsFeedModel->prependNewsItem(np);
+            else
+                m_newsFeedModel->appendNewsItem(np);
+
             //QHash<QString, QVariant> messageData = newsFeedPost.toHash();
             //qDebug() << messageData["message"];
         }
@@ -174,11 +178,47 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
         //    qDebug() << "*** END OF ITEM ***";
         //}
     }
+
+    // Tell the newsfeed fetcher about the updated timestamp.
+    fetchNewsFeed(m_newsFeedModel->newestCreatedTime());
 }
 
 void MainWindow::newsFeedListClicked(QModelIndex index)
 {
     QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
+}
+
+void MainWindow::fetchNewsFeed(long long timeStamp)
+{
+    static int lastNewsPost = 0;
+
+    if (timeStamp != -1) {
+        // HACK: I don't really like this. Maybe use a member instead?
+        lastNewsPost = timeStamp;
+        qDebug() << "fetchNewsFeed: lastNewsPost is now " << lastNewsPost;
+        return;
+    }
+
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
+
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + UserId + " AND type='newsfeed') AND is_hidden = 0";
+
+    if (lastNewsPost != 0) {
+        // Fetch all newer posts
+        queryOne += " AND created_time > " + QString::number(lastNewsPost);
+    }
+
+    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
+    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
+    params["queries"] = fql;
+
+    qDebug() << "fetchNewsFeed: Sending " << fql;
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
+    request->call("facebook.fql.multiquery",params);
 }
 
 void MainWindow::onLogoutMenuAction()
@@ -201,4 +241,7 @@ void MainWindow::statusUpdated(const QVariant &)
 {
     qDebug() << "Status updated!";
     m_ui->statusText->setPlainText(QLatin1String(""));
+
+    // Trigger a check for our own post
+    fetchNewsFeed();
 }

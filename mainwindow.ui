@@ -64,6 +64,13 @@
      </layout>
     </item>
     <item>
+     <widget class="QPushButton" name="checkForNewPosts">
+      <property name="text">
+       <string>Check for new posts</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QListView" name="postsListView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

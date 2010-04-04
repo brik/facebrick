@@ -46,6 +46,7 @@ private slots:
     void statusUpdated(const QVariant &);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
+    void fetchNewsFeed(long long timeStamp = -1);
 
     void permissionGranted();
     void permissionDeniedOrCancelled();
