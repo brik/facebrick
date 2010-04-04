@@ -43,7 +43,7 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     NewsFeedPost *np = m_posts[index.row()];
-QSize sz ;
+
     switch (role) {
     case Qt::DisplayRole:
         return np->message();
@@ -61,7 +61,7 @@ QSize sz ;
 
     return QVariant();
 }
-#include <QDebug>
+
 void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
 {
     int i = 0;
@@ -71,8 +71,6 @@ void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
         if (newsItem->createdTime() > m_posts.at(0)->createdTime())
             break;
     }
-
-    qDebug() << "Inserting item at position " << i;
 
     // Insert it to the given index
     beginInsertRows(QModelIndex(), i, i);
