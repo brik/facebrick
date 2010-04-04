@@ -15,10 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-#include <QTimer>
 #include <QDebug>
 
 #include "fbrequest.h"
@@ -32,8 +28,8 @@
 #include "newsfeedpost.h"
 #include "facebookaccountmodel.h"
 #include "facebookaccount.h"
-
-static QString UserId;
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     QMainWindow(parent),
@@ -53,8 +49,6 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
-
-    UserId = QString::number(m_fbSession->uid(), 10);
 
     fetchNewsFeed();
     connect(m_ui->checkForNewPosts, SIGNAL(clicked()), this, SLOT(fetchNewsFeed()));
