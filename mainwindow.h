@@ -50,13 +50,26 @@ private slots:
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
 
+
+    /** Generic error handler
+      * @param error The error that occurred
+      */
+    void requestFailedWithFacebookError(const FBError& error);
+
+    /** Called when a request to elevate permissions fails
+      * @param error Why the request to elevate permissions failed
+      */
+    void permissionRequestFailedWithError(const FBError &error);
+
+    /** Called when request to elevate permissions succeeds
+      */
     void permissionGranted();
+
+    /** Called when request to elevate permissions is denied or cancelled
+      */
     void permissionDeniedOrCancelled();
 
     void sessionDidLogout();
-
-    void requestFailedWithFacebookError ( const FBError& aError );
-
 protected:
     void changeEvent(QEvent *e);
 

@@ -84,41 +84,6 @@ void MainWindow::sessionDidLogout()
     QApplication::exit();
 }
 
-void MainWindow::requestFailedWithFacebookError(const FBError &error)
-{
-    qDebug() << "facebook error is " << error.code() << " - " << error.description();
-
-    // If it's a permissions error, request permission.
-    if (error.code() == 250) {
-        // Find permission requested
-        // XXX: is there any easier way to do this?
-        QString permission = error.description().split(QChar(' ')).last();
-        qDebug() << "About to request " << permission;
-
-        // XXX: Deallocated in the slots. This isn't a good way to do MM, come up with a better design :(
-        // XXX: the error condition (dialogDidFailWithError()) in particular currently leaks, and might recurse - not good.
-        FBPermissionDialog *d = new FBPermissionDialog(this->m_fbSession);
-        connect(d, SIGNAL(dialogDidSucceed()), this, SLOT(permissionGranted()));
-        connect(d, SIGNAL(dialogDidCancel()), this, SLOT(permissionDeniedOrCancelled()));
-        connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-        d->setPermissionToRequest(permission);
-        d->load();
-        d->show();
-    }
-}
-
-void MainWindow::permissionGranted()
-{
-    qDebug() << "Permission granted";
-    sender()->deleteLater();
-}
-
-void MainWindow::permissionDeniedOrCancelled()
-{
-    qDebug() << "Permission denied";
-    sender()->deleteLater();
-}
-
 void MainWindow::onLogoutMenuAction()
 {
     m_fbSession->logout();
