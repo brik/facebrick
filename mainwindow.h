@@ -44,9 +44,11 @@ private slots:
     void onLogoutMenuAction();
     void sendStatusUpdate();
     void statusUpdated(const QVariant &);
+
+    void fetchNewsFeed();
+    void newsFeedLoadingError(const FBError &error);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
-    void fetchNewsFeed(long long timeStamp = -1);
 
     void permissionGranted();
     void permissionDeniedOrCancelled();
@@ -64,6 +66,8 @@ private:
     FBSession * const m_fbSession;
     NewsFeedModel * const m_newsFeedModel;
     FacebookAccountModel * const m_facebookAccountModel;
+    bool m_updatingNewsFeed;
+    long long m_lastUpdatedNewsFeed;
 };
 
 #endif // MAINWINDOW_H

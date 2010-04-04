@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     facebookaccountmodel.cpp \
     facebookaccount.cpp \
     newsfeeddelegate.cpp \
-    logindialog.cpp
+    logindialog.cpp \
+    mainwindow_newsfeed.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
