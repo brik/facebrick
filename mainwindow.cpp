@@ -57,10 +57,6 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     UserId = QString::number(m_fbSession->uid(), 10);
 
     fetchNewsFeed();
-
-    //QTimer *t = new QTimer(this);
-    //connect(t, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
-    //t->start(5000);
     connect(m_ui->checkForNewPosts, SIGNAL(clicked()), this, SLOT(fetchNewsFeed()));
 }
 
@@ -132,45 +128,32 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
         foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
             QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
 
-            // Available fields:
-            // message, target_id, post_id, actor_id, permalink
-            qDebug() << newsFeedPostData["actor_id"] << " said: "
-                    << newsFeedPostData["message"]
-                    << " at " << newsFeedPostData["permalink"];
-
+            // Fetch (or create) the account that made this newsfeed post
             FacebookAccount *account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong());
+            Q_ASSERT(account);
 
+            // Create a new newsfeed post
             NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
                                                 account,
                                                 newsFeedPostData["created_time"].toLongLong(),
                                                 newsFeedPostData["permalink"].toString(),
                                                 newsFeedPostData["message"].toString());
-            m_newsFeedModel->insertNewsItem(np);
+            Q_ASSERT(np);
 
-            //QHash<QString, QVariant> messageData = newsFeedPost.toHash();
-            //qDebug() << messageData["message"];
+            // Seed it into the model
+            m_newsFeedModel->insertNewsItem(np);
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
             QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
-            qDebug() << newsFeedUserData;
 
-            // Available fields:
-            // name,pic_big, status,birthday_date, timezone
+            // Get (or create - though this should have already been done above) the account
             FacebookAccount *account = m_facebookAccountModel->account(newsFeedUserData["id"].toLongLong());
             Q_ASSERT(account);
 
             account->setName(newsFeedUserData["name"].toString());
             account->setAvatar(newsFeedUserData["pic_square"].toString());
         }
-
-        //qDebug() << secondList;
-
-        // Item #1 will be our result set on user details
-        //for (int i = 0; i < list.length(); ++i) {
-        //    qDebug() << list.at(i);
-        //    qDebug() << "*** END OF ITEM ***";
-        //}
     }
 
     // Tell the newsfeed fetcher about the updated timestamp.
@@ -195,15 +178,16 @@ void MainWindow::fetchNewsFeed(long long timeStamp)
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
-    //QString query = "select name,pic_big, status,birthday_date, timezone from user where uid in (select uid2 from friend where uid1==" +UserId+ ")";
 
+    // Query to fetch news posts
     QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + UserId + " AND type='newsfeed') AND is_hidden = 0";
 
     if (lastNewsPost != 0) {
-        // Fetch all newer posts
+        // Fetch all posts newer than the ones we have now
         queryOne += " AND created_time > " + QString::number(lastNewsPost);
     }
 
+    // Fetch all people that made these posts, combine them into a single FQL multiquery
     QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
     QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
     params["queries"] = fql;
