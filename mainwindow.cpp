@@ -15,6 +15,7 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QTimer>
 #include <QDebug>
 
 #include "fbrequest.h"
@@ -52,6 +53,10 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
 
     fetchNewsFeed();
     connect(m_ui->checkForNewPosts, SIGNAL(clicked()), this, SLOT(fetchNewsFeed()));
+
+    QTimer *newsFeedRefreshTimer = new QTimer(this);
+    connect(newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
+    newsFeedRefreshTimer->start(300000 /* 5 minutes */);
 }
 
 MainWindow::~MainWindow()
