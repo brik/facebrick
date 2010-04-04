@@ -40,8 +40,7 @@ public:
 
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
-    void appendNewsItem(NewsFeedPost * const newsItem);
-    void prependNewsItem(NewsFeedPost * const newsItem);
+    void insertNewsItem(NewsFeedPost * const newsItem);
     long long newestCreatedTime() const;
 private slots:
     void onChildModified();

@@ -126,9 +126,6 @@ void MainWindow::permissionDeniedOrCancelled()
 void MainWindow::newsFeedLoaded(const QVariant &container)
 {
     if (container.type() == QVariant::List) {
-        // TODO: this should really not be needed, just insertItem() and have the model handle inserting/sorting by timestamp.
-        bool prepend = m_newsFeedModel->rowCount(QModelIndex()) != 0;
-
         QVariantList list = container.toList();
 
         // Item #0 will be our result set on news items
@@ -148,10 +145,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
                                                 newsFeedPostData["created_time"].toLongLong(),
                                                 newsFeedPostData["permalink"].toString(),
                                                 newsFeedPostData["message"].toString());
-            if (prepend)
-                m_newsFeedModel->prependNewsItem(np);
-            else
-                m_newsFeedModel->appendNewsItem(np);
+            m_newsFeedModel->insertNewsItem(np);
 
             //QHash<QString, QVariant> messageData = newsFeedPost.toHash();
             //qDebug() << messageData["message"];

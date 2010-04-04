@@ -61,20 +61,22 @@ QSize sz ;
 
     return QVariant();
 }
-
-void NewsFeedModel::appendNewsItem(NewsFeedPost * const newsItem)
+#include <QDebug>
+void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
 {
-    beginInsertRows(QModelIndex(), m_posts.length(), m_posts.length());
-    connect(newsItem, SIGNAL(modified()), this, SLOT(onChildModified()));
-    m_posts.append(newsItem);
-    endInsertRows();
-}
+    int i = 0;
 
-void NewsFeedModel::prependNewsItem(NewsFeedPost * const newsItem)
-{
-    beginInsertRows(QModelIndex(), 0, 0);
-    connect(newsItem, SIGNAL(modified()), this, SLOT(onChildModified()));
-    m_posts.prepend(newsItem);
+    // Find the correct place to insert it
+    for (; i < m_posts.count(); ++i) {
+        if (newsItem->createdTime() > m_posts.at(0)->createdTime())
+            break;
+    }
+
+    qDebug() << "Inserting item at position " << i;
+
+    // Insert it to the given index
+    beginInsertRows(QModelIndex(), i, i);
+    m_posts.insert(i, newsItem);
     endInsertRows();
 }
 
