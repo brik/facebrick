@@ -56,6 +56,12 @@ const QImage &FacebookAccount::avatar() const
 
 void FacebookAccount::setAvatar(const QUrl &url)
 {
+    if (m_avatarUrl == url.toString()) {
+        // Don't bother with a network request to fetch the same file
+        return;
+    }
+
+    m_avatarUrl = url.toString();
     QNetworkRequest request(url);
     m_networkaccessmgr.get(request);
 

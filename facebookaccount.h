@@ -45,6 +45,7 @@ private slots:
 private:
     FBUID m_uid;
     QString m_name;
+    QString m_avatarUrl;
     QImage m_avatar;
     QNetworkAccessManager m_networkaccessmgr;
 };
