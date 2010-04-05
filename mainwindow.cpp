@@ -48,14 +48,20 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     m_ui->postsListView->setModel(m_newsFeedModel);
     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
+    // Menu
+    connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
+
+    // Status
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
+
+    // Session
     connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
+    // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
     fetchNewsFeed();
-    connect(m_ui->checkForNewPosts, SIGNAL(clicked()), this, SLOT(fetchNewsFeed()));
 
     QTimer *newsFeedRefreshTimer = new QTimer(this);
     connect(newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));

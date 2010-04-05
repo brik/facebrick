@@ -64,13 +64,6 @@
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="checkForNewPosts">
-      <property name="text">
-       <string>Check for new posts</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QListView" name="postsListView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -95,6 +88,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Synchronise"/>
     <addaction name="action_Logout"/>
    </widget>
    <addaction name="menu_File"/>
@@ -102,6 +96,11 @@
   <action name="action_Logout">
    <property name="text">
     <string>&amp;Logout</string>
+   </property>
+  </action>
+  <action name="action_Synchronise">
+   <property name="text">
+    <string>&amp;Synchronise</string>
    </property>
   </action>
  </widget>
