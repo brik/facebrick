@@ -20,6 +20,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QApplication>
+#include <QTextLayout>
 
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
@@ -29,29 +30,51 @@ NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
 {
 }
 
+NewsFeedDelegate::~NewsFeedDelegate()
+{
+    m_laidOutText.clear();
+}
+
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QSize imageSize = index.data(Qt::DecorationRole).value<QImage>().size();
 
-    // Left offset of text is imagesize + total padding
-    QRect textRect = option.rect.adjusted(imageSize.width() + 20, 0, 0, 0);
+    if (m_delegateSize.width() != option.rect.size().width()) {
+        // Clear layout cache; the view has changed size.
+        m_laidOutText.clear();
+        m_delegateSize = option.rect.size();
+    }
 
-    // Bounding size for name, in bold, at the top
-    QSize fontSize = option.fontMetrics.boundingRect(textRect, Qt::TextWordWrap, index.data(NewsFeedModel::NameRole).toString()).size();
-
-    // Bounding size for message, at the bottom
-    QSize fontSizeTwo = option.fontMetrics.boundingRect(textRect, Qt::TextWordWrap, index.data(Qt::DisplayRole).toString()).size();
+    // Layout name and newsfeed text
+    bool layoutNameRequiresInsert = false;
+    bool layoutTextRequiresInsert = false;
+    QTextLayout *layoutName = getTextLayout(index.data(NewsFeedModel::NameRole).toString(), option, layoutNameRequiresInsert, true);
+    QTextLayout *layoutText = getTextLayout(index.data((Qt::DisplayRole)).toString(), option, layoutTextRequiresInsert, false);
 
     // Max height is both bits of text added
-    int height = fontSize.height() + fontSizeTwo.height();
+    int height = layoutName->boundingRect().height() + layoutText->boundingRect().height();
 
-    return QSize(imageSize.width() + qMax(fontSize.width(), fontSizeTwo.width()) + 20, qMax(height, 60));
+    QSize s(imageSize.width() + qMax(layoutName->boundingRect().width(), layoutText->boundingRect().width()) + 20,
+                 qMax(height, 60));
+
+    // done with items - cache them. don't use them after this as they might go away suddenly!
+    if (layoutNameRequiresInsert)
+        insertLayoutIntoCache(layoutName->text(), layoutName);
+    if (layoutTextRequiresInsert)
+        insertLayoutIntoCache(layoutText->text(), layoutText);
+
+    return s;
 }
 
 void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     if (!index.isValid())
         return;
+
+    bool layoutNameRequiresInsert = false;
+    bool layoutTextRequiresInsert = false;
+    QTextLayout *layoutName = getTextLayout(index.data(NewsFeedModel::NameRole).toString(), option, layoutNameRequiresInsert, true);
+    QTextLayout *layoutText = getTextLayout(index.data((Qt::DisplayRole)).toString(), option, layoutTextRequiresInsert, false);
 
     QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
 
@@ -61,25 +84,79 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     // Draw 10px from left
     painter->drawImage(option.rect.left() + 10, option.rect.top() + 5, img);
 
-    // Adjust text to push further right, leave 10px padding either side of the image, plus image width
-    QRect textRect = option.rect.adjusted(20 + img.width(), 0, 0, 0);
-
-    // Set bold
-    painter->save();
-    QFont f = painter->font();
-    f.setBold(true);
-    painter->setFont(f);
-
-    // Calculate offset for name role
-    QRect nameTextMetrics;
-
     // Draw name role, saving offset rect for later reuse
-    painter->drawText(textRect, Qt::TextWordWrap | Qt::AlignTop, index.data(NewsFeedModel::NameRole).toString(), &nameTextMetrics);
-
-    // Reset bold
-    painter->restore();
+    layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
 
     // Move message below name, using calculated offset
-    textRect.adjust(0, nameTextMetrics.height(), 0, 0);
-    painter->drawText(textRect, Qt::TextWordWrap | Qt::AlignTop, index.data(Qt::DisplayRole).toString());
+    layoutText->draw(painter, QPointF(option.rect.left(), option.rect.top() + layoutName->boundingRect().height() /* TODO: space between lines? */));
+
+    // done with items - cache them. don't use them after this as they might go away suddenly!
+    if (layoutNameRequiresInsert)
+        insertLayoutIntoCache(layoutName->text(), layoutName);
+    if (layoutTextRequiresInsert)
+        insertLayoutIntoCache(layoutText->text(), layoutText);
+}
+
+QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOptionViewItem &option, bool &created, bool requiresBold) const
+{
+    // Shortcut: return cached item
+    if (QTextLayout *layout = m_laidOutText.object(text)) {
+        qDebug() << "NewsFeedDelegate::cacheAndReturn: returning hit for " << text;
+        created = false;
+        return layout;
+    }
+
+    qDebug() << "NewsFeedDelegate::cacheAndReturn: laying out " << text;
+
+    // Long way around: create our new layout
+    QTextLayout *layout = new QTextLayout(text);
+    QFont font = option.font;
+
+    // TODO: technically, there is a small bug possible here.
+    // if we have one piece of text created with requiresBold, added to the cache, and later on, someone else comes along and requests
+    // the same text without bold, we'll (erroneously) return the cached bolded text.
+    // we should probably come up with a better QCache key than the text itself.
+    if (requiresBold)
+        font.setBold(true);
+
+    // Now lay it out
+    int leading = QFontMetrics(font).leading();
+    int height = 0;
+    qreal widthUsed = 0;
+
+    layout->setFont(font);
+
+    layout->beginLayout();
+
+    while (1) {
+        QTextLine line = layout->createLine();
+        if (!line.isValid())
+            break;
+
+        line.setLineWidth(option.rect.width() - (20 + 50) /* XXX: hardcoded 20px padding, 50px img width, BAD! */);
+        height += leading;
+        // 20+50 is padding+imgwidth again.. sigh
+        line.setPosition(QPointF(20 + 50, height));
+        height += line.height();
+        widthUsed = qMax(widthUsed, line.naturalTextWidth());
+    }
+
+    // phew.
+    layout->endLayout();
+
+    created = true;
+
+    return layout;
+}
+
+// note: cache insertion is handled seperately because QCache will get pissy on us and delete items that are too big
+// *or* if we're inserting multiple items, and one is large, it might delete one of the earlier ones before we're done with it.
+// either situation is subtle, and very ouch.
+void NewsFeedDelegate::insertLayoutIntoCache(const QString &text, QTextLayout *layout) const
+{
+    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: caching layout for " << text;
+    // text.length() approximates cost, QTL doesn't give us any easy way to determine this
+    m_laidOutText.insert(text, layout, text.length());
+
+    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: cost of cached item is " << text.length();
 }

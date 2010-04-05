@@ -19,14 +19,24 @@
 #define NEWSFEEDDELEGATE_H
 
 #include <QStyledItemDelegate>
+#include <QCache>
+
+class QTextLayout;
 
 class NewsFeedDelegate : public QStyledItemDelegate
 {
 public:
     NewsFeedDelegate(QObject *parent);
+    virtual ~NewsFeedDelegate();
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+private:
+    mutable QCache<QString, QTextLayout> m_laidOutText;
+    mutable QSize m_delegateSize;
+
+    QTextLayout *getTextLayout(const QString &text, const QStyleOptionViewItem &option, bool &created, bool requiresBold) const;
+    void insertLayoutIntoCache(const QString &text, QTextLayout *layout) const;
 };
 
 #endif // NEWSFEEDDELEGATE_H
