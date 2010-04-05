@@ -36,6 +36,8 @@ void MainWindow::sendStatusUpdate()
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
 #endif
+    m_ui->updateStatusButton->setEnabled(false);
+    m_ui->statusText->setEnabled(false);
 }
 
 void MainWindow::statusUpdateError(const FBError &error)
@@ -43,6 +45,8 @@ void MainWindow::statusUpdateError(const FBError &error)
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+    m_ui->updateStatusButton->setEnabled(true);
+    m_ui->statusText->setEnabled(true);
 
     // Pass to generic error handler
     requestFailedWithFacebookError(error);
@@ -53,6 +57,8 @@ void MainWindow::statusUpdated(const QVariant &)
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+    m_ui->updateStatusButton->setEnabled(true);
+    m_ui->statusText->setEnabled(true);
 
     qDebug() << "Status updated!";
     m_ui->statusText->setPlainText(QLatin1String(""));
