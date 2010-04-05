@@ -41,6 +41,9 @@ void MainWindow::fetchNewsFeed()
     }
 
     m_updatingNewsFeed = true;
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
@@ -67,12 +70,18 @@ void MainWindow::fetchNewsFeed()
 
 void MainWindow::newsFeedLoadingError(const FBError &error)
 {
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
     m_updatingNewsFeed = false;
     requestFailedWithFacebookError(error);
 }
 
 void MainWindow::newsFeedLoaded(const QVariant &container)
 {
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
     m_updatingNewsFeed = false;
 
     if (container.type() == QVariant::List) {
