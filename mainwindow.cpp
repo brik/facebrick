@@ -90,23 +90,3 @@ void MainWindow::onLogoutMenuAction()
 {
     m_fbSession->logout();
 }
-
-void MainWindow::sendStatusUpdate()
-{
-    FBRequest* request = FBRequest::request();
-    Dictionary params;
-    params["status"] = m_ui->statusText->toPlainText();
-
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(statusUpdated(QVariant)));
-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(requestFailedWithFacebookError(FBError)));
-    request->call("Status.set",params);
-}
-
-void MainWindow::statusUpdated(const QVariant &)
-{
-    qDebug() << "Status updated!";
-    m_ui->statusText->setPlainText(QLatin1String(""));
-
-    // Trigger a check for our own post
-    fetchNewsFeed();
-}

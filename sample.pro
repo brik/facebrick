@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     newsfeeddelegate.cpp \
     logindialog.cpp \
     mainwindow_newsfeed.cpp \
-    mainwindow_errorhandling.cpp
+    mainwindow_errorhandling.cpp \
+    mainwindow_statusupdate.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \

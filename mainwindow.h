@@ -42,7 +42,9 @@ public:
 
 private slots:
     void onLogoutMenuAction();
+
     void sendStatusUpdate();
+    void statusUpdateError(const FBError &error);
     void statusUpdated(const QVariant &);
 
     void fetchNewsFeed();
