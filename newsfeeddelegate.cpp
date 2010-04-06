@@ -60,6 +60,17 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     QSize s(imageSize.width() + qMax(nameRect.width(), textRect.width()) + 20,
                  qMax(height, 60));
 
+#ifdef Q_WS_MAEMO_5
+    if (QApplication::style()->inherits("QMaemo5Style")) {
+        // QMaemo5Style is *really* slow at drawing listview items != 70px tall.
+        // We partially get around this here by forcing smaller items to become bigger -
+        // this looks no visually different on Maemo but gives us a big performance gain.
+        if (s.height() < 70)
+            s.setHeight(70);
+    }
+#endif
+
+
     // done with items - cache them. don't use them after this as they might go away suddenly!
     if (layoutNameRequiresInsert)
         insertLayoutIntoCache(layoutName->text(), layoutName);
@@ -79,7 +90,24 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QTextLayout *layoutName = getTextLayout(index.data(NewsFeedModel::NameRole).toString(), option, layoutNameRequiresInsert, true);
     QTextLayout *layoutText = getTextLayout(index.data((Qt::DisplayRole)).toString(), option, layoutTextRequiresInsert, false);
 
-    QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
+    bool drawPrimitive = true;
+    if (!(option.state & QStyle::State_Selected)) {
+#ifdef Q_WS_MAEMO_5
+        if (QApplication::style()->inherits("QMaemo5Style")) {
+            // QMaemo5Style is *really* slow at drawing listview items != 70px tall.
+            // We partially get around this here by drawing unselected state ourselves.
+            // This isn't exactly best practice, but hey, it works.
+            drawPrimitive = false;
+            painter->save();
+            painter->setPen(QColor(0x00, 0x20, 0x35));
+            painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+            painter->restore();
+        }
+#endif
+    }
+
+    if (drawPrimitive)
+        QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
 
     // Fetch image
     QPixmap img = index.data(Qt::DecorationRole).value<QPixmap>();
