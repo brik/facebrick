@@ -33,6 +33,7 @@ NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
 NewsFeedDelegate::~NewsFeedDelegate()
 {
     m_laidOutText.clear();
+    m_laidOutText.setMaxCost(40);
 }
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -155,8 +156,7 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
 void NewsFeedDelegate::insertLayoutIntoCache(const QString &text, QTextLayout *layout) const
 {
     qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: caching layout for " << text;
-    // text.length() approximates cost, QTL doesn't give us any easy way to determine this
-    m_laidOutText.insert(text, layout, text.length());
+    m_laidOutText.insert(text, layout);
 
-    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: cost of cached item is " << text.length();
+    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: item cache now contains " << m_laidOutText.count() << " items";
 }
