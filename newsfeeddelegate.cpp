@@ -121,12 +121,10 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
         font.setBold(true);
 
     // Now lay it out
-    int leading = QFontMetrics(font).leading();
     int height = 0;
     qreal widthUsed = 0;
 
     layout->setFont(font);
-
     layout->beginLayout();
 
     while (1) {
@@ -135,7 +133,6 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
             break;
 
         line.setLineWidth(option.rect.width() - (20 + 50) /* XXX: hardcoded 20px padding, 50px img width, BAD! */);
-        height += leading;
         // 20+50 is padding+imgwidth again.. sigh
         line.setPosition(QPointF(20 + 50, height));
         height += line.height();
@@ -144,7 +141,6 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
 
     // phew.
     layout->endLayout();
-
     created = true;
 
     return layout;
