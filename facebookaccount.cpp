@@ -49,7 +49,7 @@ void FacebookAccount::setName(const QString &name)
     emit modified();
 }
 
-const QImage &FacebookAccount::avatar() const
+const QPixmap &FacebookAccount::avatar() const
 {
     return m_avatar;
 }
@@ -71,7 +71,7 @@ void FacebookAccount::setAvatar(const QUrl &url)
 void FacebookAccount::onAvatarDownloaded(QNetworkReply *reply)
 {
     qDebug() << "Avatar recieved for " << m_uid;
-    m_avatar = QImage::fromData(reply->readAll());
+    m_avatar = QPixmap::fromImage(QImage::fromData(reply->readAll()));
 
     reply->deleteLater();
     emit modified();

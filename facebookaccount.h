@@ -20,7 +20,7 @@
 
 #include <QObject>
 #include <QUrl>
-#include <QImage>
+#include <QPixmap>
 #include <QNetworkAccessManager>
 
 #include "fbconnectglobal.h"
@@ -36,7 +36,7 @@ public:
     FBUID uid() const;
     const QString &name() const;
     void setName(const QString &name);
-    const QImage &avatar() const;
+    const QPixmap &avatar() const;
     void setAvatar(const QUrl &url);
 signals:
     void modified();
@@ -46,7 +46,7 @@ private:
     FBUID m_uid;
     QString m_name;
     QString m_avatarUrl;
-    QImage m_avatar;
+    QPixmap m_avatar;
     QNetworkAccessManager m_networkaccessmgr;
 };
 

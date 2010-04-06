@@ -16,7 +16,7 @@
  */
 
 #include <QStyledItemDelegate>
-#include <QImage>
+#include <QPixmap>
 #include <QPainter>
 #include <QDebug>
 #include <QApplication>
@@ -38,7 +38,7 @@ NewsFeedDelegate::~NewsFeedDelegate()
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QSize imageSize = index.data(Qt::DecorationRole).value<QImage>().size();
+    QSize imageSize = index.data(Qt::DecorationRole).value<QPixmap>().size();
 
     if (m_delegateSize.width() != option.rect.size().width()) {
         // Clear layout cache; the view has changed size.
@@ -80,10 +80,10 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
 
     // Fetch image
-    QImage img = index.data(Qt::DecorationRole).value<QImage>();
+    QPixmap img = index.data(Qt::DecorationRole).value<QPixmap>();
 
     // Draw 10px from left
-    painter->drawImage(option.rect.left() + 10, option.rect.top() + 5, img);
+    painter->drawPixmap(option.rect.left() + 10, option.rect.top() + 5, img);
 
     // Draw name role, saving offset rect for later reuse
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
