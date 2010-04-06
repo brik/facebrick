@@ -23,6 +23,7 @@
 
 #include "fbrequest.h"
 #include "fbsession.h"
+#include "fberror.h"
 
 #include "facebookaccount.h"
 #include "facebookaccountmodel.h"

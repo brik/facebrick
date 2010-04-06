@@ -21,6 +21,7 @@
 #endif
 
 #include "fbrequest.h"
+#include "fberror.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
