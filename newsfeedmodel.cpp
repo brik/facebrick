@@ -72,6 +72,8 @@ void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
             break;
     }
 
+    connect(newsItem, SIGNAL(modified()), SLOT(onChildModified()));
+
     // Insert it to the given index
     beginInsertRows(QModelIndex(), i, i);
     m_posts.insert(i, newsItem);
