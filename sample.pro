@@ -6,6 +6,10 @@
 
 QT       += network webkit xml
 
+maemo5:* {
+    QT += maemo5
+}
+
 TARGET = sample
 TEMPLATE = app
 DESTDIR = ../debug
