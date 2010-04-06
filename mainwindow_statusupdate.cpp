@@ -31,7 +31,7 @@ void MainWindow::sendStatusUpdate()
 {
     FBRequest* request = FBRequest::request();
     Dictionary params;
-    params["status"] = m_ui->statusText->toPlainText();
+    params["status"] = m_ui->statusText->text();
 
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(statusUpdated(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(statusUpdateError(FBError)));
@@ -66,7 +66,7 @@ void MainWindow::statusUpdated(const QVariant &)
     m_ui->statusText->setEnabled(true);
 
     qDebug() << "Status updated!";
-    m_ui->statusText->setPlainText(QLatin1String(""));
+    m_ui->statusText->setText(QLatin1String(""));
 
     // Trigger a check for our own post
     fetchNewsFeed();
