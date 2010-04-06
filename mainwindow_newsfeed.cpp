@@ -18,7 +18,7 @@
 #include <QDesktopServices>
 #include <QDebug>
 #ifdef Q_WS_MAEMO_5
-#include <QMaemo5InformationBox>
+#include <QtMaemo5/QMaemo5InformationBox>
 #endif
 
 #include "fbrequest.h"
