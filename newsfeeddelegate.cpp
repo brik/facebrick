@@ -102,12 +102,12 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
 {
     // Shortcut: return cached item
     if (QTextLayout *layout = m_laidOutText.object(text)) {
-        qDebug() << "NewsFeedDelegate::cacheAndReturn: returning hit for " << text;
+        //qDebug() << "NewsFeedDelegate::cacheAndReturn: returning hit for " << text;
         created = false;
         return layout;
     }
 
-    qDebug() << "NewsFeedDelegate::cacheAndReturn: laying out " << text;
+    //qDebug() << "NewsFeedDelegate::cacheAndReturn: laying out " << text;
 
     // Long way around: create our new layout
     QTextLayout *layout = new QTextLayout(text);
@@ -155,8 +155,7 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
 // either situation is subtle, and very ouch.
 void NewsFeedDelegate::insertLayoutIntoCache(const QString &text, QTextLayout *layout) const
 {
-    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: caching layout for " << text;
+    //qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: caching layout for " << text;
     m_laidOutText.insert(text, layout);
-
-    qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: item cache now contains " << m_laidOutText.count() << " items";
+    //qDebug() << "NewsFeedDelegate::insertLayoutIntoCache: item cache now contains " << m_laidOutText.count() << " items";
 }
