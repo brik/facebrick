@@ -24,7 +24,11 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QLineEdit" name="statusText"/>
+       <widget class="QLineEdit" name="statusText">
+        <property name="inputMethodHints">
+         <set>Qt::ImhNoAutoUppercase</set>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="updateStatusButton">
