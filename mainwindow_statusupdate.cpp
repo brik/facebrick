@@ -16,6 +16,9 @@
  */
 
 #include <QDebug>
+#ifdef Q_WS_MAEMO_5
+#include <QMaemo5InformationBox>
+#endif
 
 #include "fbrequest.h"
 
@@ -44,12 +47,13 @@ void MainWindow::statusUpdateError(const FBError &error)
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("Error updating status: %1 (%2)").arg(error.code()).arg(error.description()));
 #endif
     m_ui->updateStatusButton->setEnabled(true);
     m_ui->statusText->setEnabled(true);
 
     // Pass to generic error handler
-    requestFailedWithFacebookError(error);
+    requestFailedWithFacebookError(error, true);
 }
 
 void MainWindow::statusUpdated(const QVariant &)

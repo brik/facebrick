@@ -56,7 +56,7 @@ private slots:
     /** Generic error handler
       * @param error The error that occurred
       */
-    void requestFailedWithFacebookError(const FBError& error);
+    void requestFailedWithFacebookError(const FBError& error, bool handled = false);
 
     /** Called when a request to elevate permissions fails
       * @param error Why the request to elevate permissions failed

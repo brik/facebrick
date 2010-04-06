@@ -17,6 +17,9 @@
 
 #include <QDesktopServices>
 #include <QDebug>
+#ifdef Q_WS_MAEMO_5
+#include <QMaemo5InformationBox>
+#endif
 
 #include "fbrequest.h"
 #include "fbsession.h"
@@ -72,9 +75,10 @@ void MainWindow::newsFeedLoadingError(const FBError &error)
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
 #endif
     m_updatingNewsFeed = false;
-    requestFailedWithFacebookError(error);
+    requestFailedWithFacebookError(error, true);
 }
 
 void MainWindow::newsFeedLoaded(const QVariant &container)

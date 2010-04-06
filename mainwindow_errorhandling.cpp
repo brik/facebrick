@@ -16,13 +16,16 @@
  */
 
 #include <QDebug>
+#ifdef Q_WS_MAEMO_5
+#include <QMaemo5InformationBox>
+#endif
 
 #include "fberror.h"
 #include "fbpermissiondialog.h"
 
 #include "mainwindow.h"
 
-void MainWindow::requestFailedWithFacebookError(const FBError &error)
+void MainWindow::requestFailedWithFacebookError(const FBError &error, bool handled)
 {
     qDebug() << "facebook error is " << error.code() << " - " << error.description();
 
@@ -41,11 +44,19 @@ void MainWindow::requestFailedWithFacebookError(const FBError &error)
         d->setPermissionToRequest(permission);
         d->load();
         d->show();
+    } else if (!handled) {
+        // If it wasn't handled elsewhere, let the user know
+#ifdef Q_WS_MAEMO_5
+        QMaemo5InformationBox::information(this, tr("Facebook error: %1 (%2)").arg(error.code()).arg(error.description()));
+#endif
     }
 }
 
 void MainWindow::permissionRequestFailedWithError(const FBError &error)
 {
+#ifdef Q_WS_MAEMO_5
+    QMaemo5InformationBox::information(this, tr("Error requesting Facebook permission: %1 (%2)").arg(error.code()).arg(error.description()));
+#endif
     qDebug() << "Permission request failed! Error code: " << error.code() << ": " << error.description();
     sender()->deleteLater();
 
