@@ -112,7 +112,7 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
     //qDebug() << "NewsFeedDelegate::cacheAndReturn: laying out " << text;
 
     // Long way around: create our new layout
-    QTextLayout *layout = new QTextLayout(text);
+    QTextLayout *layout = new QTextLayout(text, option.font);
     QFont font = option.font;
 
     // TODO: technically, there is a small bug possible here.
@@ -124,7 +124,6 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
 
     // Now lay it out
     int height = 0;
-    qreal widthUsed = 0;
 
     layout->setFont(font);
     layout->beginLayout();
@@ -138,7 +137,6 @@ QTextLayout *NewsFeedDelegate::getTextLayout(const QString &text, const QStyleOp
         // 20+50 is padding+imgwidth again.. sigh
         line.setPosition(QPointF(20 + 50, height));
         height += line.height();
-        widthUsed = qMax(widthUsed, line.naturalTextWidth());
     }
 
     // phew.
