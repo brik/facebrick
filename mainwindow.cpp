@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     m_updatingNewsFeed(false),
     m_lastUpdatedNewsFeed(0)
 {
+    setWindowTitle(QLatin1String("FaceBrick"));
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 #endif
