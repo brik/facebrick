@@ -53,9 +53,11 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     QTextLayout *layoutText = getTextLayout(index.data((Qt::DisplayRole)).toString(), option, layoutTextRequiresInsert, false);
 
     // Max height is both bits of text added
-    int height = layoutName->boundingRect().height() + layoutText->boundingRect().height();
+    QRectF nameRect = layoutName->boundingRect();
+    QRectF textRect = layoutText->boundingRect();
+    int height = nameRect.height() + textRect.height();
 
-    QSize s(imageSize.width() + qMax(layoutName->boundingRect().width(), layoutText->boundingRect().width()) + 20,
+    QSize s(imageSize.width() + qMax(nameRect.width(), textRect.width()) + 20,
                  qMax(height, 60));
 
     // done with items - cache them. don't use them after this as they might go away suddenly!
