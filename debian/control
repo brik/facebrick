@@ -1,0 +1,44 @@
+Source: facebrick
+Section: user/other 
+Priority: optional
+Maintainer: Robin Burchell <viroteck@viroteck.net>
+Build-Depends: debhelper (>= 5), libqt4-dev
+Standards-Version: 3.7.2
+
+Package: facebrick
+Architecture: any
+Depends: libqt4-maemo5-gui, libqt4-maemo5-xmlpatterns, libqt4-maemo5-xml, libqt4-maemo5-webkit, libqt4-maemo5-network, libqt4-maemo5-maemo5, libc6 (>= 2.5.0-1), libgcc1 (>= 1:4.2.1), libstdc++6 (>= 4.2.1), libqfacebook
+Description: A Maemo Facebook client.
+ A Maemo Facebook client offering a rich
+ UI experience/integration with Maemo features.
+ .
+ Further Information: blog.rburchell.com
+XB-Maemo-Icon-26:
+ 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
+ RK5CYII=
