@@ -39,7 +39,7 @@ FORMS    += mainwindow.ui
 
 INCLUDEPATH = ../inc/
 win32:LIBS += ../debug/libqfacebookconnect.a
-unix:LIBS += ../debug/libqfacebookconnect.so
+unix:LIBS += /usr/lib/libqfacebookconnect.so
 
 target.path = /usr/bin
 
