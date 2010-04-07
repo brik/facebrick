@@ -43,4 +43,11 @@ unix:LIBS += /usr/lib/libqfacebookconnect.so
 
 target.path = /usr/bin
 
+maemo5:* {
+    desktop.path =  /usr/local/share/applications/hildon
+    desktop.files += facebrick.desktop
+}
+
+
+
 INSTALLS += target
