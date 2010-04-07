@@ -110,6 +110,10 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 
             // Seed it into the model
             m_newsFeedModel->insertNewsItem(np);
+
+            // Update our 'recent posts' block badger.
+            if (np->createdTime() > m_lastUpdatedNewsFeed)
+                m_lastUpdatedNewsFeed = np->createdTime();
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
