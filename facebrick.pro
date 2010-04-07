@@ -45,10 +45,10 @@ target.path = /usr/bin
 
 maemo5:* {
     INSTALLS += desktop icon
-    desktop.path =  /usr/local/share/applications/hildon
+    desktop.path =  /usr/share/applications/hildon
     desktop.files += facebrick.desktop
 
-    icon.path = /usr/share/icons/hicolor/scalable/apps/
+    icon.path = /usr/share/pixmaps
     icon.files += facebrick.png
 }
 
