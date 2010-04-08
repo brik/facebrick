@@ -44,7 +44,7 @@ FORMS    += mainwindow.ui \
     newsfeedpostview.ui
 
 
-INCLUDEPATH = ../inc/
+INCLUDEPATH = ../libqfacebook/inc/
 win32:LIBS += ../debug/libqfacebookconnect.a
 unix:LIBS += /usr/lib/libqfacebookconnect.so
 
