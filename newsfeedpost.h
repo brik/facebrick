@@ -28,12 +28,14 @@ class NewsFeedPost : public QObject
 {
 Q_OBJECT
 public:
-    explicit NewsFeedPost(QObject *parent, FacebookAccount *account, long long createdTime, const QString &url, const QString &message);
+    explicit NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
+                          long long createdTime, const QString &url, const QString &message);
 
     const QString &url() const;
     const QString &message() const;
     FacebookAccount *author() const;
     long long createdTime() const;
+    const QString &id() const;
 signals:
     void modified();
 private:
@@ -41,6 +43,7 @@ private:
     FacebookAccount *m_account;
     QString m_url;
     QString m_message;
+    QString m_id;
 };
 
 #endif // NEWSFEEDPOST_H

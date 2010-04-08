@@ -16,9 +16,11 @@
  */
 
 #include <QTextDocument>
+#include <QDebug>
 
 #include "fbsession.h"
 #include "fbrequest.h"
+#include "fberror.h"
 
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
@@ -41,9 +43,6 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
     QFont f = m_ui->authorName->font();
     f.setBold(true);
     m_ui->authorName->setFont(f);
-
-    // Request comments
-    //SELECT post_id, fromid, time, text FROM comment WHERE post_id=<post_id>
 }
 
 NewsFeedPostView::~NewsFeedPostView()
@@ -55,9 +54,37 @@ void NewsFeedPostView::setPost(const NewsFeedPost * const post)
 {
     if (m_post)
         disconnect(m_post, SIGNAL(modified()));
-    connect(m_post, SIGNAL(modified()), SLOT(setupUi()));
     m_post = post;
+    connect(m_post, SIGNAL(modified()), SLOT(setupUi()));
     setupUi();
+
+    // Request comments
+    qDebug() << "Viewing post " << m_post->id();
+
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+
+    // Query to fetch news posts
+    QString queryOne = "SELECT post_id, fromid, time, text FROM comment WHERE post_id='" + m_post->id() + "'";
+    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT fromid FROM #query1)";
+    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
+    params["queries"] = fql;
+
+    qDebug() << "fetchNewsFeed: Sending " << fql;
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(commentsLoaded(QVariant)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(commentsLoadError(FBError)));
+    request->call("facebook.fql.multiquery",params);
+}
+
+void NewsFeedPostView::commentsLoaded(const QVariant &container)
+{
+    qDebug() << "Comments loaded: " << container;
+}
+
+void NewsFeedPostView::commentsLoadError(const FBError &error)
+{
+    qDebug() << "commentsLoadError: " << error.code() << ": " << error.description();
 }
 
 void NewsFeedPostView::setupUi()

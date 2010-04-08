@@ -26,6 +26,7 @@ namespace Ui {
 
 class NewsFeedPost;
 class FBSession;
+class FBError;
 
 class NewsFeedPostView : public QDialog {
     Q_OBJECT
@@ -39,6 +40,8 @@ protected:
     void changeEvent(QEvent *e);
 private slots:
     void setupUi();
+    void commentsLoaded(const QVariant &container);
+    void commentsLoadError(const FBError &error);
 private:
     Ui::NewsFeedPostView *m_ui;
     const NewsFeedPost * m_post;

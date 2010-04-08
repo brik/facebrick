@@ -109,6 +109,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             // Create a new newsfeed post
             NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
                                                 account,
+                                                newsFeedPostData["post_id"].toString(),
                                                 newsFeedPostData["created_time"].toLongLong(),
                                                 newsFeedPostData["permalink"].toString(),
                                                 newsFeedPostData["message"].toString());

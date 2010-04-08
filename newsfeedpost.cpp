@@ -18,12 +18,14 @@
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 
-NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, long long createdTime, const QString &url, const QString &message)
+NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
+                           long long createdTime, const QString &url, const QString &message)
     : QObject(parent),
     m_createdTime(createdTime),
     m_account(account),
     m_url(url),
-    m_message(message)
+    m_message(message),
+    m_id(postId)
 {
     connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
 }
@@ -46,4 +48,9 @@ FacebookAccount *NewsFeedPost::author() const
 long long NewsFeedPost::createdTime() const
 {
     return m_createdTime;
+}
+
+const QString &NewsFeedPost::id() const
+{
+    return m_id;
 }
