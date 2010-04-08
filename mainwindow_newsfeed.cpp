@@ -103,7 +103,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
 
             // Fetch (or create) the account that made this newsfeed post
-            FacebookAccount *account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong());
+            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedPostData["actor_id"].toLongLong());
             Q_ASSERT(account);
 
             // Create a new newsfeed post
@@ -127,7 +127,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
 
             // Get (or create - though this should have already been done above) the account
-            FacebookAccount *account = m_facebookAccountModel->account(newsFeedUserData["id"].toLongLong());
+            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedUserData["id"].toLongLong());
             Q_ASSERT(account);
 
             account->setName(newsFeedUserData["name"].toString());

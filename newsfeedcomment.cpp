@@ -15,49 +15,29 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "newsfeedpost.h"
+#include "newsfeedcomment.h"
 #include "facebookaccount.h"
-#include "newsfeedcommentsmodel.h"
 
-NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
-                           long long createdTime, const QString &url, const QString &message)
-    : QObject(parent),
+NewsFeedComment::NewsFeedComment(QObject *parent, FacebookAccount *author, long long createdTime, const QString &text) :
+    QObject(parent),
+    m_author(author),
     m_createdTime(createdTime),
-    m_account(account),
-    m_url(url),
-    m_message(message),
-    m_id(postId),
-    m_commentsModel(new NewsFeedCommentsModel(this))
+    m_text(text)
 {
-    connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
+    connect(m_author, SIGNAL(modified()), SIGNAL(modified()));
 }
 
-const QString &NewsFeedPost::url() const
+FacebookAccount *NewsFeedComment::author() const
 {
-    return m_url;
+    return m_author;
 }
 
-const QString &NewsFeedPost::message() const
-{
-    return m_message;
-}
-
-FacebookAccount *NewsFeedPost::author() const
-{
-    return m_account;
-}
-
-long long NewsFeedPost::createdTime() const
+long long NewsFeedComment::createdTime() const
 {
     return m_createdTime;
 }
 
-const QString &NewsFeedPost::id() const
+const QString &NewsFeedComment::text() const
 {
-    return m_id;
-}
-
-NewsFeedCommentsModel *NewsFeedPost::commentsModel() const
-{
-    return m_commentsModel;
+    return m_text;
 }

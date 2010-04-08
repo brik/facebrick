@@ -25,7 +25,10 @@
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 #include "newsfeedpost.h"
+#include "newsfeedcomment.h"
 #include "newsfeedpostview.h"
+#include "facebookaccountmodel.h"
+#include "newsfeedcommentsmodel.h"
 #include "ui_newsfeedpostview.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
@@ -64,8 +67,12 @@ void NewsFeedPostView::setPost(const NewsFeedPost * const post)
     FBRequest* request = FBRequest::request();
     Dictionary params;
 
-    // Query to fetch news posts
+    // Query to fetch comments
     QString queryOne = "SELECT post_id, fromid, time, text FROM comment WHERE post_id='" + m_post->id() + "'";
+
+    if (m_post->commentsModel()->newestCreatedTime() != 0)
+        queryOne += " WHERE time > " + QString::number(m_post->commentsModel()->newestCreatedTime());
+
     QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT fromid FROM #query1)";
     QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
     params["queries"] = fql;
@@ -80,6 +87,42 @@ void NewsFeedPostView::setPost(const NewsFeedPost * const post)
 void NewsFeedPostView::commentsLoaded(const QVariant &container)
 {
     qDebug() << "Comments loaded: " << container;
+
+    if (container.type() == QVariant::List) {
+        QVariantList list = container.toList();
+
+        //foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
+        //    QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
+        foreach (const QVariant &commentHash, list.at(0).toHash().begin().value().toList()) {
+            QHash<QString, QVariant> commentData = commentHash.toHash();
+            qDebug() << commentData;
+
+            // Make sure it is for the right post.
+            if (m_post->id() != commentData["post_id"].toString()) {
+                qWarning("Recieved a comment for a post that isn't current (%s vs %s)",
+                         qPrintable(m_post->id()), qPrintable(commentData["post_id"].toString()));
+                continue;
+            }
+
+            FacebookAccount *author = FacebookAccountModel::instance()->account(commentData["fromid"].toULongLong());
+            Q_ASSERT(author);
+
+            NewsFeedComment *comment = new NewsFeedComment(author, author, commentData["time"].toLongLong(),
+                                                           commentData["text"].toString());
+            m_post->commentsModel()->insertComment(comment);
+        }
+
+        foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
+            QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
+
+            // Get (or create - though this should have already been done above) the account
+            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedUserData["id"].toLongLong());
+            Q_ASSERT(account);
+
+            account->setName(newsFeedUserData["name"].toString());
+            account->setAvatar(newsFeedUserData["pic_square"].toString());
+        }
+    }
 }
 
 void NewsFeedPostView::commentsLoadError(const FBError &error)
@@ -96,6 +139,8 @@ void NewsFeedPostView::setupUi()
                             QLatin1String("\">") +
                             Qt::escape(m_post->message()) +
                             QLatin1String("</a>"));
+
+    m_ui->commentsListView->setModel(m_post->commentsModel());
 }
 
 void NewsFeedPostView::changeEvent(QEvent *e)

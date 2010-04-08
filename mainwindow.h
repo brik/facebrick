@@ -80,7 +80,6 @@ private:
 
     FBSession * const m_fbSession;
     NewsFeedModel * const m_newsFeedModel;
-    FacebookAccountModel * const m_facebookAccountModel;
     bool m_updatingNewsFeed;
     long long m_lastUpdatedNewsFeed;
 };

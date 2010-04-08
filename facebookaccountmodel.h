@@ -27,7 +27,14 @@ class FacebookAccount;
 class FacebookAccountModel : public QAbstractListModel
 {
 public:
+    /** NOTE: This is a singleton. Use ::instance().
+      */
     FacebookAccountModel(QObject *parent);
+
+    /** Return the account model instance. Note that the first time this
+      * is called, it must be given a parent. If it is not, it will return 0.
+      */
+    static FacebookAccountModel *instance(QObject *parent = 0);
 
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;

@@ -15,39 +15,28 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef NEWSFEEDPOST_H
-#define NEWSFEEDPOST_H
+#ifndef NEWSFEEDCOMMENTSMODEL_H
+#define NEWSFEEDCOMMENTSMODEL_H
 
-#include <QObject>
+#include <QAbstractListModel>
 
-#include "fbconnectglobal.h"
-
-class FacebookAccount;
 class NewsFeedComment;
-class NewsFeedCommentsModel;
 
-class NewsFeedPost : public QObject
+class NewsFeedCommentsModel : public QAbstractListModel
 {
 Q_OBJECT
 public:
-    explicit NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
-                          long long createdTime, const QString &url, const QString &message);
+    explicit NewsFeedCommentsModel(QObject *parent);
+    virtual ~NewsFeedCommentsModel();
 
-    const QString &url() const;
-    const QString &message() const;
-    FacebookAccount *author() const;
-    long long createdTime() const;
-    const QString &id() const;
-    NewsFeedCommentsModel *commentsModel() const;
-signals:
-    void modified();
+    int rowCount(const QModelIndex&) const;
+    QVariant data(const QModelIndex&, int) const;
+    void insertComment(NewsFeedComment * const comment);
+    long long newestCreatedTime() const;
+private slots:
+    void onChildModified();
 private:
-    long long m_createdTime;
-    FacebookAccount *m_account;
-    QString m_url;
-    QString m_message;
-    QString m_id;
-    NewsFeedCommentsModel *m_commentsModel;
+    QList<NewsFeedComment *> m_comments;
 };
 
-#endif // NEWSFEEDPOST_H
+#endif // NEWSFEEDCOMMENTSMODEL_H
