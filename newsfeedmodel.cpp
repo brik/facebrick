@@ -57,6 +57,9 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     case NewsFeedModel::UrlRole:
         return np->url();
         break;
+    case NewsFeedModel::PostRole:
+        return QVariant::fromValue<void*>(np);
+        break;
     }
 
     return QVariant();

@@ -15,38 +15,34 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef NEWSFEEDMODEL_H
-#define NEWSFEEDMODEL_H
+#ifndef NEWSFEEDPOSTVIEW_H
+#define NEWSFEEDPOSTVIEW_H
 
-#include <QAbstractListModel>
+#include <QDialog>
 
-#include "fbconnectglobal.h"
+namespace Ui {
+    class NewsFeedPostView;
+}
 
 class NewsFeedPost;
-class FacebookAccount;
+class FBSession;
 
-class NewsFeedModel : public QAbstractListModel
-{
-Q_OBJECT
+class NewsFeedPostView : public QDialog {
+    Q_OBJECT
 public:
-    explicit NewsFeedModel(QObject *parent);
-    virtual ~NewsFeedModel();
+    explicit NewsFeedPostView(QWidget *parent, FBSession *session);
+    ~NewsFeedPostView();
 
-    enum Roles
-    {
-        UrlRole = Qt::UserRole,
-        NameRole,
-        PostRole
-    };
+    void setPost(const NewsFeedPost * const post);
 
-    int rowCount(const QModelIndex&) const;
-    QVariant data(const QModelIndex&, int) const;
-    void insertNewsItem(NewsFeedPost * const newsItem);
-    long long newestCreatedTime() const;
+protected:
+    void changeEvent(QEvent *e);
 private slots:
-    void onChildModified();
+    void setupUi();
 private:
-    QList<NewsFeedPost *> m_posts;
+    Ui::NewsFeedPostView *m_ui;
+    const NewsFeedPost * m_post;
+    const FBSession * const m_session;
 };
 
-#endif // NEWSFEEDMODEL_H
+#endif // NEWSFEEDPOSTVIEW_H

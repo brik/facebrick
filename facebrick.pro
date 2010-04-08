@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     logindialog.cpp \
     mainwindow_newsfeed.cpp \
     mainwindow_errorhandling.cpp \
-    mainwindow_statusupdate.cpp
+    mainwindow_statusupdate.cpp \
+    newsfeedpostview.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
@@ -32,9 +33,11 @@ HEADERS  += mainwindow.h \
     facebookaccountmodel.h \
     facebookaccount.h \
     newsfeeddelegate.h \
-    logindialog.h
+    logindialog.h \
+    newsfeedpostview.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    newsfeedpostview.ui
 
 
 INCLUDEPATH = ../libqfacebook/inc/

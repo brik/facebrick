@@ -30,10 +30,16 @@
 #include "newsfeedpost.h"
 #include "newsfeedmodel.h"
 #include "mainwindow.h"
+#include "newsfeedpostview.h"
 
 void MainWindow::newsFeedListClicked(QModelIndex index)
 {
-    QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
+    // XXX: move me QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
+    NewsFeedPostView *nfpv = new NewsFeedPostView(this, m_fbSession);
+
+    // Yes, I *know* this line is ugly.
+    nfpv->setPost(static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
+    nfpv->show();
 }
 
 void MainWindow::fetchNewsFeed()
