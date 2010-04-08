@@ -37,7 +37,7 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 
-INCLUDEPATH = ../libqfacebook/inc/
+INCLUDEPATH = ../inc/
 win32:LIBS += ../debug/libqfacebookconnect.a
 unix:LIBS += /usr/lib/libqfacebookconnect.so
 
