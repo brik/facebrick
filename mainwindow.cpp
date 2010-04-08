@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+    setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
     m_ui->setupUi(this);
     m_ui->postsListView->setModel(m_newsFeedModel);

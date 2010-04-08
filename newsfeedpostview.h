@@ -18,7 +18,7 @@
 #ifndef NEWSFEEDPOSTVIEW_H
 #define NEWSFEEDPOSTVIEW_H
 
-#include <QDialog>
+#include <QWidget>
 
 namespace Ui {
     class NewsFeedPostView;
@@ -28,13 +28,13 @@ class NewsFeedPost;
 class FBSession;
 class FBError;
 
-class NewsFeedPostView : public QDialog {
+class NewsFeedPostView : public QWidget {
     Q_OBJECT
 public:
     explicit NewsFeedPostView(QWidget *parent, FBSession *session);
     ~NewsFeedPostView();
 
-    void setPost(const NewsFeedPost * const post);
+    void setPost(NewsFeedPost *post);
 
 protected:
     void changeEvent(QEvent *e);
@@ -44,7 +44,7 @@ private slots:
     void commentsLoadError(const FBError &error);
 private:
     Ui::NewsFeedPostView *m_ui;
-    const NewsFeedPost * m_post;
+    NewsFeedPost *m_post;
     const FBSession * const m_session;
 };
 

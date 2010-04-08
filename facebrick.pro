@@ -25,9 +25,7 @@ SOURCES += main.cpp\
     mainwindow_newsfeed.cpp \
     mainwindow_errorhandling.cpp \
     mainwindow_statusupdate.cpp \
-    newsfeedpostview.cpp \
-    newsfeedcomment.cpp \
-    newsfeedcommentsmodel.cpp
+    newsfeedpostview.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
@@ -36,9 +34,7 @@ HEADERS  += mainwindow.h \
     facebookaccount.h \
     newsfeeddelegate.h \
     logindialog.h \
-    newsfeedpostview.h \
-    newsfeedcomment.h \
-    newsfeedcommentsmodel.h
+    newsfeedpostview.h
 
 FORMS    += mainwindow.ui \
     newsfeedpostview.ui

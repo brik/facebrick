@@ -17,7 +17,7 @@
 
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
-#include "newsfeedcommentsmodel.h"
+#include "newsfeedmodel.h"
 
 NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
                            long long createdTime, const QString &url, const QString &message)
@@ -27,7 +27,7 @@ NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QStr
     m_url(url),
     m_message(message),
     m_id(postId),
-    m_commentsModel(new NewsFeedCommentsModel(this))
+    m_commentsModel(new NewsFeedModel(this))
 {
     connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
 }
@@ -57,7 +57,7 @@ const QString &NewsFeedPost::id() const
     return m_id;
 }
 
-NewsFeedCommentsModel *NewsFeedPost::commentsModel() const
+NewsFeedModel *NewsFeedPost::commentsModel() const
 {
     return m_commentsModel;
 }

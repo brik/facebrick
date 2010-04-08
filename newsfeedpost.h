@@ -23,8 +23,7 @@
 #include "fbconnectglobal.h"
 
 class FacebookAccount;
-class NewsFeedComment;
-class NewsFeedCommentsModel;
+class NewsFeedModel;
 
 class NewsFeedPost : public QObject
 {
@@ -38,7 +37,7 @@ public:
     FacebookAccount *author() const;
     long long createdTime() const;
     const QString &id() const;
-    NewsFeedCommentsModel *commentsModel() const;
+    NewsFeedModel *commentsModel() const;
 signals:
     void modified();
 private:
@@ -47,7 +46,7 @@ private:
     QString m_url;
     QString m_message;
     QString m_id;
-    NewsFeedCommentsModel *m_commentsModel;
+    NewsFeedModel *m_commentsModel;
 };
 
 #endif // NEWSFEEDPOST_H

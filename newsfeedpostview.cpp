@@ -17,30 +17,39 @@
 
 #include <QTextDocument>
 #include <QDebug>
+#ifdef Q_WS_MAEMO_5
+#include <QtMaemo5/QMaemo5InformationBox>
+#endif
 
 #include "fbsession.h"
 #include "fbrequest.h"
 #include "fberror.h"
 
+#include "mainwindow.h"
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 #include "newsfeedpost.h"
-#include "newsfeedcomment.h"
+#include "newsfeedmodel.h"
 #include "newsfeedpostview.h"
+#include "newsfeeddelegate.h"
 #include "facebookaccountmodel.h"
-#include "newsfeedcommentsmodel.h"
 #include "ui_newsfeedpostview.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
-    QDialog(parent),
+    QWidget(parent),
     m_ui(new Ui::NewsFeedPostView),
     m_post(0),
     m_session(session)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
+    setWindowFlags(windowFlags() | Qt::Window);
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5StackedWindow);
+#endif
 
     m_ui->setupUi(this);
     m_ui->newsPost->setOpenExternalLinks(true);
+    m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     // Bold author name
     QFont f = m_ui->authorName->font();
@@ -53,7 +62,7 @@ NewsFeedPostView::~NewsFeedPostView()
     delete m_ui;
 }
 
-void NewsFeedPostView::setPost(const NewsFeedPost * const post)
+void NewsFeedPostView::setPost(NewsFeedPost *post)
 {
     if (m_post)
         disconnect(m_post, SIGNAL(modified()));
@@ -71,13 +80,13 @@ void NewsFeedPostView::setPost(const NewsFeedPost * const post)
     QString queryOne = "SELECT post_id, fromid, time, text FROM comment WHERE post_id='" + m_post->id() + "'";
 
     if (m_post->commentsModel()->newestCreatedTime() != 0)
-        queryOne += " WHERE time > " + QString::number(m_post->commentsModel()->newestCreatedTime());
+        queryOne += " AND time > " + QString::number(m_post->commentsModel()->newestCreatedTime());
 
     QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT fromid FROM #query1)";
     QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
     params["queries"] = fql;
 
-    qDebug() << "fetchNewsFeed: Sending " << fql;
+    qDebug() << "NewsFeedPostView::setPost: Sending " << fql;
 
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(commentsLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(commentsLoadError(FBError)));
@@ -97,19 +106,14 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
             QHash<QString, QVariant> commentData = commentHash.toHash();
             qDebug() << commentData;
 
-            // Make sure it is for the right post.
-            if (m_post->id() != commentData["post_id"].toString()) {
-                qWarning("Recieved a comment for a post that isn't current (%s vs %s)",
-                         qPrintable(m_post->id()), qPrintable(commentData["post_id"].toString()));
-                continue;
-            }
-
             FacebookAccount *author = FacebookAccountModel::instance()->account(commentData["fromid"].toULongLong());
             Q_ASSERT(author);
 
-            NewsFeedComment *comment = new NewsFeedComment(author, author, commentData["time"].toLongLong(),
-                                                           commentData["text"].toString());
-            m_post->commentsModel()->insertComment(comment);
+            NewsFeedPost *comment = new NewsFeedPost(m_post, author, QLatin1String(""),
+                                                     commentData["time"].toLongLong(),
+                                                     QLatin1String(""),
+                                                     commentData["text"].toString());
+            m_post->commentsModel()->insertNewsItem(comment);
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
@@ -123,11 +127,18 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
             account->setAvatar(newsFeedUserData["pic_square"].toString());
         }
     }
+
+    qDebug() << "NewsFeedPostView::commentsLoaded: Total comments count is " << m_post->commentsModel()->rowCount(QModelIndex());
 }
 
 void NewsFeedPostView::commentsLoadError(const FBError &error)
 {
-    qDebug() << "commentsLoadError: " << error.code() << ": " << error.description();
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
+#endif
+    MainWindow *mw = qobject_cast<MainWindow *>(parent());
+    mw->requestFailedWithFacebookError(error, true);
 }
 
 void NewsFeedPostView::setupUi()
@@ -145,7 +156,7 @@ void NewsFeedPostView::setupUi()
 
 void NewsFeedPostView::changeEvent(QEvent *e)
 {
-    QDialog::changeEvent(e);
+    QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
         m_ui->retranslateUi(this);

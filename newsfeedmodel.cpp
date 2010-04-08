@@ -89,7 +89,6 @@ void NewsFeedModel::onChildModified()
     NewsFeedPost *np = qobject_cast<NewsFeedPost *>(sender());
     Q_ASSERT(np);
 
-    qDebug("onChildModified for %p", np);
     for (int i = 0; i < m_posts.count(); ++i) {
         if (np == m_posts[i]) {
             dataChanged(createIndex(i, 0), createIndex(i, 0));
