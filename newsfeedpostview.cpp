@@ -36,7 +36,7 @@
 #include "ui_newsfeedpostview.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
-    QWidget(parent),
+    QMainWindow(parent),
     m_ui(new Ui::NewsFeedPostView),
     m_post(0),
     m_session(session)
@@ -48,18 +48,22 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
 #endif
 
     m_ui->setupUi(this);
-    m_ui->newsPost->setOpenExternalLinks(true);
     m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
-
-    // Bold author name
-    QFont f = m_ui->authorName->font();
-    f.setBold(true);
-    m_ui->authorName->setFont(f);
 }
 
 NewsFeedPostView::~NewsFeedPostView()
 {
     delete m_ui;
+}
+
+void sendComment()
+{
+
+}
+
+void goToPost()
+{
+
 }
 
 void NewsFeedPostView::setPost(NewsFeedPost *post)
@@ -154,13 +158,7 @@ void NewsFeedPostView::commentsLoadError(const FBError &error)
 
 void NewsFeedPostView::setupUi()
 {
-    m_ui->authorAvatar->setPixmap(m_post->author()->avatar());
-    m_ui->authorName->setText(m_post->author()->name());
-    m_ui->newsPost->setText(QLatin1String("<a href=\"") +
-                            m_post->url() +
-                            QLatin1String("\">") +
-                            Qt::escape(m_post->message()) +
-                            QLatin1String("</a>"));
+    setWindowTitle(m_post->author()->name());
 }
 
 void NewsFeedPostView::changeEvent(QEvent *e)
