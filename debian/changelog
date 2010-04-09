@@ -1,3 +1,10 @@
+facebrick (0.2) unstable; urgency=low
+
+  * Add support for reading and writing comments.
+  * Fix a small memory leak
+
+ -- Robin Burchell <viroteck@viroteck.net>  Fri, 9 Apr 2010 23:12:22 +0000
+
 facebrick (0.1.1) unstable; urgency=low
 
   * Fix bug where newsfeed can become populated with duplicate items.
