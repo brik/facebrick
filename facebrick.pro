@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     mainwindow_newsfeed.cpp \
     mainwindow_errorhandling.cpp \
     mainwindow_statusupdate.cpp \
-    newsfeedpostview.cpp
+    newsfeedpostview.cpp \
+    newsfeedpostview_addcomment.cpp \
+    newsfeedpostview_fetchcomments.cpp
 
 HEADERS  += mainwindow.h \
     newsfeedmodel.h \
