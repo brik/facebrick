@@ -28,12 +28,12 @@
 NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
+    m_laidOutText.setMaxCost(40);
 }
 
 NewsFeedDelegate::~NewsFeedDelegate()
 {
     m_laidOutText.clear();
-    m_laidOutText.setMaxCost(40);
 }
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
