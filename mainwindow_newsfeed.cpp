@@ -132,4 +132,6 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             account->setAvatar(newsFeedUserData["pic_square"].toString());
         }
     }
+
+    sender()->deleteLater();
 }

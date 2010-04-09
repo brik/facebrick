@@ -100,6 +100,8 @@ void NewsFeedPostView::commentAdded(const QVariant &container)
     m_ui->commentButton->setEnabled(true);
     m_ui->commentText->setEnabled(true);
     fetchComments();
+
+    sender()->deleteLater();
 }
 
 void NewsFeedPostView::commentAddError(const FBError &error)
@@ -209,6 +211,8 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+
+    sender()->deleteLater();
 }
 
 void NewsFeedPostView::commentsLoadError(const FBError &error)
