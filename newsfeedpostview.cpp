@@ -98,6 +98,11 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
 
 void NewsFeedPostView::commentsLoaded(const QVariant &container)
 {
+    if (m_ui->commentsListView->model() != m_post->commentsModel()) {
+        // HACK: this was previously in setupUi(), but if it's there we get fucked comments on Maemo 5 for reasons I have yet to understand.
+        m_ui->commentsListView->setModel(m_post->commentsModel());
+    }
+
     qDebug() << "Comments loaded: " << container;
 
     if (container.type() == QVariant::List) {
@@ -156,8 +161,6 @@ void NewsFeedPostView::setupUi()
                             QLatin1String("\">") +
                             Qt::escape(m_post->message()) +
                             QLatin1String("</a>"));
-
-    m_ui->commentsListView->setModel(m_post->commentsModel());
 }
 
 void NewsFeedPostView::changeEvent(QEvent *e)
