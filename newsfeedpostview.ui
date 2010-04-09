@@ -21,7 +21,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="commentText"/>
       </item>
       <item>
        <widget class="QPushButton" name="commentButton">
@@ -50,7 +50,19 @@
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Go_to_post"/>
+   </widget>
+   <addaction name="menu_File"/>
   </widget>
+  <action name="action_Go_to_post">
+   <property name="text">
+    <string>&amp;Go to post</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

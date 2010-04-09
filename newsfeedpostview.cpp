@@ -15,6 +15,7 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QDesktopServices>
 #include <QTextDocument>
 #include <QDebug>
 #ifdef Q_WS_MAEMO_5
@@ -49,6 +50,9 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
 
     m_ui->setupUi(this);
     m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
+
+    connect(m_ui->action_Go_to_post, SIGNAL(triggered()), SLOT(goToPost()));
+    connect(m_ui->commentButton, SIGNAL(clicked()), SLOT(sendComment()));
 }
 
 NewsFeedPostView::~NewsFeedPostView()
@@ -56,14 +60,14 @@ NewsFeedPostView::~NewsFeedPostView()
     delete m_ui;
 }
 
-void sendComment()
+void NewsFeedPostView::sendComment()
 {
 
 }
 
-void goToPost()
+void NewsFeedPostView::goToPost()
 {
-
+    QDesktopServices::openUrl(QUrl(m_post->url()));
 }
 
 void NewsFeedPostView::setPost(NewsFeedPost *post)

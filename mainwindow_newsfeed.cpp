@@ -15,7 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QDesktopServices>
 #include <QDebug>
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5/QMaemo5InformationBox>
@@ -34,7 +33,6 @@
 
 void MainWindow::newsFeedListClicked(QModelIndex index)
 {
-    // XXX: move me QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
     NewsFeedPostView *nfpv = new NewsFeedPostView(this, m_fbSession);
 
     // Yes, I *know* this line is ugly.
