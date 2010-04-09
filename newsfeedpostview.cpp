@@ -18,6 +18,7 @@
 #include <QDesktopServices>
 #include <QTextDocument>
 #include <QDebug>
+#include <QTimer>
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5/QMaemo5InformationBox>
 #endif
@@ -40,7 +41,8 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
     QMainWindow(parent),
     m_ui(new Ui::NewsFeedPostView),
     m_post(0),
-    m_session(session)
+    m_session(session),
+    m_fetchingComments(false)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(windowFlags() | Qt::Window);
@@ -53,6 +55,10 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
 
     connect(m_ui->action_Go_to_post, SIGNAL(triggered()), SLOT(goToPost()));
     connect(m_ui->commentButton, SIGNAL(clicked()), SLOT(sendComment()));
+
+    QTimer *commentRefreshTimer = new QTimer(this);
+    connect(commentRefreshTimer, SIGNAL(timeout()), SLOT(fetchComments()));
+    commentRefreshTimer->start(300000 /* 5 minutes */);
 }
 
 NewsFeedPostView::~NewsFeedPostView()
@@ -62,7 +68,50 @@ NewsFeedPostView::~NewsFeedPostView()
 
 void NewsFeedPostView::sendComment()
 {
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
+    m_ui->commentButton->setEnabled(false);
+    m_ui->commentText->setEnabled(false);
 
+    qDebug() << "Sending comment to " << m_post->id();
+
+    FBRequest* request = FBRequest::request();
+    Dictionary params;
+
+    params["post_id"] = m_post->id();
+    params["comment"] = m_ui->commentText->text();
+
+    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(commentAdded(QVariant)));
+    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(commentAddError(FBError)));
+    request->call("facebook.Stream.addComment",params);
+
+    m_ui->commentText->setText(QLatin1String(""));
+}
+
+void NewsFeedPostView::commentAdded(const QVariant &container)
+{
+    Q_UNUSED(container);
+
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
+
+    m_ui->commentButton->setEnabled(true);
+    m_ui->commentText->setEnabled(true);
+    fetchComments();
+}
+
+void NewsFeedPostView::commentAddError(const FBError &error)
+{
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("Error adding comment: %1 (%2)").arg(error.code()).arg(error.description()));
+#endif
+    MainWindow *mw = qobject_cast<MainWindow *>(parent());
+    mw->requestFailedWithFacebookError(error, true);
+    m_ui->commentButton->setEnabled(true);
+    m_ui->commentText->setEnabled(true);
 }
 
 void NewsFeedPostView::goToPost()
@@ -83,6 +132,16 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
 
     // Request comments
     qDebug() << "Viewing post " << m_post->id();
+
+    fetchComments();
+}
+
+void NewsFeedPostView::fetchComments()
+{
+    if (m_fetchingComments)
+        return;
+
+    m_fetchingComments = true;
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
@@ -106,6 +165,8 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
 
 void NewsFeedPostView::commentsLoaded(const QVariant &container)
 {
+    m_fetchingComments = false;
+
     if (m_ui->commentsListView->model() != m_post->commentsModel()) {
         // HACK: this was previously in setupUi(), but if it's there we get fucked comments on Maemo 5 for reasons I have yet to understand.
         m_ui->commentsListView->setModel(m_post->commentsModel());
@@ -152,6 +213,8 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
 
 void NewsFeedPostView::commentsLoadError(const FBError &error)
 {
+    m_fetchingComments = false;
+
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
     QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));

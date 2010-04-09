@@ -40,15 +40,21 @@ protected:
     void changeEvent(QEvent *e);
 private slots:
     void setupUi();
+
+    void fetchComments();
     void commentsLoaded(const QVariant &container);
     void commentsLoadError(const FBError &error);
 
     void sendComment();
+    void commentAdded(const QVariant &container);
+    void commentAddError(const FBError &error);
+
     void goToPost();
 private:
     Ui::NewsFeedPostView *m_ui;
     NewsFeedPost *m_post;
     const FBSession * const m_session;
+    bool m_fetchingComments;
 };
 
 #endif // NEWSFEEDPOSTVIEW_H
