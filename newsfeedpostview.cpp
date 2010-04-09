@@ -64,6 +64,9 @@ NewsFeedPostView::~NewsFeedPostView()
 
 void NewsFeedPostView::setPost(NewsFeedPost *post)
 {
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
     if (m_post)
         disconnect(m_post, SIGNAL(modified()));
     m_post = post;
@@ -129,6 +132,9 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
     }
 
     qDebug() << "NewsFeedPostView::commentsLoaded: Total comments count is " << m_post->commentsModel()->rowCount(QModelIndex());
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+#endif
 }
 
 void NewsFeedPostView::commentsLoadError(const FBError &error)
