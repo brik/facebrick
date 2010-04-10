@@ -66,13 +66,27 @@ QString NewsFeedPost::timeAsString() const
 
     minutes -= hours * 60;
 
+    // make the times a little fuzzy so it's 'easier' to read
+    if (minutes < 5)
+        minutes = 0;
+    else if (minutes > 55) {
+        minutes = 0;
+        hours += 1;
+    }
+
     if ((seconds / 60) < 60) {
         return tr("%1 minutes ago").arg(minutes);
-    } else if (hours < 6) {
+    } else if (hours < 6 && minutes > 0) {
         if (hours == 1) {
             return tr("1 hour %1 minutes ago").arg(minutes);
         } else {
             return tr("%1 hours %2 minutes ago").arg(hours).arg(minutes);
+        }
+    } else if (hours < 6 && minutes == 0) {
+        if (hours == 1) {
+            return tr("1 hour ago");
+        } else {
+            return tr("%1 hours ago").arg(hours);
         }
     } else if (days < 8) { // See if it's in the past week
         switch (days) {
