@@ -53,6 +53,7 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
     m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     connect(m_ui->action_Go_to_post, SIGNAL(triggered()), SLOT(goToPost()));
+    connect(m_ui->action_Synchronise, SIGNAL(triggered()), SLOT(fetchComments()));
     connect(m_ui->commentButton, SIGNAL(clicked()), SLOT(sendComment()));
 
     QTimer *commentRefreshTimer = new QTimer(this);

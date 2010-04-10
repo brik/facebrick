@@ -58,12 +58,18 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Go_to_post"/>
+    <addaction name="action_Synchronise"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
   <action name="action_Go_to_post">
    <property name="text">
     <string>&amp;Go to post</string>
+   </property>
+  </action>
+  <action name="action_Synchronise">
+   <property name="text">
+    <string>&amp;Synchronise</string>
    </property>
   </action>
  </widget>
