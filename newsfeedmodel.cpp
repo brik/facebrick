@@ -73,6 +73,7 @@ void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
     int i = 0;
 
     // Find the correct place to insert it
+    // TODO: this is sorting the wrong way now we append newest. could optimize.
     for (; i < m_posts.count(); ++i) {
         if (newsItem->createdTime() < m_posts.at(i)->createdTime())
             break;
@@ -105,5 +106,5 @@ long long NewsFeedModel::newestCreatedTime() const
     if (m_posts.count() == 0)
         return 0;
 
-    return m_posts.at(0)->createdTime();
+    return m_posts.at(m_posts.count() - 1)->createdTime();
 }
