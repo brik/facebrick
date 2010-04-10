@@ -36,6 +36,7 @@ public:
     const QString &message() const;
     FacebookAccount *author() const;
     long long createdTime() const;
+    QString timeAsString() const;
     const QString &id() const;
     NewsFeedModel *commentsModel() const;
 signals:

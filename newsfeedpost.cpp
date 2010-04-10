@@ -15,6 +15,8 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QDateTime>
+
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 #include "newsfeedmodel.h"
@@ -50,6 +52,45 @@ FacebookAccount *NewsFeedPost::author() const
 long long NewsFeedPost::createdTime() const
 {
     return m_createdTime;
+}
+
+QString NewsFeedPost::timeAsString() const
+{
+    QDateTime dateTime = QDateTime::fromTime_t(m_createdTime);
+    QDateTime now = QDateTime::currentDateTime();
+
+    int seconds = dateTime.secsTo(now);
+    int minutes = seconds / 60;
+    int hours = seconds / (60 * 60);
+    int days = dateTime.daysTo(now);
+
+    minutes -= hours * 60;
+
+    if ((seconds / 60) < 60) {
+        return tr("%1 minutes ago").arg(minutes);
+    } else if (hours < 6) {
+        if (hours == 1) {
+            return tr("1 hour %1 minutes ago").arg(minutes);
+        } else {
+            return tr("%1 hours %2 minutes ago").arg(hours).arg(minutes);
+        }
+    } else if (days < 8) { // See if it's in the past week
+        switch (days) {
+        case 0:
+            return tr("Today");
+            break;
+        case 1:
+            return tr("Yesterday");
+            break;
+        default:
+            return dateTime.date().toString("dddd");
+            break;
+        }
+    } else {
+        return dateTime.date().toString(Qt::SystemLocaleShortDate);
+    }
+
+    return QLatin1String("I have no idea how long ago :(");
 }
 
 const QString &NewsFeedPost::id() const

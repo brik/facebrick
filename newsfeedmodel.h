@@ -36,7 +36,8 @@ public:
     {
         UrlRole = Qt::UserRole,
         NameRole,
-        PostRole
+        PostRole,
+        TimeRole,
     };
 
     int rowCount(const QModelIndex&) const;

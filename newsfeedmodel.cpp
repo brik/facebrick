@@ -60,6 +60,9 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     case NewsFeedModel::PostRole:
         return QVariant::fromValue<void*>(np);
         break;
+    case NewsFeedModel::TimeRole:
+        return np->timeAsString();
+        break;
     }
 
     return QVariant();

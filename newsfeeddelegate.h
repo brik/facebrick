@@ -32,11 +32,15 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 private:
-    mutable QCache<QString, QTextLayout> m_laidOutText;
+    mutable QCache<QString, QTextLayout> m_textCache;
+    mutable QCache<QString, QTextLayout> m_nameCache;
+    mutable QCache<QString, QTextLayout> m_timeCache;
     mutable QSize m_delegateSize;
 
-    QTextLayout *getTextLayout(const QString &text, const QStyleOptionViewItem &option, bool &created, bool requiresBold) const;
-    void insertLayoutIntoCache(const QString &text, QTextLayout *layout) const;
+    QTextLayout *getNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    QTextLayout *getStoryTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    QTextLayout *getTimeTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    void layoutText(QTextLayout *layout, const QRect &rect, int xoffset) const;
 };
 
 #endif // NEWSFEEDDELEGATE_H
