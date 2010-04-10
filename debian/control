@@ -1,5 +1,5 @@
 Source: facebrick
-Section: user/other 
+Section: user/network 
 Priority: optional
 Maintainer: Robin Burchell <viroteck@viroteck.net>
 Build-Depends: debhelper (>= 5), libqt4-dev
