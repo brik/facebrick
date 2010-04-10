@@ -47,8 +47,6 @@ void NewsFeedPostView::sendComment()
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(commentAdded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(commentAddError(FBError)));
     request->call("facebook.Stream.addComment",params);
-
-    m_ui->commentText->setText(QLatin1String(""));
 }
 
 void NewsFeedPostView::commentAdded(const QVariant &container)
@@ -58,6 +56,7 @@ void NewsFeedPostView::commentAdded(const QVariant &container)
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+    m_ui->commentText->setText(QLatin1String(""));
 
     m_ui->commentButton->setEnabled(true);
     m_ui->commentText->setEnabled(true);

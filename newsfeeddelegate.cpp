@@ -29,7 +29,7 @@ NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
     m_textCache.setMaxCost(5);
-    m_timeCache.setMaxCost(5);
+    m_timeCache.setMaxCost(10);
     m_nameCache.setMaxCost(10);
 }
 
