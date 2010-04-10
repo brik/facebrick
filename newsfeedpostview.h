@@ -19,6 +19,7 @@
 #define NEWSFEEDPOSTVIEW_H
 
 #include <QMainWindow>
+#include <QAction>
 
 namespace Ui {
     class NewsFeedPostView;
@@ -49,12 +50,21 @@ private slots:
     void commentAdded(const QVariant &container);
     void commentAddError(const FBError &error);
 
+    void iLikeThis();
+    void likeError(const FBError &error);
+    void likeDone(const QVariant &container);
+    void iDislikeThis();
+    void dislikeError(const FBError &error);
+    void dislikeDone(const QVariant &container);
+
     void goToPost();
 private:
     Ui::NewsFeedPostView *m_ui;
     NewsFeedPost *m_post;
     const FBSession * const m_session;
     bool m_fetchingComments;
+    bool m_doingLikeDislike;
+    QAction *m_likeAction;
 };
 
 #endif // NEWSFEEDPOSTVIEW_H
