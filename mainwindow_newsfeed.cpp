@@ -29,6 +29,7 @@
 #include "newsfeedpost.h"
 #include "newsfeedmodel.h"
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include "newsfeedpostview.h"
 
 void MainWindow::newsFeedListClicked(QModelIndex index)
@@ -93,6 +94,8 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 #endif
     m_updatingNewsFeed = false;
 
+    bool scrollToBottom = m_newsFeedModel->rowCount(QModelIndex()) == 0;
+
     if (container.type() == QVariant::List) {
         QVariantList list = container.toList();
 
@@ -132,6 +135,9 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             account->setAvatar(newsFeedUserData["pic_square"].toString());
         }
     }
+
+    if (scrollToBottom)
+        m_ui->postsListView->scrollToBottom();
 
     sender()->deleteLater();
 }
