@@ -74,7 +74,7 @@ void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
 
     // Find the correct place to insert it
     for (; i < m_posts.count(); ++i) {
-        if (newsItem->createdTime() > m_posts.at(i)->createdTime())
+        if (newsItem->createdTime() < m_posts.at(i)->createdTime())
             break;
     }
 
