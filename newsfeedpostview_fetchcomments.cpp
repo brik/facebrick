@@ -56,6 +56,9 @@ void NewsFeedPostView::fetchComments()
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(commentsLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(commentsLoadError(FBError)));
     request->call("facebook.fql.multiquery",params);
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
 }
 
 void NewsFeedPostView::commentsLoaded(const QVariant &container)
