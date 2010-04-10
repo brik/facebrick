@@ -39,7 +39,9 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
     m_ui(new Ui::NewsFeedPostView),
     m_post(0),
     m_session(session),
-    m_fetchingComments(false)
+    m_fetchingComments(false),
+    m_doingLikeDislike(false),
+    m_likeAction(new QAction(this))
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(windowFlags() | Qt::Window);
@@ -88,6 +90,24 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
 void NewsFeedPostView::setupUi()
 {
     setWindowTitle(m_post->author()->name());
+
+    if (m_post->iLikeThis()) {
+        m_likeAction->deleteLater();
+        m_likeAction = new QAction(tr("&Dislike post"), this);
+        connect(m_likeAction, SIGNAL(triggered()), SLOT(iDislikeThis()));
+
+        QList<QAction *> actions;
+        actions.append(m_likeAction);
+        m_ui->menu_File->addActions(actions);
+    } else {
+        m_likeAction->deleteLater();
+        m_likeAction = new QAction(tr("&Like post"), this);
+        connect(m_likeAction, SIGNAL(triggered()), SLOT(iLikeThis()));
+
+        QList<QAction *> actions;
+        actions.append(m_likeAction);
+        m_ui->menu_File->addActions(actions);
+    }
 }
 
 void NewsFeedPostView::changeEvent(QEvent *e)

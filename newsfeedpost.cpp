@@ -29,6 +29,7 @@ NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QStr
     m_url(url),
     m_message(message),
     m_id(postId),
+    m_iLikeThis(false),
     m_commentsModel(new NewsFeedModel(this))
 {
     connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
@@ -110,6 +111,16 @@ QString NewsFeedPost::timeAsString() const
 const QString &NewsFeedPost::id() const
 {
     return m_id;
+}
+
+void NewsFeedPost::setILikeThis(bool iLikeThis)
+{
+    m_iLikeThis = iLikeThis;
+}
+
+bool NewsFeedPost::iLikeThis() const
+{
+    return m_iLikeThis;
 }
 
 NewsFeedModel *NewsFeedPost::commentsModel() const

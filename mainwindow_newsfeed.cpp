@@ -58,7 +58,7 @@ void MainWindow::fetchNewsFeed()
     Dictionary params;
 
     // Query to fetch news posts
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
 
     if (m_lastUpdatedNewsFeed != 0) {
         // Fetch all posts newer than the ones we have now
@@ -122,6 +122,10 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             // Update our 'recent posts' block badger.
             if (np->createdTime() > m_lastUpdatedNewsFeed)
                 m_lastUpdatedNewsFeed = np->createdTime();
+
+            // Process like info too.
+            bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
+            np->setILikeThis(iLikeThis);
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {

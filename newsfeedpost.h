@@ -39,6 +39,8 @@ public:
     QString timeAsString() const;
     const QString &id() const;
     NewsFeedModel *commentsModel() const;
+    void setILikeThis(bool iLikeThis);
+    bool iLikeThis() const;
 signals:
     void modified();
 private:
@@ -47,6 +49,7 @@ private:
     QString m_url;
     QString m_message;
     QString m_id;
+    bool m_iLikeThis;
     NewsFeedModel *m_commentsModel;
 };
 
