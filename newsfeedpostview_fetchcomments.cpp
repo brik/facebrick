@@ -62,6 +62,8 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
 {
     m_fetchingComments = false;
 
+    bool scrollToBottom = m_post->commentsModel()->rowCount(QModelIndex()) != 0;
+
     if (m_ui->commentsListView->model() != m_post->commentsModel()) {
         // HACK: this was previously in setupUi(), but if it's there we get fucked comments on Maemo 5 for reasons I have yet to understand.
         m_ui->commentsListView->setModel(m_post->commentsModel());
@@ -104,6 +106,10 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
+
+    if (scrollToBottom) {
+        m_ui->commentsListView->scrollToBottom();
+    }
 
     sender()->deleteLater();
 }

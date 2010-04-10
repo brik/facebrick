@@ -74,7 +74,7 @@ QString NewsFeedPost::timeAsString() const
         hours += 1;
     }
 
-    if ((seconds / 60) < 60) {
+    if (minutes && !hours) {
         return tr("%1 minutes ago").arg(minutes);
     } else if (hours < 6 && minutes > 0) {
         if (hours == 1) {
