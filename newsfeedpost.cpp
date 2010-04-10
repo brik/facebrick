@@ -67,7 +67,7 @@ QString NewsFeedPost::timeAsString() const
     minutes -= hours * 60;
 
     // make the times a little fuzzy so it's 'easier' to read
-    if (minutes < 5)
+    if (hours > 0 && minutes < 5)
         minutes = 0;
     else if (minutes > 55) {
         minutes = 0;
