@@ -153,7 +153,9 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
         return layout;
     }
 
-    layout = new QTextLayout(text);
+    QString mangledText = text;
+    mangledText.replace('\n', QChar::LineSeparator);
+    layout = new QTextLayout(mangledText);
     layoutText(layout, option.rect, (20 + 50) /* image width + padding */);
 
     m_textCache.insert(text, layout);
