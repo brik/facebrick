@@ -33,6 +33,9 @@ NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QStr
     m_commentsModel(new NewsFeedModel(this))
 {
     connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
+
+    // add ourself so the user knows who they are replying to.
+    m_commentsModel->insertNewsItem(this);
 }
 
 const QString &NewsFeedPost::url() const

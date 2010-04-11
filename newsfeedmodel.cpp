@@ -68,6 +68,8 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+// NOTE: DO NOT TAKE OWNERSHIP of newsItem.
+// a newsItem might be in many models!
 void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
 {
     int i = 0;
