@@ -27,9 +27,6 @@ NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 
 NewsFeedModel::~NewsFeedModel()
 {
-    foreach (NewsFeedPost *post, m_posts) {
-        delete post;
-    }
 }
 
 int NewsFeedModel::rowCount(const QModelIndex&) const
