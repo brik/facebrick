@@ -50,6 +50,8 @@ void MainWindow::requestFailedWithFacebookError(const FBError &error, bool handl
         QMaemo5InformationBox::information(this, tr("Facebook error: %1 (%2)").arg(error.code()).arg(error.description()));
 #endif
     }
+
+    sender()->deleteLater();
 }
 
 void MainWindow::permissionRequestFailedWithError(const FBError &error)

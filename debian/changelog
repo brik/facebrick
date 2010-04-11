@@ -1,0 +1,29 @@
+facebrick (0.2.2) unstable; urgency=low
+
+  * Use a progress indicator while loading comments on a newspost
+  * Add a menu item to synchronise comments on a newspost
+  * Don't blank comment entry input unless the comment was successfully added
+  * Add capability to like/dislike a newspost
+  * UI adjustments to be more like Conversations (and more sensible, really)
+  * Show time a post or comment was made
+
+ -- Robin Burchell <viroteck@viroteck.net>  Sat, 10 Apr 2010 20:59:12 +0000
+
+facebrick (0.2) unstable; urgency=low
+
+  * Add support for reading and writing comments.
+  * Fix a small memory leak
+
+ -- Robin Burchell <viroteck@viroteck.net>  Fri, 9 Apr 2010 23:12:22 +0000
+
+facebrick (0.1.1) unstable; urgency=low
+
+  * Fix bug where newsfeed can become populated with duplicate items.
+
+ -- Robin Burchell <viroteck@viroteck.net>  Wed, 8 Apr 2010 14:00:30 +0000
+
+facebrick (0.1) unstable; urgency=low
+
+  * Initial release
+
+ -- Robin Burchell <viroteck@viroteck.net>  Wed, 7 Apr 2010 17:56:00 +0000

@@ -70,4 +70,6 @@ void MainWindow::statusUpdated(const QVariant &)
 
     // Trigger a check for our own post
     fetchNewsFeed();
+
+    sender()->deleteLater();
 }

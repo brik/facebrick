@@ -27,9 +27,6 @@ NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
 
 NewsFeedModel::~NewsFeedModel()
 {
-    foreach (NewsFeedPost *post, m_posts) {
-        delete post;
-    }
 }
 
 int NewsFeedModel::rowCount(const QModelIndex&) const
@@ -57,18 +54,27 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
     case NewsFeedModel::UrlRole:
         return np->url();
         break;
+    case NewsFeedModel::PostRole:
+        return QVariant::fromValue<void*>(np);
+        break;
+    case NewsFeedModel::TimeRole:
+        return np->timeAsString();
+        break;
     }
 
     return QVariant();
 }
 
+// NOTE: DO NOT TAKE OWNERSHIP of newsItem.
+// a newsItem might be in many models!
 void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
 {
     int i = 0;
 
     // Find the correct place to insert it
+    // TODO: this is sorting the wrong way now we append newest. could optimize.
     for (; i < m_posts.count(); ++i) {
-        if (newsItem->createdTime() > m_posts.at(0)->createdTime())
+        if (newsItem->createdTime() < m_posts.at(i)->createdTime())
             break;
     }
 
@@ -86,7 +92,6 @@ void NewsFeedModel::onChildModified()
     NewsFeedPost *np = qobject_cast<NewsFeedPost *>(sender());
     Q_ASSERT(np);
 
-    qDebug("onChildModified for %p", np);
     for (int i = 0; i < m_posts.count(); ++i) {
         if (np == m_posts[i]) {
             dataChanged(createIndex(i, 0), createIndex(i, 0));
@@ -100,5 +105,5 @@ long long NewsFeedModel::newestCreatedTime() const
     if (m_posts.count() == 0)
         return 0;
 
-    return m_posts.at(0)->createdTime();
+    return m_posts.at(m_posts.count() - 1)->createdTime();
 }

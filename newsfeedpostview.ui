@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>NewsFeedPostView</class>
+ <widget class="QMainWindow" name="NewsFeedPostView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
-    <height>457</height>
+    <width>421</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FaceBrick</string>
+   <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralWidget">
+  <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListView" name="postsListView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>4</verstretch>
-       </sizepolicy>
-      </property>
+     <widget class="QListView" name="commentsListView">
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
@@ -32,24 +26,17 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="topMargin">
        <number>0</number>
       </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
       <item>
-       <widget class="QLineEdit" name="statusText">
-        <property name="inputMethodHints">
-         <set>Qt::ImhNoAutoUppercase</set>
-        </property>
-       </widget>
+       <widget class="QLineEdit" name="commentText"/>
       </item>
       <item>
-       <widget class="QPushButton" name="updateStatusButton">
+       <widget class="QPushButton" name="commentButton">
         <property name="text">
-         <string>Update</string>
+         <string>Comment</string>
         </property>
        </widget>
       </item>
@@ -57,12 +44,12 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>321</width>
+     <width>421</width>
      <height>23</height>
     </rect>
    </property>
@@ -70,14 +57,14 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Go_to_post"/>
     <addaction name="action_Synchronise"/>
-    <addaction name="action_Logout"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
-  <action name="action_Logout">
+  <action name="action_Go_to_post">
    <property name="text">
-    <string>&amp;Logout</string>
+    <string>&amp;Go to post</string>
    </property>
   </action>
   <action name="action_Synchronise">
@@ -86,7 +73,6 @@
    </property>
   </action>
  </widget>
- <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
 </ui>

@@ -15,7 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QDesktopServices>
 #include <QDebug>
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5/QMaemo5InformationBox>
@@ -30,10 +29,16 @@
 #include "newsfeedpost.h"
 #include "newsfeedmodel.h"
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include "newsfeedpostview.h"
 
 void MainWindow::newsFeedListClicked(QModelIndex index)
 {
-    QDesktopServices::openUrl(QUrl(m_newsFeedModel->data(index, NewsFeedModel::UrlRole).toString()));
+    NewsFeedPostView *nfpv = new NewsFeedPostView(this, m_fbSession);
+
+    // Yes, I *know* this line is ugly.
+    nfpv->setPost(static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
+    nfpv->show();
 }
 
 void MainWindow::fetchNewsFeed()
@@ -53,7 +58,7 @@ void MainWindow::fetchNewsFeed()
     Dictionary params;
 
     // Query to fetch news posts
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
 
     if (m_lastUpdatedNewsFeed != 0) {
         // Fetch all posts newer than the ones we have now
@@ -89,6 +94,8 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 #endif
     m_updatingNewsFeed = false;
 
+    bool scrollToBottom = m_newsFeedModel->rowCount(QModelIndex()) == 0;
+
     if (container.type() == QVariant::List) {
         QVariantList list = container.toList();
 
@@ -97,12 +104,13 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
 
             // Fetch (or create) the account that made this newsfeed post
-            FacebookAccount *account = m_facebookAccountModel->account(newsFeedPostData["actor_id"].toLongLong());
+            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedPostData["actor_id"].toLongLong());
             Q_ASSERT(account);
 
             // Create a new newsfeed post
             NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
                                                 account,
+                                                newsFeedPostData["post_id"].toString(),
                                                 newsFeedPostData["created_time"].toLongLong(),
                                                 newsFeedPostData["permalink"].toString(),
                                                 newsFeedPostData["message"].toString());
@@ -110,17 +118,30 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 
             // Seed it into the model
             m_newsFeedModel->insertNewsItem(np);
+
+            // Update our 'recent posts' block badger.
+            if (np->createdTime() > m_lastUpdatedNewsFeed)
+                m_lastUpdatedNewsFeed = np->createdTime();
+
+            // Process like info too.
+            bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
+            np->setILikeThis(iLikeThis);
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
             QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
 
             // Get (or create - though this should have already been done above) the account
-            FacebookAccount *account = m_facebookAccountModel->account(newsFeedUserData["id"].toLongLong());
+            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedUserData["id"].toLongLong());
             Q_ASSERT(account);
 
             account->setName(newsFeedUserData["name"].toString());
             account->setAvatar(newsFeedUserData["pic_square"].toString());
         }
     }
+
+    if (scrollToBottom)
+        m_ui->postsListView->scrollToBottom();
+
+    sender()->deleteLater();
 }

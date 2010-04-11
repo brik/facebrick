@@ -39,6 +39,11 @@ public:
     MainWindow(QWidget *parent, FBSession *session);
     ~MainWindow();
 
+public slots:
+    /** Generic error handler
+      * @param error The error that occurred
+      */
+    void requestFailedWithFacebookError(const FBError& error, bool handled = false);
 
 private slots:
     void onLogoutMenuAction();
@@ -51,12 +56,6 @@ private slots:
     void newsFeedLoadingError(const FBError &error);
     void newsFeedLoaded(const QVariant&);
     void newsFeedListClicked(QModelIndex);
-
-
-    /** Generic error handler
-      * @param error The error that occurred
-      */
-    void requestFailedWithFacebookError(const FBError& error, bool handled = false);
 
     /** Called when a request to elevate permissions fails
       * @param error Why the request to elevate permissions failed
@@ -80,7 +79,6 @@ private:
 
     FBSession * const m_fbSession;
     NewsFeedModel * const m_newsFeedModel;
-    FacebookAccountModel * const m_facebookAccountModel;
     bool m_updatingNewsFeed;
     long long m_lastUpdatedNewsFeed;
 };

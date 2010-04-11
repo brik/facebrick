@@ -37,16 +37,19 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     m_ui(new Ui::MainWindow),
     m_fbSession(session),
     m_newsFeedModel(new NewsFeedModel(this)),
-    m_facebookAccountModel(new FacebookAccountModel(this)),
     m_updatingNewsFeed(false),
     m_lastUpdatedNewsFeed(0)
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+    setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
     m_ui->setupUi(this);
     m_ui->postsListView->setModel(m_newsFeedModel);
     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
+
+    // Instantiate model so it's parented to us.
+    FacebookAccountModel::instance(this);
 
     // Menu
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));

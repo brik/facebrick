@@ -71,7 +71,14 @@ void FacebookAccount::setAvatar(const QUrl &url)
 void FacebookAccount::onAvatarDownloaded(QNetworkReply *reply)
 {
     qDebug() << "Avatar recieved for " << m_uid;
-    m_avatar = QPixmap::fromImage(QImage::fromData(reply->readAll()));
+    QImage temporary = QImage::fromData(reply->readAll());
+
+    if (temporary.width() > 50 || temporary.height() > 50) {
+        // Facebook are occasionally cocks and give us an image which is too large
+        temporary = temporary.scaled(QSize(50, 50), Qt::KeepAspectRatioByExpanding, Qt::FastTransformation);
+    }
+
+    m_avatar = QPixmap::fromImage(temporary);
 
     reply->deleteLater();
     emit modified();
