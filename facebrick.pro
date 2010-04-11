@@ -1,9 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2009-11-20T00:54:21
-#
-#-------------------------------------------------
-
 QT       += network webkit xml
 
 maemo5:* {
@@ -12,7 +6,7 @@ maemo5:* {
 
 TARGET = facebrick
 TEMPLATE = app
-DESTDIR = ../debug
+#DESTDIR = 
 
 SOURCES += main.cpp\
         mainwindow.cpp \
