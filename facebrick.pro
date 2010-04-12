@@ -8,36 +8,37 @@ TARGET = facebrick
 TEMPLATE = app
 #DESTDIR = 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    newsfeedmodel.cpp \
-    newsfeedpost.cpp \
-    facebookaccountmodel.cpp \
-    facebookaccount.cpp \
-    newsfeeddelegate.cpp \
-    logindialog.cpp \
-    mainwindow_newsfeed.cpp \
-    mainwindow_errorhandling.cpp \
-    mainwindow_statusupdate.cpp \
-    newsfeedpostview.cpp \
-    newsfeedpostview_addcomment.cpp \
-    newsfeedpostview_fetchcomments.cpp \
-    newsfeedpostview_likedislike.cpp
+SOURCES += src/main.cpp\
+        src/mainwindow.cpp \
+    src/newsfeedmodel.cpp \
+    src/newsfeedpost.cpp \
+    src/facebookaccountmodel.cpp \
+    src/facebookaccount.cpp \
+    src/newsfeeddelegate.cpp \
+    src/logindialog.cpp \
+    src/mainwindow_newsfeed.cpp \
+    src/mainwindow_errorhandling.cpp \
+    src/mainwindow_statusupdate.cpp \
+    src/newsfeedpostview.cpp \
+    src/newsfeedpostview_addcomment.cpp \
+    src/newsfeedpostview_fetchcomments.cpp \
+    src/newsfeedpostview_likedislike.cpp
 
-HEADERS  += mainwindow.h \
-    newsfeedmodel.h \
-    newsfeedpost.h \
-    facebookaccountmodel.h \
-    facebookaccount.h \
-    newsfeeddelegate.h \
-    logindialog.h \
-    newsfeedpostview.h
+HEADERS  += include/mainwindow.h \
+    include/newsfeedmodel.h \
+    include/newsfeedpost.h \
+    include/facebookaccountmodel.h \
+    include/facebookaccount.h \
+    include/newsfeeddelegate.h \
+    include/logindialog.h \
+    include/newsfeedpostview.h
 
-FORMS    += mainwindow.ui \
-    newsfeedpostview.ui
+FORMS    += src/ui/mainwindow.ui \
+    src/ui/newsfeedpostview.ui
 
 
-INCLUDEPATH = ../libqfacebook/inc/
+INCLUDEPATH += ../libqfacebook/inc/
+INCLUDEPATH += include/
 win32:LIBS += ../debug/libqfacebookconnect.a
 unix:LIBS += /usr/lib/libqfacebookconnect.so
 
