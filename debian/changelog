@@ -1,3 +1,12 @@
+facebrick (0.2.3) unstable; urgency=low
+
+  * The original post is now shown when viewing comments (thanks to jaysire @ tmo and others)
+  * Downscale avatars greater than 50px - Facebook occasionally give us these for some reason
+  * Correctly display newlines in status/comments (thanks to zombiepig @ tmo)
+  * Change 'Dislike' text to 'Unlike'
+
+ -- Robin Burchell <viroteck@viroteck.net>  Mon, 12 Apr 2010 20:58:22 +0000
+
 facebrick (0.2.2) unstable; urgency=low
 
   * Use a progress indicator while loading comments on a newspost
