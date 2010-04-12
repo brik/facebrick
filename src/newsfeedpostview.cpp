@@ -94,7 +94,7 @@ void NewsFeedPostView::setupUi()
 
     if (m_post->iLikeThis()) {
         m_likeAction->deleteLater();
-        m_likeAction = new QAction(tr("&Dislike post"), this);
+        m_likeAction = new QAction(tr("&Unlike post"), this);
         connect(m_likeAction, SIGNAL(triggered()), SLOT(iDislikeThis()));
 
         QList<QAction *> actions;
