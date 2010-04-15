@@ -25,6 +25,11 @@
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
 
+const int avatarWidth = 50;
+const int avatarHeight = 50;
+const int verticalPadding = 10;
+const int horizontalPadding = 20;
+
 NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
@@ -61,8 +66,8 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     QRectF textRect = layoutText->boundingRect();
     int height = nameRect.height() + textRect.height();
 
-    QSize s(imageSize.width() + qMax(nameRect.width(), textRect.width()) + 20,
-                 qMax(height, 60));
+    QSize s(imageSize.width() + qMax(nameRect.width(), textRect.width()) + horizontalPadding,
+                 qMax(height, avatarHeight + verticalPadding));
 
 #ifdef Q_WS_MAEMO_5
     if (QApplication::style()->inherits("QMaemo5Style")) {
@@ -109,7 +114,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QPixmap img = index.data(Qt::DecorationRole).value<QPixmap>();
 
     // Draw 10px from left
-    painter->drawPixmap(option.rect.left() + 10, option.rect.top() + 5, img);
+    painter->drawPixmap(option.rect.left() + (horizontalPadding / 2), option.rect.top() + (verticalPadding / 2), img);
 
     // Draw name role, saving offset rect for later reuse
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
@@ -138,7 +143,7 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     QFont font = option.font;
     font.setBold(true);
     layout->setFont(font);
-    layoutText(layout, option.rect, (20 + 50) /* image width + padding */);
+    layoutText(layout, option.rect, (avatarWidth + horizontalPadding));
 
     m_nameCache.insert(text, layout);
 
@@ -156,7 +161,7 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     QString mangledText = text;
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
-    layoutText(layout, option.rect, (20 + 50) /* image width + padding */);
+    layoutText(layout, option.rect, (avatarWidth + horizontalPadding));
 
     m_textCache.insert(text, layout);
 
