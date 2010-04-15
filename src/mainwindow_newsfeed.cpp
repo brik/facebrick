@@ -58,7 +58,7 @@ void MainWindow::fetchNewsFeed()
     Dictionary params;
 
     // Query to fetch news posts
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
 
     if (m_lastUpdatedNewsFeed != 0) {
         // Fetch all posts newer than the ones we have now
@@ -126,6 +126,21 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             // Process like info too.
             bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
             np->setILikeThis(iLikeThis);
+
+            // *breathe deeply* ok, and now let's try manage attachments
+            QHash<QString, QVariant> attachmentHash = newsFeedPostData["attachment"].toHash();
+
+            // Facebook... why not just *not* send attachment data if there isn't one?
+            if (attachmentHash.count() == 1)
+                continue;
+
+            // Ignore "sent from my mobile" - there should be a better way to do this
+            if (attachmentHash["href"].toString() == "http://www.facebook.com")
+                continue;
+
+            np->setDescription(attachmentHash["description"].toString());
+            np->setAttachmentUrl(attachmentHash["href"].toString());
+            np->setThumbnail(attachmentHash["src"].toString());
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
