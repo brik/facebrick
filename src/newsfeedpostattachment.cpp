@@ -21,17 +21,6 @@
 #include "newsfeedpost.h"
 #include "facebrick.h"
 
-NewsFeedPost::MediaType NewsFeedPost::type() const
-{
-    return m_type;
-}
-
-void NewsFeedPost::setType(MediaType type)
-{
-    m_type = type;
-    emit modified();
-}
-
 const QString &NewsFeedPost::description() const
 {
     return m_description;
