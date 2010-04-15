@@ -45,6 +45,8 @@ public:
     bool iLikeThis() const;
 
     // Attachment stuff
+    bool hasAttachment() const;
+    void setHasAttachment(bool hasAttachment);
     const QString &description() const;
     void setDescription(const QString &description);
     const QUrl &attachmentUrl() const;
@@ -65,6 +67,7 @@ private:
     NewsFeedModel *m_commentsModel;
 
     // Attachment stuff
+    bool m_hasAttachment;
     QString m_description;
     QUrl m_attachmentUrl;
     QUrl m_thumbnailUrl;

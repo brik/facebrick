@@ -21,6 +21,16 @@
 #include "newsfeedpost.h"
 #include "facebrick.h"
 
+bool NewsFeedPost::hasAttachment() const
+{
+    return m_hasAttachment;
+}
+
+void NewsFeedPost::setHasAttachment(bool hasAttachment)
+{
+    m_hasAttachment = hasAttachment;
+}
+
 const QString &NewsFeedPost::description() const
 {
     return m_description;

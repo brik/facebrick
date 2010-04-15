@@ -138,6 +138,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             if (attachmentHash["href"].toString() == "http://www.facebook.com")
                 continue;
 
+            np->setHasAttachment(true);
             np->setDescription(attachmentHash["description"].toString());
             np->setAttachmentUrl(attachmentHash["href"].toString());
             np->setThumbnail(attachmentHash["src"].toString());

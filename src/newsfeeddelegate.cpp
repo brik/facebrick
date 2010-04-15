@@ -23,51 +23,83 @@
 #include <QTextLayout>
 
 #include "newsfeeddelegate.h"
+#include "newsfeedpost.h"
+#include "facebookaccount.h"
 #include "newsfeedmodel.h"
 
 const int avatarWidth = 50;
 const int avatarHeight = 50;
-const int verticalPadding = 10;
-const int horizontalPadding = 20;
+const int verticalAvatarPadding = 10;
+const int horizontalAvatarPadding = 20;
 
 NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
-    m_textCache.setMaxCost(5);
-    m_timeCache.setMaxCost(10);
-    m_nameCache.setMaxCost(10);
+    m_postTextCache.setMaxCost(5);
+    m_postTimeCache.setMaxCost(10);
+    m_postAuthorCache.setMaxCost(10);
+    m_postAttachmentUrlCache.setMaxCost(5);
+    m_postAttachmentDescriptionCache.setMaxCost(5);
 }
 
 NewsFeedDelegate::~NewsFeedDelegate()
 {
-    m_textCache.clear();
-    m_timeCache.clear();
-    m_nameCache.clear();
+    m_postTextCache.clear();
+    m_postTimeCache.clear();
+    m_postAuthorCache.clear();
+    m_postAttachmentUrlCache.clear();
+    m_postAttachmentDescriptionCache.clear();
 }
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QSize imageSize = index.data(Qt::DecorationRole).value<QPixmap>().size();
+    NewsFeedPost *np = static_cast<NewsFeedPost *>(index.data(NewsFeedModel::PostRole).value<void *>());
 
     if (m_delegateSize.width() != option.rect.size().width()) {
         // Clear layout cache; the view has changed size.
-        m_textCache.clear();
-        m_timeCache.clear();
-        m_nameCache.clear();
+        m_postTextCache.clear();
+        m_postTimeCache.clear();
+        m_postAuthorCache.clear();
+        m_postAttachmentUrlCache.clear();
+        m_postAttachmentDescriptionCache.clear();
         m_delegateSize = option.rect.size();
     }
 
-    // Layout name and newsfeed text
-    QTextLayout *layoutName = getNameTextLayout(index.data(NewsFeedModel::NameRole).toString(), option);
-    QTextLayout *layoutText = this->getStoryTextLayout(index.data((Qt::DisplayRole)).toString(), option);
+    // First: let's make sure FB avatar is accounted for.
+    QSize imageSize = np->author()->avatar().size();
+    imageSize.setWidth(imageSize.width() + horizontalAvatarPadding);
+    imageSize.setHeight(imageSize.height() + verticalAvatarPadding);
 
-    // Max height is both bits of text added
-    QRectF nameRect = layoutName->boundingRect();
-    QRectF textRect = layoutText->boundingRect();
-    int height = nameRect.height() + textRect.height();
+    // Now name
+    QRectF nameRect = getNameTextLayout(index.data(NewsFeedModel::NameRole).toString(), option)->boundingRect();
+    QRectF textRect = getStoryTextLayout(index.data((Qt::DisplayRole)).toString(), option)->boundingRect();
 
-    QSize s(imageSize.width() + qMax(nameRect.width(), textRect.width()) + horizontalPadding,
-                 qMax(height, avatarHeight + verticalPadding));
+    // Attachment info (if any)
+    int attachmentHeight = 0;
+    int attachmentWidth = 0;
+    if (np->hasAttachment()) {
+        // Name
+        QRectF attachmentUrlRect = getAttachmentUrlTextLayout("Attachment Title", option)->boundingRect();
+        attachmentHeight += attachmentUrlRect.height();
+
+        // Now pic/desc
+        QRectF attachmentDescriptionRect = getAttachmentDescriptionTextLayout(np->description(), option)->boundingRect();
+        QSize attachmentThumbSize = np->thumbnail().size();
+        attachmentHeight += qMax(attachmentThumbSize.height(), (int)attachmentDescriptionRect.height());
+
+        // Work out width
+        attachmentWidth = qMax(attachmentUrlRect.width(), attachmentThumbSize.width() + (horizontalAvatarPadding / 2) + attachmentDescriptionRect.width());
+    }
+
+
+
+
+    // Now calculate final sizes.
+    int requiredHeight = qMax(imageSize.height(), (int)(nameRect.height() + textRect.height()) + attachmentHeight);
+    int requiredWidth = imageSize.width() + qMax((int)nameRect.width(), (int)textRect.width());
+    requiredWidth = qMax(requiredWidth, imageSize.width() + attachmentWidth);
+
+    QSize s(requiredWidth, requiredHeight);
 
 #ifdef Q_WS_MAEMO_5
     if (QApplication::style()->inherits("QMaemo5Style")) {
@@ -78,6 +110,8 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
             s.setHeight(70);
     }
 #endif
+
+    qDebug() << s;
 
     return s;
 }
@@ -114,7 +148,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QPixmap img = index.data(Qt::DecorationRole).value<QPixmap>();
 
     // Draw 10px from left
-    painter->drawPixmap(option.rect.left() + (horizontalPadding / 2), option.rect.top() + (verticalPadding / 2), img);
+    painter->drawPixmap(option.rect.left() + (horizontalAvatarPadding / 2), option.rect.top() + (verticalAvatarPadding / 2), img);
 
     // Draw name role, saving offset rect for later reuse
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
@@ -135,7 +169,7 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
 {
     QTextLayout *layout;
 
-    if ((layout = m_nameCache.object(text))) {
+    if ((layout = m_postAuthorCache.object(text))) {
         return layout;
     }
 
@@ -143,9 +177,9 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     QFont font = option.font;
     font.setBold(true);
     layout->setFont(font);
-    layoutText(layout, option.rect, (avatarWidth + horizontalPadding));
+    layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
-    m_nameCache.insert(text, layout);
+    m_postAuthorCache.insert(text, layout);
 
     return layout;
 }
@@ -154,16 +188,16 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
 {
     QTextLayout *layout;
 
-    if ((layout = m_textCache.object(text))) {
+    if ((layout = m_postTextCache.object(text))) {
         return layout;
     }
 
     QString mangledText = text;
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
-    layoutText(layout, option.rect, (avatarWidth + horizontalPadding));
+    layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
-    m_textCache.insert(text, layout);
+    m_postTextCache.insert(text, layout);
 
     return layout;
 }
@@ -172,18 +206,50 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
 {
     QTextLayout *layout;
 
-    if ((layout = m_timeCache.object(text))) {
+    if ((layout = m_postTimeCache.object(text))) {
         return layout;
     }
 
     layout = new QTextLayout(text);
-    QFont font = option.font;
     QTextOption opt = layout->textOption();
     opt.setAlignment(Qt::AlignRight | Qt::AlignTop);
     layout->setTextOption(opt);
     layoutText(layout, option.rect, 0);
 
-    m_timeCache.insert(text, layout);
+    m_postTimeCache.insert(text, layout);
+
+    return layout;
+}
+
+QTextLayout *NewsFeedDelegate::getAttachmentUrlTextLayout(const QString &text, const QStyleOptionViewItem &option) const
+{
+    QTextLayout *layout;
+
+    if ((layout = m_postAttachmentUrlCache.object(text))) {
+        return layout;
+    }
+
+    layout = new QTextLayout(text);
+    layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
+
+    m_postAttachmentUrlCache.insert(text, layout);
+
+    return layout;
+}
+
+
+QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString &text, const QStyleOptionViewItem &option) const
+{
+    QTextLayout *layout;
+
+    if ((layout = m_postAttachmentDescriptionCache.object(text))) {
+        return layout;
+    }
+
+    layout = new QTextLayout(text);
+    layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
+
+    m_postAttachmentDescriptionCache.insert(text, layout);
 
     return layout;
 }
