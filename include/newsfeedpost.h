@@ -19,6 +19,8 @@
 #define NEWSFEEDPOST_H
 
 #include <QObject>
+#include <QPixmap>
+#include <QUrl>
 
 #include "fbconnectglobal.h"
 
@@ -29,6 +31,14 @@ class NewsFeedPost : public QObject
 {
 Q_OBJECT
 public:
+    enum MediaType
+    {
+        TYPE_NONE,
+        TYPE_VIDEO,
+        TYPE_IMAGE,
+        TYPE_LINK
+    };
+
     explicit NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
                           long long createdTime, const QString &url, const QString &message);
 
@@ -41,8 +51,20 @@ public:
     NewsFeedModel *commentsModel() const;
     void setILikeThis(bool iLikeThis);
     bool iLikeThis() const;
+
+    // Attachment stuff
+    MediaType type() const;
+    void setType(MediaType type);
+    const QString &description() const;
+    void setDescription(const QString &description);
+    const QUrl &attachmentUrl() const;
+    void setAttachmentUrl(const QUrl &url);
+    const QPixmap &thumbnail() const;
+    void setThumbnail(const QUrl &url);
 signals:
     void modified();
+private slots:
+    void onThumbnailDownloaded();
 private:
     long long m_createdTime;
     FacebookAccount *m_account;
@@ -51,6 +73,13 @@ private:
     QString m_id;
     bool m_iLikeThis;
     NewsFeedModel *m_commentsModel;
+
+    // Attachment stuff
+    MediaType m_type;
+    QString m_description;
+    QUrl m_attachmentUrl;
+    QUrl m_thumbnailUrl;
+    QPixmap m_thumbnail;
 };
 
 #endif // NEWSFEEDPOST_H

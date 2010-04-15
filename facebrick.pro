@@ -23,7 +23,8 @@ SOURCES += src/main.cpp\
     src/newsfeedpostview_addcomment.cpp \
     src/newsfeedpostview_fetchcomments.cpp \
     src/newsfeedpostview_likedislike.cpp \
-    src/facebrick.cpp
+    src/facebrick.cpp \
+    src/newsfeedpostattachment.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \

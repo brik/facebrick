@@ -30,7 +30,8 @@ NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QStr
     m_message(message),
     m_id(postId),
     m_iLikeThis(false),
-    m_commentsModel(new NewsFeedModel(this))
+    m_commentsModel(new NewsFeedModel(this)),
+    m_type(TYPE_NONE)
 {
     connect(m_account, SIGNAL(modified()), SIGNAL(modified()));
 
