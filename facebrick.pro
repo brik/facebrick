@@ -22,7 +22,8 @@ SOURCES += src/main.cpp\
     src/newsfeedpostview.cpp \
     src/newsfeedpostview_addcomment.cpp \
     src/newsfeedpostview_fetchcomments.cpp \
-    src/newsfeedpostview_likedislike.cpp
+    src/newsfeedpostview_likedislike.cpp \
+    src/facebrick.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \
@@ -31,7 +32,8 @@ HEADERS  += include/mainwindow.h \
     include/facebookaccount.h \
     include/newsfeeddelegate.h \
     include/logindialog.h \
-    include/newsfeedpostview.h
+    include/newsfeedpostview.h \
+    include/facebrick.h
 
 FORMS    += src/ui/mainwindow.ui \
     src/ui/newsfeedpostview.ui

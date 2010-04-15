@@ -25,12 +25,12 @@
 #include "fbconnectglobal.h"
 
 #include "facebookaccount.h"
+#include "facebrick.h"
 
 FacebookAccount::FacebookAccount(QObject *parent, FBUID uid)
     : QObject(parent),
     m_uid(uid)
 {
-    connect(&m_networkaccessmgr, SIGNAL(finished(QNetworkReply*)), SLOT(onAvatarDownloaded(QNetworkReply*)));
 }
 
 FBUID FacebookAccount::uid() const
@@ -63,13 +63,17 @@ void FacebookAccount::setAvatar(const QUrl &url)
 
     m_avatarUrl = url.toString();
     QNetworkRequest request(url);
-    m_networkaccessmgr.get(request);
+    QNetworkReply *reply = FaceBrick::networkManager()->get(request);
+    connect(reply, SIGNAL(finished()), SLOT(onAvatarDownloaded()));
 
     // modified() is emitted when avatar download is done.
 }
 
-void FacebookAccount::onAvatarDownloaded(QNetworkReply *reply)
+void FacebookAccount::onAvatarDownloaded()
 {
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    Q_ASSERT(reply);
+
     qDebug() << "Avatar recieved for " << m_uid;
     QImage temporary = QImage::fromData(reply->readAll());
 

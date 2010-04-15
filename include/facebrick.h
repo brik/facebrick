@@ -15,38 +15,15 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FACEBOOKACCOUNT_H
-#define FACEBOOKACCOUNT_H
+#ifndef FACEBRICK_H
+#define FACEBRICK_H
 
-#include <QObject>
-#include <QUrl>
-#include <QPixmap>
-#include <QNetworkAccessManager>
+class QNetworkAccessManager;
 
-#include "fbconnectglobal.h"
-
-class QNetworkReply;
-
-class FacebookAccount : public QObject
+class FaceBrick
 {
-Q_OBJECT
 public:
-    FacebookAccount(QObject *parent, FBUID uid);
-
-    FBUID uid() const;
-    const QString &name() const;
-    void setName(const QString &name);
-    const QPixmap &avatar() const;
-    void setAvatar(const QUrl &url);
-signals:
-    void modified();
-private slots:
-    void onAvatarDownloaded();
-private:
-    FBUID m_uid;
-    QString m_name;
-    QString m_avatarUrl;
-    QPixmap m_avatar;
+    static QNetworkAccessManager *networkManager();
 };
 
-#endif // FACEBOOKACCOUNT_H
+#endif // FACEBRICK_H
