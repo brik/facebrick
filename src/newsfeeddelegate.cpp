@@ -181,7 +181,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
         // Description, on the right hand side
         QTextLayout *attachmentDesc = this->getAttachmentDescriptionTextLayout(np->description(), option);
-        attachmentDesc->draw(painter, QPointF(0, option.rect.top() + descriptionY));
+        attachmentDesc->draw(painter, QPointF(np->thumbnail().width() == 0 ? -avatarWidth : 0, option.rect.top() + descriptionY));
 
         // Now push attachment total Y down to draw the user's message
         //descriptionY += qMax(np->thumbnail().height(), qRound(attachmentDesc->boundingRect().height()));
