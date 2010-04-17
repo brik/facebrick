@@ -19,6 +19,8 @@
 #define NEWSFEEDPOST_H
 
 #include <QObject>
+#include <QPixmap>
+#include <QUrl>
 
 #include "fbconnectglobal.h"
 
@@ -41,8 +43,20 @@ public:
     NewsFeedModel *commentsModel() const;
     void setILikeThis(bool iLikeThis);
     bool iLikeThis() const;
+
+    // Attachment stuff
+    bool hasAttachment() const;
+    void setHasAttachment(bool hasAttachment);
+    const QString &description() const;
+    void setDescription(const QString &description);
+    const QString &attachmentName() const;
+    void setAttachmentName(const QString &name);
+    const QPixmap &thumbnail() const;
+    void setThumbnail(const QUrl &url);
 signals:
     void modified();
+private slots:
+    void onThumbnailDownloaded();
 private:
     long long m_createdTime;
     FacebookAccount *m_account;
@@ -51,6 +65,13 @@ private:
     QString m_id;
     bool m_iLikeThis;
     NewsFeedModel *m_commentsModel;
+
+    // Attachment stuff
+    bool m_hasAttachment;
+    QString m_description;
+    QString m_attachmentName;
+    QUrl m_thumbnailUrl;
+    QPixmap m_thumbnail;
 };
 
 #endif // NEWSFEEDPOST_H

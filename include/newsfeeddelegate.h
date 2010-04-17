@@ -32,14 +32,18 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 private:
-    mutable QCache<QString, QTextLayout> m_textCache;
-    mutable QCache<QString, QTextLayout> m_nameCache;
-    mutable QCache<QString, QTextLayout> m_timeCache;
+    mutable QCache<QString, QTextLayout> m_postTextCache;
+    mutable QCache<QString, QTextLayout> m_postAuthorCache;
+    mutable QCache<QString, QTextLayout> m_postTimeCache;
+    mutable QCache<QString, QTextLayout> m_postAttachmentUrlCache;
+    mutable QCache<QString, QTextLayout> m_postAttachmentDescriptionCache;
     mutable QSize m_delegateSize;
 
     QTextLayout *getNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getStoryTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getTimeTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    QTextLayout *getAttachmentDescriptionTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    QTextLayout *getAttachmentNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     void layoutText(QTextLayout *layout, const QRect &rect, int xoffset) const;
 };
 
