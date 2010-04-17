@@ -49,8 +49,8 @@ public:
     void setHasAttachment(bool hasAttachment);
     const QString &description() const;
     void setDescription(const QString &description);
-    const QUrl &attachmentUrl() const;
-    void setAttachmentUrl(const QUrl &url);
+    const QString &attachmentName() const;
+    void setAttachmentName(const QString &name);
     const QPixmap &thumbnail() const;
     void setThumbnail(const QUrl &url);
 signals:
@@ -69,7 +69,7 @@ private:
     // Attachment stuff
     bool m_hasAttachment;
     QString m_description;
-    QUrl m_attachmentUrl;
+    QString m_attachmentName;
     QUrl m_thumbnailUrl;
     QPixmap m_thumbnail;
 };

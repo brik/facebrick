@@ -53,6 +53,9 @@ NewsFeedDelegate::~NewsFeedDelegate()
 
 QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return QSize(-1, -1);
+
     NewsFeedPost *np = static_cast<NewsFeedPost *>(index.data(NewsFeedModel::PostRole).value<void *>());
 
     if (m_delegateSize.width() != option.rect.size().width()) {
@@ -79,8 +82,12 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     int attachmentWidth = 0;
     if (np->hasAttachment()) {
         // Name
-        QRectF attachmentUrlRect = getAttachmentUrlTextLayout("Attachment Title", option)->boundingRect();
-        attachmentHeight += attachmentUrlRect.height();
+        QRectF attachmentNameRect;
+
+        if (np->attachmentName().length()) {
+            attachmentNameRect = getAttachmentNameTextLayout(np->attachmentName(), option)->boundingRect();
+            attachmentHeight += attachmentNameRect.height();
+        }
 
         // Now pic/desc
         QRectF attachmentDescriptionRect = getAttachmentDescriptionTextLayout(np->description(), option)->boundingRect();
@@ -88,11 +95,8 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
         attachmentHeight += qMax(attachmentThumbSize.height(), (int)attachmentDescriptionRect.height());
 
         // Work out width
-        attachmentWidth = qMax(attachmentUrlRect.width(), attachmentThumbSize.width() + (horizontalAvatarPadding / 2) + attachmentDescriptionRect.width());
+        attachmentWidth = qMax(attachmentNameRect.width(), attachmentThumbSize.width() + (horizontalAvatarPadding / 2) + attachmentDescriptionRect.width());
     }
-
-
-
 
     // Now calculate final sizes.
     int requiredHeight = qMax(imageSize.height(), (int)(nameRect.height() + textRect.height()) + attachmentHeight);
@@ -111,8 +115,6 @@ QSize NewsFeedDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     }
 #endif
 
-    qDebug() << s;
-
     return s;
 }
 
@@ -121,9 +123,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     if (!index.isValid())
         return;
 
-    QTextLayout *layoutName = getNameTextLayout(index.data(NewsFeedModel::NameRole).toString(), option);
-    QTextLayout *layoutText = getStoryTextLayout(index.data((Qt::DisplayRole)).toString(), option);
-    QTextLayout *layoutTime = getTimeTextLayout(index.data(NewsFeedModel::TimeRole).toString(), option);
+    NewsFeedPost *np = static_cast<NewsFeedPost *>(index.data(NewsFeedModel::PostRole).value<void *>());
 
     bool drawPrimitive = true;
     if (!(option.state & QStyle::State_Selected)) {
@@ -145,22 +145,47 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter);
 
     // Fetch image
-    QPixmap img = index.data(Qt::DecorationRole).value<QPixmap>();
+    QPixmap avatarImage = index.data(Qt::DecorationRole).value<QPixmap>();
 
     // Draw 10px from left
-    painter->drawPixmap(option.rect.left() + (horizontalAvatarPadding / 2), option.rect.top() + (verticalAvatarPadding / 2), img);
+    painter->drawPixmap(option.rect.left() + (horizontalAvatarPadding / 2), option.rect.top() + (verticalAvatarPadding / 2), avatarImage);
 
     // Draw name role, saving offset rect for later reuse
+    QTextLayout *layoutName = getNameTextLayout(np->author()->name(), option);
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
 
     // Draw time on the right
     painter->save();
     painter->setPen(Qt::gray);
+    QTextLayout *layoutTime = getTimeTextLayout(np->timeAsString(), option);
     layoutTime->draw(painter, QPointF(option.rect.left(), option.rect.top()));
     painter->restore();
 
+    int descriptionY = layoutName->boundingRect().height();
+
+    if (np->hasAttachment()) {
+        // Now we need to render attachments. Cry!
+        // first, title
+        if (np->attachmentName().length()) {
+            QTextLayout *attachmentName = getAttachmentNameTextLayout(np->attachmentName(), option);
+            attachmentName->draw(painter, QPointF(0, option.rect.top() + descriptionY));
+            descriptionY += attachmentName->boundingRect().height();
+        }
+
+        // Picture
+        painter->drawPixmap(option.rect.left() + horizontalAvatarPadding + avatarImage.width(), option.rect.top() + descriptionY, np->thumbnail());
+
+        // Description, on the right hand side
+        QTextLayout *attachmentDesc = this->getAttachmentDescriptionTextLayout(np->description(), option);
+        attachmentDesc->draw(painter, QPointF(0, option.rect.top() + descriptionY));
+
+        // Now push attachment total Y down to draw the user's message
+        descriptionY += qMax(np->thumbnail().height(), qRound(attachmentDesc->boundingRect().height()));
+    }
+
     // Move message below name, using calculated offset
-    layoutText->draw(painter, QPointF(option.rect.left(), option.rect.top() + layoutName->boundingRect().height() /* TODO: space between lines? */));
+    QTextLayout *layoutText = getStoryTextLayout(np->message(), option);
+    layoutText->draw(painter, QPointF(option.rect.left(), option.rect.top() + descriptionY));
 }
 
 /** run in fear before you modify any further **/
@@ -221,7 +246,7 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
     return layout;
 }
 
-QTextLayout *NewsFeedDelegate::getAttachmentUrlTextLayout(const QString &text, const QStyleOptionViewItem &option) const
+QTextLayout *NewsFeedDelegate::getAttachmentNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const
 {
     QTextLayout *layout;
 
@@ -247,7 +272,7 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     }
 
     layout = new QTextLayout(text);
-    layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
+    layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
     m_postAttachmentDescriptionCache.insert(text, layout);
 

@@ -138,10 +138,19 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
             if (attachmentHash["href"].toString() == "http://www.facebook.com")
                 continue;
 
+            // yes, apparantly this can happen!
+            if (attachmentHash["media"].toList().count() == 0)
+                continue;
+
+            // GOD DAMMIT I HATE THIS BOXING.
+            QHash<QString, QVariant> mediaInfo = attachmentHash["media"].toList().at(0).toHash();
+            qDebug() << mediaInfo;
+
             np->setHasAttachment(true);
             np->setDescription(attachmentHash["description"].toString());
-            np->setAttachmentUrl(attachmentHash["href"].toString());
-            np->setThumbnail(attachmentHash["src"].toString());
+            np->setAttachmentName(mediaInfo["name"].toString());
+            // TODO: href?
+            np->setThumbnail(mediaInfo["src"].toString());
         }
 
         foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {

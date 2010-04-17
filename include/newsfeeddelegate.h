@@ -43,7 +43,7 @@ private:
     QTextLayout *getStoryTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getTimeTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getAttachmentDescriptionTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
-    QTextLayout *getAttachmentUrlTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
+    QTextLayout *getAttachmentNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     void layoutText(QTextLayout *layout, const QRect &rect, int xoffset) const;
 };
 

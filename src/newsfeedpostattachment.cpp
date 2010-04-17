@@ -42,14 +42,14 @@ void NewsFeedPost::setDescription(const QString &description)
     emit modified();
 }
 
-const QUrl &NewsFeedPost::attachmentUrl() const
+const QString &NewsFeedPost::attachmentName() const
 {
-    return m_attachmentUrl;
+    return m_attachmentName;
 }
 
-void NewsFeedPost::setAttachmentUrl(const QUrl &url)
+void NewsFeedPost::setAttachmentName(const QString &name)
 {
-    m_attachmentUrl = url;
+    m_attachmentName = name;
     emit modified();
 }
 
@@ -65,10 +65,12 @@ void NewsFeedPost::setThumbnail(const QUrl &url)
         return;
     }
 
+    qDebug() << "Downloading thumbnail for post at " << url.toString();
+
     m_thumbnailUrl = url.toString();
     QNetworkRequest request(url);
     QNetworkReply *reply = FaceBrick::networkManager()->get(request);
-    connect(reply, SIGNAL(finished()), SLOT(onAvatarDownloaded()));
+    connect(reply, SIGNAL(finished()), SLOT(onThumbnailDownloaded()));
 
     // modified() is emitted when avatar download is done.
 }
@@ -77,6 +79,8 @@ void NewsFeedPost::onThumbnailDownloaded()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     Q_ASSERT(reply);
+
+    qDebug() << "Downloaded thumbnail at " << m_thumbnailUrl.toString();
 
     QImage temporary = QImage::fromData(reply->readAll());
 
