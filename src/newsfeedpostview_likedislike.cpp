@@ -33,6 +33,9 @@ void NewsFeedPostView::iDislikeThis()
         return;
 
     m_doingLikeDislike = true;
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
@@ -52,6 +55,9 @@ void NewsFeedPostView::iLikeThis()
         return;
 
     m_doingLikeDislike = true;
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+#endif
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
@@ -72,6 +78,11 @@ void NewsFeedPostView::likeDone(const QVariant &container)
     m_post->setILikeThis(true);
     setupUi();
 
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("You liked this!"));
+#endif
+
     sender()->deleteLater();
 }
 
@@ -82,6 +93,11 @@ void NewsFeedPostView::dislikeDone(const QVariant &container)
     m_doingLikeDislike = false;
     m_post->setILikeThis(false);
     setupUi();
+
+#ifdef Q_WS_MAEMO_5
+    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+    QMaemo5InformationBox::information(this, tr("You unliked this"));
+#endif
 
     sender()->deleteLater();
 }
