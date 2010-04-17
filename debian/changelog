@@ -1,3 +1,12 @@
+facebrick (0.3) unstable; urgency=low
+
+  * UI changes to newsfeed: newest posts are now at the top, as is entry.
+  * Maemo progress indicator and information box when liking/disliking a post.
+  * Improvements to avatar loading: doesn't try to load all simultaneously.
+  * [EXPERIMENTAL]: Application/sharing posts support (photos/etc)
+
+ -- Robin Burchell <viroteck@viroteck.net>  Sat, 17 Apr 2010 18:28:12 +0000
+
 facebrick (0.2.3) unstable; urgency=low
 
   * The original post is now shown when viewing comments (thanks to jaysire @ tmo and others)
