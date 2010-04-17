@@ -21,7 +21,9 @@
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 
-NewsFeedModel::NewsFeedModel(QObject *parent) : QAbstractListModel(parent)
+NewsFeedModel::NewsFeedModel(QObject *parent, bool newestAtTop) :
+    QAbstractListModel(parent),
+    m_newestAtTop(newestAtTop)
 {
 }
 
@@ -72,10 +74,17 @@ void NewsFeedModel::insertNewsItem(NewsFeedPost *const newsItem)
     int i = 0;
 
     // Find the correct place to insert it
-    // TODO: this is sorting the wrong way now we append newest. could optimize.
-    for (; i < m_posts.count(); ++i) {
-        if (newsItem->createdTime() < m_posts.at(i)->createdTime())
-            break;
+    if (m_newestAtTop) {
+        for (; i < m_posts.count(); ++i) {
+            if (newsItem->createdTime() > m_posts.at(i)->createdTime())
+                break;
+        }
+    } else {
+        // TODO: this is sorting the wrong way now we append newest. could optimize.
+        for (; i < m_posts.count(); ++i) {
+            if (newsItem->createdTime() < m_posts.at(i)->createdTime())
+                break;
+        }
     }
 
     connect(newsItem, SIGNAL(modified()), SLOT(onChildModified()));
@@ -105,5 +114,8 @@ long long NewsFeedModel::newestCreatedTime() const
     if (m_posts.count() == 0)
         return 0;
 
-    return m_posts.at(m_posts.count() - 1)->createdTime();
+    if (m_newestAtTop)
+        return m_posts.at(0)->createdTime();
+    else
+        return m_posts.at(m_posts.count() - 1)->createdTime();
 }

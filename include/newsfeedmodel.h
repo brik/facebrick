@@ -29,7 +29,7 @@ class NewsFeedModel : public QAbstractListModel
 {
 Q_OBJECT
 public:
-    explicit NewsFeedModel(QObject *parent);
+    explicit NewsFeedModel(QObject *parent, bool newestAtTop);
     virtual ~NewsFeedModel();
 
     enum Roles
@@ -48,6 +48,7 @@ private slots:
     void onChildModified();
 private:
     QList<NewsFeedPost *> m_posts;
+    bool m_newestAtTop;
 };
 
 #endif // NEWSFEEDMODEL_H

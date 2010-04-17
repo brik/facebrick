@@ -16,22 +16,6 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListView" name="postsListView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>4</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="resizeMode">
-       <enum>QListView::Adjust</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="topMargin">
        <number>0</number>
@@ -54,6 +38,22 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QListView" name="postsListView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>4</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="resizeMode">
+       <enum>QListView::Adjust</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

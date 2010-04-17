@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow),
     m_fbSession(session),
-    m_newsFeedModel(new NewsFeedModel(this)),
+    m_newsFeedModel(new NewsFeedModel(this, true)),
     m_updatingNewsFeed(false),
     m_lastUpdatedNewsFeed(0)
 {
