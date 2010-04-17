@@ -161,8 +161,12 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     layoutTime->draw(painter, QPointF(option.rect.left(), option.rect.top()));
     painter->restore();
 
-    int descriptionY = layoutName->boundingRect().height();
 
+    // Move message below name, using calculated offset
+    QTextLayout *layoutText = getStoryTextLayout(np->message(), option);
+    layoutText->draw(painter, QPointF(option.rect.left(), option.rect.top() + layoutName->boundingRect().height()));
+
+    int descriptionY = layoutName->boundingRect().height() + layoutText->boundingRect().height();
     if (np->hasAttachment()) {
         // Now we need to render attachments. Cry!
         // first, title
@@ -180,12 +184,8 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         attachmentDesc->draw(painter, QPointF(0, option.rect.top() + descriptionY));
 
         // Now push attachment total Y down to draw the user's message
-        descriptionY += qMax(np->thumbnail().height(), qRound(attachmentDesc->boundingRect().height()));
+        //descriptionY += qMax(np->thumbnail().height(), qRound(attachmentDesc->boundingRect().height()));
     }
-
-    // Move message below name, using calculated offset
-    QTextLayout *layoutText = getStoryTextLayout(np->message(), option);
-    layoutText->draw(painter, QPointF(option.rect.left(), option.rect.top() + descriptionY));
 }
 
 /** run in fear before you modify any further **/
