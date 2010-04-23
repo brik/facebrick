@@ -151,8 +151,11 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->drawPixmap(option.rect.left() + (horizontalAvatarPadding / 2), option.rect.top() + (verticalAvatarPadding / 2), avatarImage);
 
     // Draw name role, saving offset rect for later reuse
+    painter->save();
+    painter->setPen(QColor(Qt::darkBlue));
     QTextLayout *layoutName = getNameTextLayout(np->author()->name(), option);
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
+    painter->restore();
 
     // Draw time on the right
     painter->save();
@@ -220,6 +223,9 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     QString mangledText = text;
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
+    QFont font = option.font;
+    font.setPointSize(font.pointSize() - 1);
+    layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
     m_postTextCache.insert(text, layout);
@@ -272,6 +278,9 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     }
 
     layout = new QTextLayout(text);
+    QFont font = option.font;
+    font.setPointSize(font.pointSize() - 1);
+    layout->setFont(font);
     layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
     m_postAttachmentDescriptionCache.insert(text, layout);
