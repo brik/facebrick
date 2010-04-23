@@ -152,7 +152,7 @@ void NewsFeedDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     // Draw name role, saving offset rect for later reuse
     painter->save();
-    painter->setPen(QColor(Qt::darkBlue));
+    painter->setPen(QColor(37, 168, 229));
     QTextLayout *layoutName = getNameTextLayout(np->author()->name(), option);
     layoutName->draw(painter, QPointF(option.rect.left(), option.rect.top()));
     painter->restore();
