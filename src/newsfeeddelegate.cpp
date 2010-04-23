@@ -277,7 +277,9 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
         return layout;
     }
 
-    layout = new QTextLayout(text);
+    QString mangledText = text;
+    mangledText.replace('\n', QChar::LineSeparator);
+    layout = new QTextLayout(mangledText);
     QFont font = option.font;
     font.setPointSize(font.pointSize() - 1);
     layout->setFont(font);
