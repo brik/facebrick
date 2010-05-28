@@ -14,7 +14,7 @@ builddir:
 	mkdir -p builddir
 
 builddir/Makefile: builddir
-	cd builddir && /opt/qt4-maemo5/bin/qmake PREFIX=/usr ../$(APPNAME).pro
+	cd builddir && qmake PREFIX=/usr ../$(APPNAME).pro
 
 build: build-stamp
 
