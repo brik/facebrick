@@ -23,6 +23,7 @@
 #include "fberror.h"
 #include "fbpermissiondialog.h"
 
+#include "facebrick.h"
 #include "mainwindow.h"
 
 void MainWindow::requestFailedWithFacebookError(const FBError &error, bool handled)
@@ -37,7 +38,7 @@ void MainWindow::requestFailedWithFacebookError(const FBError &error, bool handl
         qDebug() << "About to request " << permission;
 
         // Note: this is deallocated in the relevant slots.
-        FBPermissionDialog *d = new FBPermissionDialog(this->m_fbSession);
+        FBPermissionDialog *d = new FBPermissionDialog(FaceBrick::instance()->session());
         connect(d, SIGNAL(dialogDidSucceed()), this, SLOT(permissionGranted()));
         connect(d, SIGNAL(dialogDidCancel()), this, SLOT(permissionDeniedOrCancelled()));
         connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(permissionRequestFailedWithError(FBError)));
