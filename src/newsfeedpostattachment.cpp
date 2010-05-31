@@ -69,7 +69,7 @@ void NewsFeedPost::setThumbnail(const QUrl &url)
 
     m_thumbnailUrl = url.toString();
     QNetworkRequest request(url);
-    QNetworkReply *reply = FaceBrick::networkManager()->get(request);
+    QNetworkReply *reply = FaceBrick::instance()->networkManager()->get(request);
     connect(reply, SIGNAL(finished()), SLOT(onThumbnailDownloaded()));
 
     // modified() is emitted when avatar download is done.

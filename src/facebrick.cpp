@@ -17,14 +17,39 @@
 
 #include <QNetworkAccessManager>
 
-#include "include/facebrick.h"
+#include "facebrick.h"
 
-struct FaceBrickPrivate
-{
-    QNetworkAccessManager m_networkAccessManager;
-} fbp;
+static FaceBrick *sinstance = NULL;
 
-QNetworkAccessManager *FaceBrick::networkManager()
+FaceBrick *FaceBrick::instance(FBSession *session)
 {
-    return &fbp.m_networkAccessManager;
+    Q_ASSERT(sinstance == NULL);
+
+    sinstance = new FaceBrick(session);
+    return sinstance;
+}
+
+FaceBrick *FaceBrick::instance()
+{
+    Q_ASSERT(sinstance);
+
+    return sinstance;
+}
+
+FaceBrick::FaceBrick(FBSession *session)
+    : QObject(0),
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_session(session)
+{
+
+}
+
+QNetworkAccessManager *FaceBrick::networkManager() const
+{
+    return m_networkAccessManager;
+}
+
+FBSession *FaceBrick::session() const
+{
+    return m_session;
 }

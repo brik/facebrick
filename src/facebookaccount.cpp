@@ -63,7 +63,7 @@ void FacebookAccount::setAvatar(const QUrl &url)
 
     m_avatarUrl = url.toString();
     QNetworkRequest request(url);
-    QNetworkReply *reply = FaceBrick::networkManager()->get(request);
+    QNetworkReply *reply = FaceBrick::instance()->networkManager()->get(request);
     connect(reply, SIGNAL(finished()), SLOT(onAvatarDownloaded()));
 
     // modified() is emitted when avatar download is done.
