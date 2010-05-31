@@ -18,12 +18,25 @@
 #ifndef FACEBRICK_H
 #define FACEBRICK_H
 
+#include <QObject>
 class QNetworkAccessManager;
+class FBSession;
 
-class FaceBrick
+class FaceBrick : public QObject
 {
+Q_OBJECT
 public:
-    static QNetworkAccessManager *networkManager();
+    static FaceBrick *instance(FBSession *session);
+    static FaceBrick *instance();
+
+    QNetworkAccessManager *networkManager() const;
+    FBSession *session() const;
+
+private:
+    FaceBrick(FBSession *session);
+
+    QNetworkAccessManager * const m_networkAccessManager;
+    FBSession * const m_session;
 };
 
 #endif // FACEBRICK_H

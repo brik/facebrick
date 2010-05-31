@@ -34,11 +34,10 @@
 #include "newsfeeddelegate.h"
 #include "ui_newsfeedpostview.h"
 
-NewsFeedPostView::NewsFeedPostView(QWidget *parent, FBSession *session) :
+NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::NewsFeedPostView),
     m_post(0),
-    m_session(session),
     m_fetchingComments(false),
     m_doingLikeDislike(false),
     m_likeAction(new QAction(this))

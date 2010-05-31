@@ -32,7 +32,7 @@ class FBError;
 class NewsFeedPostView : public QMainWindow {
     Q_OBJECT
 public:
-    explicit NewsFeedPostView(QWidget *parent, FBSession *session);
+    explicit NewsFeedPostView(QWidget *parent);
     ~NewsFeedPostView();
 
     void setPost(NewsFeedPost *post);
@@ -61,7 +61,6 @@ private slots:
 private:
     Ui::NewsFeedPostView *m_ui;
     NewsFeedPost *m_post;
-    const FBSession * const m_session;
     bool m_fetchingComments;
     bool m_doingLikeDislike;
     QAction *m_likeAction;

@@ -23,6 +23,7 @@
 #include "fblogindialog.h"
 #include "fbsession.h"
 #include "fbpermissiondialog.h"
+#include "facebrick.h"
 
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
@@ -32,10 +33,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent, FBSession *session) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow),
-    m_fbSession(session),
     m_newsFeedModel(new NewsFeedModel(this, true)),
     m_updatingNewsFeed(false),
     m_lastUpdatedNewsFeed(0)
@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
 
     // Session
-    connect (m_fbSession, SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
+    connect(FaceBrick::instance()->session(), SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
     // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
@@ -74,7 +74,6 @@ MainWindow::MainWindow(QWidget *parent, FBSession *session) :
 MainWindow::~MainWindow()
 {
     delete m_ui;
-    delete m_fbSession;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -97,5 +96,5 @@ void MainWindow::sessionDidLogout()
 
 void MainWindow::onLogoutMenuAction()
 {
-    m_fbSession->logout();
+    FaceBrick::instance()->session()->logout();
 }
