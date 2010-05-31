@@ -21,6 +21,7 @@
 #include <QObject>
 class QNetworkAccessManager;
 class FBSession;
+class FBError;
 
 class FaceBrick : public QObject
 {
@@ -31,7 +32,9 @@ public:
 
     QNetworkAccessManager *networkManager() const;
     FBSession *session() const;
-
+private slots:
+    void unableToGetStreamRead();
+    void errorRequestingPermission(const FBError &error);
 private:
     FaceBrick(FBSession *session);
 

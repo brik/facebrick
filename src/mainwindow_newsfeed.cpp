@@ -24,6 +24,7 @@
 #include "fbsession.h"
 #include "fberror.h"
 
+#include "facebrick.h"
 #include "facebookaccount.h"
 #include "facebookaccountmodel.h"
 #include "newsfeedpost.h"
@@ -58,7 +59,7 @@ void MainWindow::fetchNewsFeed()
     Dictionary params;
 
     // Query to fetch news posts
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(this->m_fbSession->uid()) + " AND type='newsfeed') AND is_hidden = 0";
+    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(FaceBrick::instance()->session()->uid()) + " AND type='newsfeed') AND is_hidden = 0";
 
     if (m_lastUpdatedNewsFeed != 0) {
         // Fetch all posts newer than the ones we have now

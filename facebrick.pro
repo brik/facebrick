@@ -15,7 +15,6 @@ SOURCES += src/main.cpp\
     src/facebookaccountmodel.cpp \
     src/facebookaccount.cpp \
     src/newsfeeddelegate.cpp \
-    src/logindialog.cpp \
     src/mainwindow_newsfeed.cpp \
     src/mainwindow_errorhandling.cpp \
     src/mainwindow_statusupdate.cpp \
@@ -32,7 +31,6 @@ HEADERS  += include/mainwindow.h \
     include/facebookaccountmodel.h \
     include/facebookaccount.h \
     include/newsfeeddelegate.h \
-    include/logindialog.h \
     include/newsfeedpostview.h \
     include/facebrick.h
 
