@@ -63,6 +63,7 @@ void FacebookAccount::setAvatar(const QUrl &url)
 
     m_avatarUrl = url.toString();
     QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
     QNetworkReply *reply = FaceBrick::instance()->networkManager()->get(request);
     connect(reply, SIGNAL(finished()), SLOT(onAvatarDownloaded()));
 

@@ -69,6 +69,7 @@ void NewsFeedPost::setThumbnail(const QUrl &url)
 
     m_thumbnailUrl = url.toString();
     QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
     QNetworkReply *reply = FaceBrick::instance()->networkManager()->get(request);
     connect(reply, SIGNAL(finished()), SLOT(onThumbnailDownloaded()));
 
