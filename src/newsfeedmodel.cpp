@@ -20,11 +20,14 @@
 #include "newsfeedmodel.h"
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
+#include "keyhandler.h"
 
 NewsFeedModel::NewsFeedModel(QObject *parent, bool newestAtTop) :
     QAbstractListModel(parent),
     m_newestAtTop(newestAtTop)
 {
+    connect(KeyHandler::instance(),  SIGNAL(decreaseKeyPressed()), SLOT(fontSizeChanged()));
+    connect(KeyHandler::instance(),  SIGNAL(increaseKeyPressed()), SLOT(fontSizeChanged()));
 }
 
 NewsFeedModel::~NewsFeedModel()
@@ -118,4 +121,10 @@ long long NewsFeedModel::newestCreatedTime() const
         return m_posts.at(0)->createdTime();
     else
         return m_posts.at(m_posts.count() - 1)->createdTime();
+}
+
+void NewsFeedModel::fontSizeChanged()
+{
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
 }

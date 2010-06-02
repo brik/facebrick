@@ -25,6 +25,7 @@ class QTextLayout;
 
 class NewsFeedDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
     NewsFeedDelegate(QObject *parent);
     virtual ~NewsFeedDelegate();

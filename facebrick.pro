@@ -23,7 +23,8 @@ SOURCES += src/main.cpp\
     src/newsfeedpostview_fetchcomments.cpp \
     src/newsfeedpostview_likedislike.cpp \
     src/facebrick.cpp \
-    src/newsfeedpostattachment.cpp
+    src/newsfeedpostattachment.cpp \
+    src/keyhandler.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \
@@ -32,7 +33,8 @@ HEADERS  += include/mainwindow.h \
     include/facebookaccount.h \
     include/newsfeeddelegate.h \
     include/newsfeedpostview.h \
-    include/facebrick.h
+    include/facebrick.h \
+    include/keyhandler.h
 
 FORMS    += src/ui/mainwindow.ui \
     src/ui/newsfeedpostview.ui
