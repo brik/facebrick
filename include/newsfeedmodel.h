@@ -49,6 +49,8 @@ private slots:
 private:
     QList<NewsFeedPost *> m_posts;
     bool m_newestAtTop;
+private slots:
+    void fontSizeChanged();
 };
 
 #endif // NEWSFEEDMODEL_H

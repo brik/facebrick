@@ -21,11 +21,13 @@
 #include <QDebug>
 #include <QApplication>
 #include <QTextLayout>
+#include <QDebug>
 
 #include "newsfeeddelegate.h"
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 #include "newsfeedmodel.h"
+#include "keyhandler.h"
 
 const int avatarWidth = 50;
 const int avatarHeight = 50;
@@ -204,6 +206,7 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     layout = new QTextLayout(text);
     QFont font = option.font;
     font.setBold(true);
+    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -223,8 +226,9 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     QString mangledText = text;
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
+
     QFont font = option.font;
-    font.setPointSize(font.pointSize() - 1);
+    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -242,9 +246,14 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
     }
 
     layout = new QTextLayout(text);
+
+    QFont font = option.font;
+    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference());
+
     QTextOption opt = layout->textOption();
     opt.setAlignment(Qt::AlignRight | Qt::AlignTop);
     layout->setTextOption(opt);
+    layout->setFont(font);
     layoutText(layout, option.rect, 0);
 
     m_postTimeCache.insert(text, layout);
@@ -280,8 +289,9 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     QString mangledText = text;
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
+
     QFont font = option.font;
-    font.setPointSize(font.pointSize() - 1);
+    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
