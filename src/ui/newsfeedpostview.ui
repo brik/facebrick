@@ -59,6 +59,7 @@
     </property>
     <addaction name="action_Go_to_post"/>
     <addaction name="action_Synchronise"/>
+    <addaction name="actionS_ettings"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
@@ -70,6 +71,11 @@
   <action name="action_Synchronise">
    <property name="text">
     <string>&amp;Synchronise</string>
+   </property>
+  </action>
+  <action name="actionS_ettings">
+   <property name="text">
+    <string>S&amp;ettings</string>
    </property>
   </action>
  </widget>

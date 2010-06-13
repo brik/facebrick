@@ -47,6 +47,7 @@ public slots:
 
 private slots:
     void onLogoutMenuAction();
+    void onSettingsMenuAction();
 
     void sendStatusUpdate();
     void statusUpdateError(const FBError &error);

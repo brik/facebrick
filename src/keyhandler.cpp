@@ -25,6 +25,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xos.h>
+#include <qapplication.h>
 
 bool myEventFilter(void *message)
 {
@@ -33,11 +34,11 @@ bool myEventFilter(void *message)
         return false;
 
     if (event->type == KeyPress) {
-        if (event->xkey.keycode == QKeySequence::ZoomOut) {
+        if (event->xkey.keycode == 73 || event->xkey.keycode == QKeySequence::ZoomOut) {
             KeyHandler::instance()->emitDecreaseSignal();
             return true;
         }
-        else if (event->xkey.keycode == QKeySequence::ZoomIn) {
+        else if (event->xkey.keycode == 74 || event->xkey.keycode == QKeySequence::ZoomIn) {
             KeyHandler::instance()->emitIncreaseSignal();
             return true;
         }
@@ -63,15 +64,41 @@ KeyHandler::KeyHandler() : QObject(0)
 
 void KeyHandler::grabKeyEvents(WId windowId)
 {
-    // Just returning here as we need a settings dialogue for this first.
-    return;
-    // Tell maemo-status-volume to gran/ungrab increase/decrease keys
-    unsigned long val = (true) ? 1 : 0;
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    bool enabled = settings.value("volumeKeysEnabled").toBool();
+    settings.endGroup();
 
+    if (enabled == true) {
+        // Tell maemo-status-volume to gran/ungrab increase/decrease keys
+
+        KeyEvents(windowId, true);
+    }
+}
+
+void KeyHandler::ungrabKeyEvents(WId windowId)
+{ 
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    bool enabled = settings.value("volumeKeysEnabled").toBool();
+    settings.endGroup();
+
+    if (enabled == false) {
+        // Tell maemo-status-volume to gran/ungrab increase/decrease keys
+        KeyEvents(windowId, false);
+    }
+}
+
+void KeyHandler::KeyEvents(WId windowId, bool grab)
+{
+    unsigned long val = (grab) ? 1 : 0;
+    emit keyEventsChanged();
+
+    qDebug() << "For window ID " << windowId << " doing " << val;
     Atom atom;
     atom = XInternAtom(QX11Info::display(), "_HILDON_ZOOM_KEY_ATOM", 0);
 
-    qDebug() << XChangeProperty(QX11Info::display(),
+    XChangeProperty(QX11Info::display(),
                     windowId,
                     atom,
                     XA_INTEGER,
@@ -85,6 +112,7 @@ void KeyHandler::emitIncreaseSignal()
 {
     m_fontDifference++;
     emit increaseKeyPressed();
+    qDebug() << "ugh ugh";
 }
 
 void KeyHandler::emitDecreaseSignal()
@@ -93,6 +121,8 @@ void KeyHandler::emitDecreaseSignal()
         m_fontDifference--;
 
     emit decreaseKeyPressed();
+
+    qDebug() << "guh guh";
 }
 
 int KeyHandler::fontSizeDifference()

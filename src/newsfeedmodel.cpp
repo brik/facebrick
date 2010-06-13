@@ -28,6 +28,7 @@ NewsFeedModel::NewsFeedModel(QObject *parent, bool newestAtTop) :
 {
     connect(KeyHandler::instance(),  SIGNAL(decreaseKeyPressed()), SLOT(fontSizeChanged()));
     connect(KeyHandler::instance(),  SIGNAL(increaseKeyPressed()), SLOT(fontSizeChanged()));
+    connect(KeyHandler::instance(),  SIGNAL(keyEventsChanged()), SLOT(fontSizeChanged()));
 }
 
 NewsFeedModel::~NewsFeedModel()

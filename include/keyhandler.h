@@ -24,13 +24,16 @@ Q_OBJECT
 public:
     static KeyHandler *instance();
     void grabKeyEvents(WId);
+    void ungrabKeyEvents(WId);
     void emitIncreaseSignal();
     void emitDecreaseSignal();
     int fontSizeDifference();
 signals:
     void decreaseKeyPressed();
     void increaseKeyPressed();
+    void keyEventsChanged();
 private:
     KeyHandler();
+    void KeyEvents(WId, bool);
     int m_fontDifference;
 };
