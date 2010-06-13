@@ -33,6 +33,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "keyhandler.h"
+#include "settingsdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -55,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Menu
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
+    connect(m_ui->actionS_ettings, SIGNAL(triggered()), this, SLOT(onSettingsMenuAction()));
 
     // Status
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
@@ -101,4 +103,10 @@ void MainWindow::sessionDidLogout()
 void MainWindow::onLogoutMenuAction()
 {
     FaceBrick::instance()->session()->logout();
+}
+
+void MainWindow::onSettingsMenuAction()
+{
+    SettingsDialog dialog;
+    dialog.exec();
 }

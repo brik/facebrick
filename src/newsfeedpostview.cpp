@@ -34,6 +34,7 @@
 #include "newsfeeddelegate.h"
 #include "ui_newsfeedpostview.h"
 #include "keyhandler.h"
+#include "settingsdialog.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     QMainWindow(parent),
@@ -54,6 +55,7 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
 
     connect(m_ui->action_Go_to_post, SIGNAL(triggered()), SLOT(goToPost()));
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), SLOT(fetchComments()));
+    connect(m_ui->actionS_ettings, SIGNAL(triggered()), SLOT(onSettingsMenuAction()));
     connect(m_ui->commentButton, SIGNAL(clicked()), SLOT(sendComment()));
 
     QTimer *commentRefreshTimer = new QTimer(this);
@@ -123,4 +125,10 @@ void NewsFeedPostView::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void NewsFeedPostView::onSettingsMenuAction()
+{
+    SettingsDialog dialog;
+    dialog.exec();
 }

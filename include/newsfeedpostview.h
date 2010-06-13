@@ -41,6 +41,7 @@ protected:
     void changeEvent(QEvent *e);
 private slots:
     void setupUi();
+    void onSettingsMenuAction();
 
     void fetchComments();
     void commentsLoaded(const QVariant &container);
