@@ -46,7 +46,7 @@ private:
     QTextLayout *getAttachmentDescriptionTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getAttachmentNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     void layoutText(QTextLayout *layout, const QRect &rect, int xoffset) const;
-    int getFontSizeDifference();
+    int fontSizeDifference() const;
 };
 
 #endif // NEWSFEEDDELEGATE_H

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2010 Kamilla Bremeraunet <kamilla@bremeraunet.com>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU Lesser General Public License,
+ * version 2.1, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <QDebug>
 #include <QtGui>
 #include <qapplication.h>
@@ -14,7 +31,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 
     QSettings settings("FaceBrick", "FaceBrick");
     settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
+    int fontSize = settings.value("fontSize").toInt();
     settings.endGroup();
     m_ui->fontSizeSlider->setValue(fontSize);;
     connect(this, SIGNAL(accepted()), this, SLOT(onDoneButtonClicked()));
@@ -48,7 +65,5 @@ void SettingsDialog::onDoneButtonClicked()
     settings.endGroup();
 
     for (int i = 0; i < NewsFeedModel::getNewsFeedModelList().size(); i++)
-    {
         NewsFeedModel::getNewsFeedModelList()[i]->fontSizeChanged();
-    }
 }

@@ -65,8 +65,6 @@ void NewsFeedPost::setThumbnail(const QUrl &url)
         return;
     }
 
-    qDebug() << "Downloading thumbnail for post at " << url.toString();
-
     m_thumbnailUrl = url.toString();
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
@@ -80,8 +78,6 @@ void NewsFeedPost::onThumbnailDownloaded()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     Q_ASSERT(reply);
-
-    qDebug() << "Downloaded thumbnail at " << m_thumbnailUrl.toString();
 
     QImage temporary = QImage::fromData(reply->readAll());
 

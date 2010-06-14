@@ -75,7 +75,6 @@ void FacebookAccount::onAvatarDownloaded()
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     Q_ASSERT(reply);
 
-    qDebug() << "Avatar recieved for " << m_uid;
     QImage temporary = QImage::fromData(reply->readAll());
 
     if (temporary.width() > 50 || temporary.height() > 50) {
