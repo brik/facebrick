@@ -31,7 +31,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 
     QSettings settings("FaceBrick", "FaceBrick");
     settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
+    int fontSize = settings.value("fontSize").toInt();
     settings.endGroup();
     m_ui->fontSizeSlider->setValue(fontSize);;
     connect(this, SIGNAL(accepted()), this, SLOT(onDoneButtonClicked()));

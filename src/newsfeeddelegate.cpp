@@ -326,7 +326,7 @@ int NewsFeedDelegate::fontSizeDifference() const
 {
     QSettings settings("FaceBrick", "FaceBrick");
     settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
+    int fontSize = settings.value("fontSize").toInt();
     settings.endGroup();
     return fontSize;
 }

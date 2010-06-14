@@ -37,7 +37,6 @@ FaceBrick *FaceBrick::instance()
 {
     Q_ASSERT(sinstance);
 
-    qDebug() << "returning " << sinstance;
     return sinstance;
 }
 
