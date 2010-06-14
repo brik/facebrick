@@ -15,6 +15,8 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QList>
+
 #include "fbconnectglobal.h"
 
 #include "newsfeedmodel.h"
@@ -22,13 +24,13 @@
 #include "facebookaccount.h"
 #include "keyhandler.h"
 
+static QList<NewsFeedModel *> newsModelList;
+
 NewsFeedModel::NewsFeedModel(QObject *parent, bool newestAtTop) :
     QAbstractListModel(parent),
     m_newestAtTop(newestAtTop)
 {
-    connect(KeyHandler::instance(),  SIGNAL(decreaseKeyPressed()), SLOT(fontSizeChanged()));
-    connect(KeyHandler::instance(),  SIGNAL(increaseKeyPressed()), SLOT(fontSizeChanged()));
-    connect(KeyHandler::instance(),  SIGNAL(keyEventsChanged()), SLOT(fontSizeChanged()));
+    newsModelList.append(this);
 }
 
 NewsFeedModel::~NewsFeedModel()
@@ -128,4 +130,9 @@ void NewsFeedModel::fontSizeChanged()
 {
     emit layoutAboutToBeChanged();
     emit layoutChanged();
+}
+
+QList<NewsFeedModel *> NewsFeedModel::getNewsFeedModelList()
+{
+    return newsModelList;
 }
