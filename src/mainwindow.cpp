@@ -32,7 +32,6 @@
 #include "facebookaccount.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "keyhandler.h"
 #include "settingsdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -72,9 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer *newsFeedRefreshTimer = new QTimer(this);
     connect(newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
     newsFeedRefreshTimer->start(300000 /* 5 minutes */);
-
-    // Grab key events
-    KeyHandler::instance()->grabKeyEvents(winId());
 }
 
 MainWindow::~MainWindow()

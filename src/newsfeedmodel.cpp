@@ -22,19 +22,19 @@
 #include "newsfeedmodel.h"
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
-#include "keyhandler.h"
 
-static QList<NewsFeedModel *> newsModelList;
+static QList<NewsFeedModel *> listOfModels;
 
 NewsFeedModel::NewsFeedModel(QObject *parent, bool newestAtTop) :
     QAbstractListModel(parent),
     m_newestAtTop(newestAtTop)
 {
-    newsModelList.append(this);
+    listOfModels.append(this);
 }
 
 NewsFeedModel::~NewsFeedModel()
 {
+    listOfModels.removeAll(this);
 }
 
 int NewsFeedModel::rowCount(const QModelIndex&) const
@@ -134,5 +134,5 @@ void NewsFeedModel::fontSizeChanged()
 
 QList<NewsFeedModel *> NewsFeedModel::getNewsFeedModelList()
 {
-    return newsModelList;
+    return listOfModels;
 }
