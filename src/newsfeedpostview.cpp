@@ -33,7 +33,6 @@
 #include "newsfeedpostview.h"
 #include "newsfeeddelegate.h"
 #include "ui_newsfeedpostview.h"
-#include "keyhandler.h"
 #include "settingsdialog.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
@@ -61,8 +60,6 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     QTimer *commentRefreshTimer = new QTimer(this);
     connect(commentRefreshTimer, SIGNAL(timeout()), SLOT(fetchComments()));
     commentRefreshTimer->start(300000 /* 5 minutes */);
-
-    KeyHandler::instance()->grabKeyEvents(winId());
 }
 
 NewsFeedPostView::~NewsFeedPostView()

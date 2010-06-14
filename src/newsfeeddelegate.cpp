@@ -28,7 +28,6 @@
 #include "newsfeedpost.h"
 #include "facebookaccount.h"
 #include "newsfeedmodel.h"
-#include "keyhandler.h"
 
 const int avatarWidth = 50;
 const int avatarHeight = 50;
@@ -208,12 +207,7 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     QFont font = option.font;
     font.setBold(true);
 
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
-    settings.endGroup();
-
-    font.setPointSize(option.font.pointSize() + fontSize - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -234,13 +228,8 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
 
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
-    settings.endGroup();
-
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSize - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -259,13 +248,8 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
 
     layout = new QTextLayout(text);
 
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
-    settings.endGroup();
-
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSize);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference());
 
     QTextOption opt = layout->textOption();
     opt.setAlignment(Qt::AlignRight | Qt::AlignTop);
@@ -307,13 +291,8 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
 
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int fontSize = settings.value("fontSize", fontSize).toInt();
-    settings.endGroup();
-
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSize - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
@@ -341,4 +320,13 @@ void NewsFeedDelegate::layoutText(QTextLayout *layout, const QRect &rect, int xo
 
     // phew.
     layout->endLayout();
+}
+
+int NewsFeedDelegate::fontSizeDifference() const
+{
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int fontSize = settings.value("fontSize", fontSize).toInt();
+    settings.endGroup();
+    return fontSize;
 }
