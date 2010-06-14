@@ -40,17 +40,18 @@ public:
         TimeRole,
     };
 
+    static QList<NewsFeedModel *> getNewsFeedModelList();
+
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
     void insertNewsItem(NewsFeedPost * const newsItem);
     long long newestCreatedTime() const;
+    void fontSizeChanged();
 private slots:
     void onChildModified();
 private:
     QList<NewsFeedPost *> m_posts;
     bool m_newestAtTop;
-private slots:
-    void fontSizeChanged();
 };
 
 #endif // NEWSFEEDMODEL_H

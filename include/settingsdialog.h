@@ -14,12 +14,17 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
+private slots:
+    void onDoneButtonClicked();
+
+signals:
+    void fontSizeChanged();
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
-    Ui::SettingsDialog *ui;
+    Ui::SettingsDialog *m_ui;
 };
 
 #endif // SETTINGSDIALOG_H

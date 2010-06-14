@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QTextLayout>
 #include <QDebug>
+#include <QSettings>
 
 #include "newsfeeddelegate.h"
 #include "newsfeedpost.h"
@@ -206,7 +207,13 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     layout = new QTextLayout(text);
     QFont font = option.font;
     font.setBold(true);
-    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
+
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int fontSize = settings.value("fontSize", fontSize).toInt();
+    settings.endGroup();
+
+    font.setPointSize(option.font.pointSize() + fontSize - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -227,8 +234,13 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
 
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int fontSize = settings.value("fontSize", fontSize).toInt();
+    settings.endGroup();
+
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
+    font.setPointSize(option.font.pointSize() + fontSize - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -247,8 +259,13 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
 
     layout = new QTextLayout(text);
 
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int fontSize = settings.value("fontSize", fontSize).toInt();
+    settings.endGroup();
+
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference());
+    font.setPointSize(option.font.pointSize() + fontSize);
 
     QTextOption opt = layout->textOption();
     opt.setAlignment(Qt::AlignRight | Qt::AlignTop);
@@ -290,8 +307,13 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     mangledText.replace('\n', QChar::LineSeparator);
     layout = new QTextLayout(mangledText);
 
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int fontSize = settings.value("fontSize", fontSize).toInt();
+    settings.endGroup();
+
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + KeyHandler::instance()->fontSizeDifference() - 1);
+    font.setPointSize(option.font.pointSize() + fontSize - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
