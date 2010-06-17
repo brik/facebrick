@@ -41,7 +41,8 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     m_post(0),
     m_fetchingComments(false),
     m_doingLikeDislike(false),
-    m_likeAction(new QAction(this))
+    m_likeAction(new QAction(this)),
+    m_commentRefreshTimer(new QTimer(this))
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(windowFlags() | Qt::Window);
@@ -57,9 +58,22 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     connect(m_ui->actionS_ettings, SIGNAL(triggered()), SLOT(onSettingsMenuAction()));
     connect(m_ui->commentButton, SIGNAL(clicked()), SLOT(sendComment()));
 
-    QTimer *commentRefreshTimer = new QTimer(this);
-    connect(commentRefreshTimer, SIGNAL(timeout()), SLOT(fetchComments()));
-    commentRefreshTimer->start(300000 /* 5 minutes */);
+    // Timer
+    connect(SettingsDialog::instance(), SIGNAL(updateIntervalChanged()), this, SLOT(updateInterval()));
+
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval > 0) {
+        int timer = 1000 * 60 * updateInterval; // 1 sec * 60 * number of minutes
+        m_commentRefreshTimer->setInterval(timer);
+        m_commentRefreshTimer->start();
+    }
+
+    connect(m_commentRefreshTimer, SIGNAL(timeout()), SLOT(fetchComments()));
 }
 
 NewsFeedPostView::~NewsFeedPostView()
@@ -126,6 +140,22 @@ void NewsFeedPostView::changeEvent(QEvent *e)
 
 void NewsFeedPostView::onSettingsMenuAction()
 {
-    SettingsDialog dialog;
-    dialog.exec();
+    SettingsDialog::instance()->exec();
+}
+
+void NewsFeedPostView::updateInterval()
+{
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval == 0)
+        m_commentRefreshTimer->stop();
+    else {
+        int timer = 1000 * 60 * updateInterval;
+        m_commentRefreshTimer->setInterval(timer);
+        m_commentRefreshTimer->start();
+    }
 }

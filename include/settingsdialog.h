@@ -29,18 +29,19 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(QWidget *parent = 0);
+    static SettingsDialog *instance();
     ~SettingsDialog();
+signals:
+    void updateIntervalChanged();
 private slots:
     void onDoneButtonClicked();
-
-signals:
-    void fontSizeChanged();
+    void updateIntervalLabel();
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
+    explicit SettingsDialog(QWidget *parent = 0);
     Ui::SettingsDialog *m_ui;
 };
 

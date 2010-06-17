@@ -23,6 +23,16 @@
 #include "ui_settingsdialog.h"
 #include "newsfeedmodel.h"
 
+SettingsDialog *SettingsDialog::instance()
+{
+    static SettingsDialog *dialog = 0;
+
+    if (!dialog)
+        dialog = new SettingsDialog(0);
+
+    return dialog;
+}
+
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::SettingsDialog)
@@ -32,9 +42,16 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     QSettings settings("FaceBrick", "FaceBrick");
     settings.beginGroup("settings");
     int fontSize = settings.value("fontSize").toInt();
+    int updateInterval = settings.value("updateInterval").toInt();
     settings.endGroup();
-    m_ui->fontSizeSlider->setValue(fontSize);;
+    m_ui->fontSizeSlider->setValue(fontSize);
+    m_ui->updateIntervalSlider->setValue(updateInterval);
+
+    updateIntervalLabel();
+
     connect(this, SIGNAL(accepted()), this, SLOT(onDoneButtonClicked()));
+    //connect(this, SIGNAL(updateIntervalChanged()), MainWindow::instance(), SLOT(updateInterval()));
+    connect(m_ui->updateIntervalSlider, SIGNAL(valueChanged(int)), SLOT(updateIntervalLabel()));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -54,16 +71,28 @@ void SettingsDialog::changeEvent(QEvent *e)
     }
 }
 
+void SettingsDialog::updateIntervalLabel()
+{
+    if (m_ui->updateIntervalSlider->value() == 0)
+        m_ui->intervalLabel->setText("off");
+    else
+        m_ui->intervalLabel->setText(QString::number(m_ui->updateIntervalSlider->value())+ " min");
+}
+
 void SettingsDialog::onDoneButtonClicked()
 {
     int fontSize = m_ui->fontSizeSlider->value();
+    int updateInterval = m_ui->updateIntervalSlider->value();
 
     /* Save the new font size difference in settings */
     QSettings settings("FaceBrick", "FaceBrick");
     settings.beginGroup("settings");
     settings.setValue("fontSize", fontSize);
+    settings.setValue("updateInterval", updateInterval);
     settings.endGroup();
 
     for (int i = 0; i < NewsFeedModel::getNewsFeedModelList().size(); i++)
         NewsFeedModel::getNewsFeedModelList()[i]->fontSizeChanged();
+
+    emit updateIntervalChanged();
 }

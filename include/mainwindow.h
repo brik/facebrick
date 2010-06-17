@@ -72,6 +72,8 @@ private slots:
     void permissionDeniedOrCancelled();
 
     void sessionDidLogout();
+
+    void updateInterval();
 protected:
     void changeEvent(QEvent *e);
 
@@ -81,6 +83,8 @@ private:
     NewsFeedModel * const m_newsFeedModel;
     bool m_updatingNewsFeed;
     long long m_lastUpdatedNewsFeed;
+
+    QTimer *m_newsFeedRefreshTimer;
 };
 
 #endif // MAINWINDOW_H
