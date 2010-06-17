@@ -59,12 +59,15 @@ private slots:
     void dislikeDone(const QVariant &container);
 
     void goToPost();
+
+    void updateInterval();
 private:
     Ui::NewsFeedPostView *m_ui;
     NewsFeedPost *m_post;
     bool m_fetchingComments;
     bool m_doingLikeDislike;
     QAction *m_likeAction;
+    QTimer *m_commentRefreshTimer;
 };
 
 #endif // NEWSFEEDPOSTVIEW_H

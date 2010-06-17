@@ -39,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow),
     m_newsFeedModel(new NewsFeedModel(this, true)),
     m_updatingNewsFeed(false),
-    m_lastUpdatedNewsFeed(0)
+    m_lastUpdatedNewsFeed(0),
+    m_newsFeedRefreshTimer(new QTimer(this))
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5AutoOrientation, true);
@@ -66,11 +67,24 @@ MainWindow::MainWindow(QWidget *parent) :
     // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
+    // Timer
+    connect(SettingsDialog::instance(), SIGNAL(updateIntervalChanged()), this, SLOT(updateInterval()));
+
     fetchNewsFeed();
 
-    QTimer *newsFeedRefreshTimer = new QTimer(this);
-    connect(newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
-    newsFeedRefreshTimer->start(300000 /* 5 minutes */);
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval > 0) {
+        int timer = 1000 * 60 * updateInterval; // 1 sec * 60 * number of minutes
+        m_newsFeedRefreshTimer->setInterval(timer);
+        m_newsFeedRefreshTimer->start();
+    }
+
+    connect(m_newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
 }
 
 MainWindow::~MainWindow()
@@ -103,6 +117,22 @@ void MainWindow::onLogoutMenuAction()
 
 void MainWindow::onSettingsMenuAction()
 {
-    SettingsDialog dialog;
-    dialog.exec();
+    SettingsDialog::instance()->exec();
+}
+
+void MainWindow::updateInterval()
+{
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval == 0)
+        m_newsFeedRefreshTimer->stop();
+    else {
+        int timer = 1000 * 60 * updateInterval;
+        m_newsFeedRefreshTimer->setInterval(timer);
+        m_newsFeedRefreshTimer->start();
+    }
 }
