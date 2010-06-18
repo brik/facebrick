@@ -34,6 +34,7 @@
 #include "newsfeeddelegate.h"
 #include "ui_newsfeedpostview.h"
 #include "settingsdialog.h"
+#include "newsfeeditemwidget.h"
 
 NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
     QMainWindow(parent),
@@ -50,7 +51,8 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
 #endif
 
     m_ui->setupUi(this);
-    m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
+    m_ui->commentsListView->setMetaObject(&NewsFeedItemWidget::staticMetaObject);
+    //m_ui->commentsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     connect(m_ui->action_Go_to_post, SIGNAL(triggered()), SLOT(goToPost()));
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), SLOT(fetchComments()));

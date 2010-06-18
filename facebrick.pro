@@ -24,7 +24,11 @@ SOURCES += src/main.cpp\
     src/newsfeedpostview_likedislike.cpp \
     src/facebrick.cpp \
     src/newsfeedpostattachment.cpp \
-    src/settingsdialog.cpp
+    src/settingsdialog.cpp \
+    src/qtwidgetlistview.cpp \
+    src/qtmodelwidget.cpp \
+    src/newsfeeditemwidget.cpp \
+    src/qtfastlabel.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \
@@ -34,11 +38,16 @@ HEADERS  += include/mainwindow.h \
     include/newsfeeddelegate.h \
     include/newsfeedpostview.h \
     include/facebrick.h \
-    include/settingsdialog.h
+    include/settingsdialog.h \
+    include/qtwidgetlistview.h \
+    include/qtmodelwidget.h \
+    include/newsfeeditemwidget.h \
+    include/qtfastlabel.h
 
 FORMS    += src/ui/mainwindow.ui \
     src/ui/newsfeedpostview.ui \
-    src/ui/settingsdialog.ui
+    src/ui/settingsdialog.ui \
+    src/ui/newsfeeditemwidget.ui
 
 
 INCLUDEPATH += ../libqfacebook/inc/

@@ -33,6 +33,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
+#include "newsfeeditemwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -46,8 +47,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
     m_ui->setupUi(this);
+    m_ui->postsListView->setMetaObject(&NewsFeedItemWidget::staticMetaObject);
     m_ui->postsListView->setModel(m_newsFeedModel);
-    m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
+    //m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     // Instantiate model so it's parented to us.
     FacebookAccountModel::instance(this);

@@ -43,7 +43,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QListView" name="postsListView">
+     <widget class="QtWidgetListView" name="postsListView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -66,7 +66,7 @@
      <x>0</x>
      <y>0</y>
      <width>321</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -96,6 +96,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QtWidgetListView</class>
+   <extends>QListView</extends>
+   <header>include/qtwidgetlistview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
