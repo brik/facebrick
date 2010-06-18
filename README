@@ -1,0 +1,19 @@
+what is it?
+===========
+
+facebrick is a Facebook client for Maemo, with a focus on rich, native user interface integration.
+
+That is, it doesn't look like Facebook.
+
+contributing
+============
+
+Bug/todo tracker is available at http://github.com/rburchell/facebrick/issues
+
+By all means, drop me a mail if you're interested in helping out. Or just send a pull request. :)
+
+contact?
+========
+
+All contact regarding this code should go to:
+ robin.burchell@collabora.co.uk
