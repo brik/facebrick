@@ -1,48 +1,69 @@
-/*
- * Copyright (C) 2010 Kamilla Bremeraunet <kamilla@bremeraunet.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms and conditions of the GNU Lesser General Public License,
- * version 2.1, as published by the Free Software Foundation.
- *
- * This program is distributed in the hope it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
- * more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
+#include <QObject>
+#include <QTimer>
 #include <QDebug>
+#include <QWidget>
+#include <QList>
+
 #ifdef Q_WS_MAEMO_5
 #include <QtMaemo5/QMaemo5InformationBox>
 #endif
 
+#include "newsfeed.h"
+
 #include "fbrequest.h"
-#include "fbsession.h"
 #include "fberror.h"
-
+#include "fblogindialog.h"
+#include "fbsession.h"
+#include "fbpermissiondialog.h"
 #include "facebrick.h"
-#include "facebookaccount.h"
 #include "facebookaccountmodel.h"
-#include "newsfeedmodel.h"
-#include "inbox.h"
-#include "ui_mainwindow.h"
+#include "facebookaccount.h"
 
-void Inbox::fetchMessages()
+#include "newsfeeddelegate.h"
+#include "newsfeedmodel.h"
+#include "newsfeedpost.h"
+
+static NewsFeed *feed = NULL;
+
+NewsFeed *NewsFeed::instance(QWidget *parent)
+{
+    feed = new NewsFeed(parent);
+    return feed;
+}
+
+NewsFeed *NewsFeed::instance()
+{
+    Q_ASSERT(feed);
+
+    return feed;
+}
+
+NewsFeed::NewsFeed(QWidget *parent) :
+    QObject(0),
+    m_updatingNewsFeed(false),
+    m_lastUpdatedNewsFeed(0),
+    m_newsFeedRefreshTimer(new QTimer(parent))
+{
+    // Add timer, get timer interval from settings
+
+    fetchNewsFeed();
+
+}
+
+void NewsFeed::fetchNewsFeed()
 {
     // Lock
-    if (m_updatingInbox) {
-        qDebug() << "fetchInbox: Already updating...";
+    if (m_updatingNewsFeed) {
+        qDebug() << "fetchNewsFeed: Already updating...";
         return;
     }
 
-    m_updatingInbox = true;
-#ifdef Q_WS_MAEMO_5
-    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
-#endif
+    m_updatingNewsFeed = true;
+      /*
+       This needs to be done in a slot on the mainwindow
+            #ifdef Q_WS_MAEMO_5
+                setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
+            #endif*/
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
@@ -50,9 +71,9 @@ void Inbox::fetchMessages()
     // Query to fetch news posts
     QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(FaceBrick::instance()->session()->uid()) + " AND type='newsfeed') AND is_hidden = 0";
 
-    if (m_lastUpdatedInbox != 0) {
+    if (m_lastUpdatedNewsFeed != 0) {
         // Fetch all posts newer than the ones we have now
-        queryOne += " AND created_time > " + QString::number(m_lastUpdatedInbox);
+        queryOne += " AND created_time > " + QString::number(m_lastUpdatedNewsFeed);
     }
 
     // Fetch all people that made these posts, combine them into a single FQL multiquery
@@ -64,24 +85,26 @@ void Inbox::fetchMessages()
 
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
+
     request->call("facebook.fql.multiquery",params);
 }
 
-/*void Inbox::newsFeedLoadingError(const FBError &error)
-{
+void NewsFeed::newsFeedLoadingError(const FBError &error)
+{/*
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
     QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
-#endif
+#endif*/
     m_updatingNewsFeed = false;
     requestFailedWithFacebookError(error, true);
 }
 
-void Inbox::newsFeedLoaded(const QVariant &container)
+void NewsFeed::newsFeedLoaded(const QVariant &container)
 {
+/* This needs to be moved to a slot
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
-#endif
+#endif*/
     m_updatingNewsFeed = false;
 
     if (container.type() == QVariant::List) {
@@ -96,7 +119,7 @@ void Inbox::newsFeedLoaded(const QVariant &container)
             Q_ASSERT(account);
 
             // Create a new newsfeed post
-            NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
+            NewsFeedPost *np = new NewsFeedPost(FaceBrick::instance()->m_newsFeedModel,
                                                 account,
                                                 newsFeedPostData["post_id"].toString(),
                                                 newsFeedPostData["created_time"].toLongLong(),
@@ -105,7 +128,7 @@ void Inbox::newsFeedLoaded(const QVariant &container)
             Q_ASSERT(np);
 
             // Seed it into the model
-            m_newsFeedModel->insertNewsItem(np);
+            FaceBrick::instance()->m_newsFeedModel->insertNewsItem(np);
 
             // Update our 'recent posts' block badger.
             if (np->createdTime() > m_lastUpdatedNewsFeed)
@@ -154,4 +177,4 @@ void Inbox::newsFeedLoaded(const QVariant &container)
     }
 
     sender()->deleteLater();
-}*/
+}
