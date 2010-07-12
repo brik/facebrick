@@ -49,7 +49,7 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
     m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
 
     NewsFeedDelegate *delegate = new NewsFeedDelegate(this);
-    delegate->setWidgetFontSize(-3);
+    delegate->setWidgetFontSize(-4);
     m_ui->postsListView->setItemDelegate(delegate);
 
     connect(m_ui->downButton, SIGNAL(clicked()), this, SLOT(onDownButtonClicked()));

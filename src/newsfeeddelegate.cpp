@@ -208,7 +208,7 @@ QTextLayout *NewsFeedDelegate::getNameTextLayout(const QString &text, const QSty
     QFont font = option.font;
     font.setBold(true);
 
-    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() + m_fontSizeDifference - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -230,7 +230,7 @@ QTextLayout *NewsFeedDelegate::getStoryTextLayout(const QString &text, const QSt
     layout = new QTextLayout(mangledText);
 
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() + m_fontSizeDifference - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, (avatarWidth + horizontalAvatarPadding));
 
@@ -250,7 +250,7 @@ QTextLayout *NewsFeedDelegate::getTimeTextLayout(const QString &text, const QSty
     layout = new QTextLayout(text);
 
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSizeDifference());
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() + m_fontSizeDifference);
 
     QTextOption opt = layout->textOption();
     opt.setAlignment(Qt::AlignRight | Qt::AlignTop);
@@ -293,7 +293,7 @@ QTextLayout *NewsFeedDelegate::getAttachmentDescriptionTextLayout(const QString 
     layout = new QTextLayout(mangledText);
 
     QFont font = option.font;
-    font.setPointSize(option.font.pointSize() + fontSizeDifference() - 1);
+    font.setPointSize(option.font.pointSize() + fontSizeDifference() + m_fontSizeDifference - 1);
     layout->setFont(font);
     layoutText(layout, option.rect, ((avatarWidth * 2) + horizontalAvatarPadding * 2.5));
 
