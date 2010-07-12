@@ -22,6 +22,7 @@
 class QNetworkAccessManager;
 class FBSession;
 class FBError;
+class NewsFeedModel;
 
 class FaceBrick : public QObject
 {
@@ -32,6 +33,8 @@ public:
 
     QNetworkAccessManager *networkManager() const;
     FBSession *session() const;
+
+    NewsFeedModel * const m_newsFeedModel;
 private slots:
     void unableToGetStreamRead();
     void errorRequestingPermission(const FBError &error);

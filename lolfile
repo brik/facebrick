@@ -1,0 +1,1238 @@
+diff --git a/facebrick.pro b/facebrick.pro
+index 874ae5c..0fbad65 100644
+--- a/facebrick.pro
++++ b/facebrick.pro
+@@ -21,10 +21,16 @@ SOURCES += src/main.cpp\
+     src/newsfeedpostview.cpp \
+     src/newsfeedpostview_addcomment.cpp \
+     src/newsfeedpostview_fetchcomments.cpp \
+-    src/newsfeedpostview_likedislike.cpp \
+     src/facebrick.cpp \
+     src/newsfeedpostattachment.cpp \
+-    src/settingsdialog.cpp
++    src/settingsdialog.cpp \
++    src/inbox.cpp \
++    src/inbox_messages.cpp \
++    src/inbox_errorhandling.cpp \
++    src/mainwindow_likedislike.cpp \
++    src/desktopwidget.cpp \
++    src/newsfeed.cpp \
++    src/newsfeed_errorhandling.cpp
+ 
+ HEADERS  += include/mainwindow.h \
+     include/newsfeedmodel.h \
+@@ -34,11 +40,16 @@ HEADERS  += include/mainwindow.h \
+     include/newsfeeddelegate.h \
+     include/newsfeedpostview.h \
+     include/facebrick.h \
+-    include/settingsdialog.h
++    include/settingsdialog.h \
++    include/inbox.h \
++    include/desktopwidget.h \
++    include/newsfeed.h
+ 
+ FORMS    += src/ui/mainwindow.ui \
+     src/ui/newsfeedpostview.ui \
+-    src/ui/settingsdialog.ui
++    src/ui/settingsdialog.ui \
++    src/ui/inbox.ui \
++    src/ui/desktopwidget.ui
+ 
+ 
+ INCLUDEPATH += ../libqfacebook/inc/
+diff --git a/include/desktopwidget.h b/include/desktopwidget.h
+index e69de29..63d198e 100644
+--- a/include/desktopwidget.h
++++ b/include/desktopwidget.h
+@@ -0,0 +1,28 @@
++#ifndef DESKTOPWIDGET_H
++#define DESKTOPWIDGET_H
++
++#include <QWidget>
++
++namespace Ui {
++    class DesktopWidget;
++}
++
++class DesktopWidget : public QWidget
++{
++    Q_OBJECT
++
++public:
++    explicit DesktopWidget(QWidget *parent = 0);
++    ~DesktopWidget();
++
++protected:
++    void changeEvent(QEvent *e);
++    virtual void paintEvent(QPaintEvent *);
++
++private:
++    Ui::DesktopWidget *m_ui;
++    //void timerEvent(QTimerEvent *);
++
++};
++
++#endif // DESKTOPWIDGET_H
+diff --git a/include/facebrick.h b/include/facebrick.h
+index 0f8475f..420761f 100644
+--- a/include/facebrick.h
++++ b/include/facebrick.h
+@@ -22,6 +22,7 @@
+ class QNetworkAccessManager;
+ class FBSession;
+ class FBError;
++class NewsFeedModel;
+ 
+ class FaceBrick : public QObject
+ {
+@@ -32,6 +33,8 @@ public:
+ 
+     QNetworkAccessManager *networkManager() const;
+     FBSession *session() const;
++
++    NewsFeedModel * const m_newsFeedModel;
+ private slots:
+     void unableToGetStreamRead();
+     void errorRequestingPermission(const FBError &error);
+diff --git a/include/inbox.h b/include/inbox.h
+index fa73d55..65eaac2 100644
+--- a/include/inbox.h
++++ b/include/inbox.h
+@@ -25,13 +25,36 @@ public:
+ protected:
+     void changeEvent(QEvent *e);
+ 
++public slots:
++    void requestFailedWithFacebookError(const FBError& error, bool handled = false);
++
+ private slots:
+     void fetchMessages();
++    void inboxLoaded(const QVariant &);
++    void inboxLoadingError(const FBError &error);
++
++
++    /** Called when a request to elevate permissions fails
++      * @param error Why the request to elevate permissions failed
++      */
++    void permissionRequestFailedWithError(const FBError &error);
++
++    /** Called when request to elevate permissions succeeds
++      */
++    void permissionGranted();
++
++    /** Called when request to elevate permissions is denied or cancelled
++      */
++    void permissionDeniedOrCancelled();
+ 
+ private:
+     Ui::Inbox *m_ui;
++    NewsFeedModel * const m_newsFeedModel;
++
+     bool m_updatingInbox;
+     long long m_lastUpdatedInbox;
++
++
+ };
+ 
+ #endif // INBOX_H
+diff --git a/include/mainwindow.h b/include/mainwindow.h
+index f53e229..8a06745 100644
+--- a/include/mainwindow.h
++++ b/include/mainwindow.h
+@@ -48,6 +48,7 @@ public slots:
+ private slots:
+     void onLogoutMenuAction();
+     void onSettingsMenuAction();
++    void onInboxMenuAction();
+ 
+     void sendStatusUpdate();
+     void statusUpdateError(const FBError &error);
+@@ -74,17 +75,29 @@ private slots:
+     void sessionDidLogout();
+ 
+     void updateInterval();
++
++    void contextMenu(const QPoint &pos);
++
++    void iLikeThis();
++    void likeError(const FBError &error);
++    void likeDone(const QVariant &container);
++    void iDislikeThis();
++    void dislikeError(const FBError &error);
++    void dislikeDone(const QVariant &container);
++
+ protected:
+     void changeEvent(QEvent *e);
+ 
+ private:
+     Ui::MainWindow * const m_ui;
+ 
+-    NewsFeedModel * const m_newsFeedModel;
+     bool m_updatingNewsFeed;
++    bool m_doingLikeDislike;
++
+     long long m_lastUpdatedNewsFeed;
+ 
+     QTimer *m_newsFeedRefreshTimer;
++
+ };
+ 
+ #endif // MAINWINDOW_H
+diff --git a/include/newsfeed.h b/include/newsfeed.h
+index e69de29..48b78ef 100644
+--- a/include/newsfeed.h
++++ b/include/newsfeed.h
+@@ -0,0 +1,54 @@
++#ifndef NEWSFEED_H
++#define NEWSFEED_H
++
++#include "fbconnectglobal.h"
++#include "QTimer"
++
++class FacebookAccountModel;
++class FBError;
++class FBSession;
++class FBLoginDialog;
++
++class NewsFeed : public QObject
++{
++    Q_OBJECT
++public:
++    static NewsFeed *instance(QWidget *);
++    static NewsFeed *instance();
++
++public slots:
++    /** Generic error handler
++      * @param error The error that occurred
++      */
++    void requestFailedWithFacebookError(const FBError& error, bool handled = false);
++    void fetchNewsFeed();
++
++private slots:
++
++    void newsFeedLoadingError(const FBError &error);
++    void newsFeedLoaded(const QVariant&);
++
++private:
++    NewsFeed(QWidget *parent = 0);
++
++    /** Called when a request to elevate permissions fails
++      * @param error Why the request to elevate permissions failed
++      */
++    void permissionRequestFailedWithError(const FBError &error);
++
++    /** Called when request to elevate permissions succeeds
++      */
++    void permissionGranted();
++
++    /** Called when request to elevate permissions is denied or cancelled
++      */
++    void permissionDeniedOrCancelled();
++
++    bool m_updatingNewsFeed;
++
++    long long m_lastUpdatedNewsFeed;
++
++    QTimer *m_newsFeedRefreshTimer;
++};
++
++#endif // NEWSFEED_H
+diff --git a/include/newsfeedpostview.h b/include/newsfeedpostview.h
+index 3d9a09d..a840b3e 100644
+--- a/include/newsfeedpostview.h
++++ b/include/newsfeedpostview.h
+@@ -40,7 +40,6 @@ public:
+ protected:
+     void changeEvent(QEvent *e);
+ private slots:
+-    void setupUi();
+     void onSettingsMenuAction();
+ 
+     void fetchComments();
+@@ -51,13 +50,6 @@ private slots:
+     void commentAdded(const QVariant &container);
+     void commentAddError(const FBError &error);
+ 
+-    void iLikeThis();
+-    void likeError(const FBError &error);
+-    void likeDone(const QVariant &container);
+-    void iDislikeThis();
+-    void dislikeError(const FBError &error);
+-    void dislikeDone(const QVariant &container);
+-
+     void goToPost();
+ 
+     void updateInterval();
+@@ -65,8 +57,7 @@ private:
+     Ui::NewsFeedPostView *m_ui;
+     NewsFeedPost *m_post;
+     bool m_fetchingComments;
+-    bool m_doingLikeDislike;
+-    QAction *m_likeAction;
++
+     QTimer *m_commentRefreshTimer;
+ };
+ 
+diff --git a/src/desktopwidget.cpp b/src/desktopwidget.cpp
+index e69de29..f65f8f9 100644
+--- a/src/desktopwidget.cpp
++++ b/src/desktopwidget.cpp
+@@ -0,0 +1,87 @@
++#include "desktopwidget.h"
++#include "ui_desktopwidget.h"
++
++#include <QPainter>
++#include <QPaintEvent>
++#include <QPalette>
++
++#include <QX11Info>
++#include <X11/Xlib.h>
++#include <X11/X.h>
++#include <X11/Xatom.h>
++
++#include "newsfeed.h"
++#include "facebrick.h"
++#include "newsfeeddelegate.h"
++#include "newsfeedmodel.h"
++
++DesktopWidget::DesktopWidget(QWidget *parent) :
++    QWidget(parent),
++    m_ui(new Ui::DesktopWidget)
++{
++    //NewsFeed::instance(this);
++
++    m_ui->setupUi(this);
++
++    //m_ui->postsListView->setPalette(QPalette(Qt::transparent));
++
++    m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
++    //m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
++
++    //m_ui->postsListView->setWindowOpacity(0.5);
++    //m_ui->postsListView->setBackgroundRole();
++    m_ui->postsListView->setAttribute(Qt::WA_TranslucentBackground);
++    m_ui->postsListView->setAttribute((Qt::WA_X11NetWmWindowTypeDialog));
++
++    setAttribute(Qt::WA_TranslucentBackground);
++    setAttribute(Qt::WA_X11NetWmWindowTypeDialog);
++
++    //setStyleSheet("background:");
++
++    setWindowFlags(windowFlags() | Qt::Dialog);
++
++    Atom window_type = XInternAtom (QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
++    Atom hildonwinType = XInternAtom (QX11Info::display(), "_HILDON_WM_WINDOW_TYPE_HOME_APPLET", False);
++    XChangeProperty(QX11Info::display(), winId(), window_type, XA_ATOM, 32,
++                    PropModeReplace, (unsigned char *) &hildonwinType, 1);
++
++    /*Atom appletId = XInternAtom(QX11Info::display(), "_HILDON_APPLET_ID", False);
++    Atom utf8String = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
++    char appletIdStr[] = "PLASMA_APPLET_THING";
++    XChangeProperty(QX11Info::display(), winId(), appletId, utf8String, 8,
++                    PropModeReplace, (unsigned char*)appletIdStr, strlen(appletIdStr));*/
++
++    /*// the following adds a configure button to the widget, which will be send by some X event...
++    Atom hildonAppletSettings = XInternAtom(QX11Info::display(), "_HILDON_APPLET_SETTINGS", False);
++    int value = 1;
++    XChangeProperty(QX11Info::display(), winId(), hildonAppletSettings, XA_CARDINAL, 32,
++                    PropModeReplace, (unsigned char*)&value, 1);*/
++
++    //m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
++    //m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
++
++    timerEvent(0);
++    startTimer(4000);
++}
++
++DesktopWidget::~DesktopWidget()
++{
++    delete m_ui;
++}
++
++void DesktopWidget::changeEvent(QEvent *e)
++{
++    QWidget::changeEvent(e);
++    switch (e->type()) {
++    case QEvent::LanguageChange:
++        m_ui->retranslateUi(this);
++        break;
++    default:
++        break;
++    }
++}
++
++void DesktopWidget::paintEvent ( QPaintEvent * event ){
++    QPainter painter(this);
++    painter.fillRect(event->rect(),QColor ( 0,0,0,200));
++}
+diff --git a/src/facebookaccountmodel.cpp b/src/facebookaccountmodel.cpp
+index d9de43c..8d22839 100644
+--- a/src/facebookaccountmodel.cpp
++++ b/src/facebookaccountmodel.cpp
+@@ -27,10 +27,11 @@ FacebookAccountModel *FacebookAccountModel::instance(QObject *parent)
+ {
+     static FacebookAccountModel *myinstance = 0;
+ 
+-    if (myinstance == 0 && parent == 0) {
+-        // not allowed to not parent at least once.
+-        return 0;
+-    } else if (!myinstance) {
++    //if (myinstance == 0 && parent == 0) {
++    //    // not allowed to not parent at least once.
++    //    return 0;
++    //} else if (!myinstance) {
++    if (!myinstance) {
+         // create instance
+         myinstance = new FacebookAccountModel(parent);
+     }
+diff --git a/src/facebrick.cpp b/src/facebrick.cpp
+index 8040edd..36d56a9 100644
+--- a/src/facebrick.cpp
++++ b/src/facebrick.cpp
+@@ -21,6 +21,8 @@
+ #include "fbpermissiondialog.h"
+ #include "fberror.h"
+ 
++#include "newsfeedmodel.h"
++
+ #include "facebrick.h"
+ 
+ static FaceBrick *sinstance = NULL;
+@@ -42,6 +44,7 @@ FaceBrick *FaceBrick::instance()
+ 
+ FaceBrick::FaceBrick(FBSession *session)
+     : QObject(0),
++    m_newsFeedModel(new NewsFeedModel(this, true)),
+     m_networkAccessManager(new QNetworkAccessManager(this)),
+     m_session(session)
+ {
+diff --git a/src/inbox.cpp b/src/inbox.cpp
+index fefe8e3..33bf4ab 100644
+--- a/src/inbox.cpp
++++ b/src/inbox.cpp
+@@ -4,15 +4,21 @@
+ 
+ #include "inbox.h"
+ #include "ui_inbox.h"
++#include "newsfeedmodel.h"
+ 
+ Inbox::Inbox(QWidget *parent) :
+     QMainWindow(parent),
+-    m_ui(new Ui::Inbox)
++    m_ui(new Ui::Inbox),
++    m_newsFeedModel(new NewsFeedModel(this, true)),
++    m_updatingInbox(false),
++    m_lastUpdatedInbox(0)
+ {
+ #ifdef Q_WS_MAEMO_5
+     setAttribute(Qt::WA_Maemo5StackedWindow);
+ #endif
+     m_ui->setupUi(this);
++
++    fetchMessages();
+ }
+ 
+ Inbox::~Inbox()
+diff --git a/src/inbox_messages.cpp b/src/inbox_messages.cpp
+index a73c8af..2085016 100644
+--- a/src/inbox_messages.cpp
++++ b/src/inbox_messages.cpp
+@@ -47,48 +47,46 @@ void Inbox::fetchMessages()
+     FBRequest* request = FBRequest::request();
+     Dictionary params;
+ 
+-    // Query to fetch news posts
+-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(FaceBrick::instance()->session()->uid()) + " AND type='newsfeed') AND is_hidden = 0";
++    // Query to fetch messages
++    QString queryOne = "SELECT folder_id, name, unread_count FROM mailbox_folder WHERE viewer_id=" + QString::number(FaceBrick::instance()->session()->uid());
+ 
+     if (m_lastUpdatedInbox != 0) {
+         // Fetch all posts newer than the ones we have now
+         queryOne += " AND created_time > " + QString::number(m_lastUpdatedInbox);
+     }
+ 
+-    // Fetch all people that made these posts, combine them into a single FQL multiquery
+-    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
+-    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
++    QString fql = "{\"query1\":\"" + queryOne + "\"}";
+     params["queries"] = fql;
+ 
+-    qDebug() << "fetchNewsFeed: Sending " << fql;
++    qDebug() << "fetchMessages: Sending " << fql;
+ 
+-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
+-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
++    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(inboxLoaded(QVariant)));
++    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(inboxLoadingError(FBError)));
+     request->call("facebook.fql.multiquery",params);
+ }
+ 
+-/*void Inbox::newsFeedLoadingError(const FBError &error)
++void Inbox::inboxLoadingError(const FBError &error)
+ {
+ #ifdef Q_WS_MAEMO_5
+     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+     QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
+ #endif
+-    m_updatingNewsFeed = false;
++    m_updatingInbox = false;
+     requestFailedWithFacebookError(error, true);
+ }
+ 
+-void Inbox::newsFeedLoaded(const QVariant &container)
++void Inbox::inboxLoaded(const QVariant &container)
+ {
+ #ifdef Q_WS_MAEMO_5
+     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
+ #endif
+-    m_updatingNewsFeed = false;
++    m_updatingInbox = false;
+ 
+     if (container.type() == QVariant::List) {
+         QVariantList list = container.toList();
+ 
+         // Item #0 will be our result set on news items
+-        foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
++        /*foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
+             QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
+ 
+             // Fetch (or create) the account that made this newsfeed post
+@@ -150,8 +148,8 @@ void Inbox::newsFeedLoaded(const QVariant &container)
+ 
+             account->setName(newsFeedUserData["name"].toString());
+             account->setAvatar(newsFeedUserData["pic_square"].toString());
+-        }
++        }*/
+     }
+ 
+     sender()->deleteLater();
+-}*/
++}
+diff --git a/src/main.cpp b/src/main.cpp
+index f55c4df..8781053 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -5,7 +5,9 @@
+ #include "fblogindialog.h"
+ 
+ #include "mainwindow.h"
++#include "desktopwidget.h"
+ #include "facebrick.h"
++#include "newsfeed.h"
+ 
+ int main(int argc, char *argv[])
+ {
+@@ -21,9 +23,12 @@ int main(int argc, char *argv[])
+ 
+     // Initialise us
+     FaceBrick::instance(session);
++    NewsFeed::instance(0);
+ 
+-    MainWindow w(0);
++    DesktopWidget w;
+     w.show();
++    //MainWindow w(0);
++    //w.show();
+ 
+     int retval = a.exec();
+     delete FaceBrick::instance();
+diff --git a/src/mainwindow.cpp b/src/mainwindow.cpp
+index 5041984..e6b46b7 100644
+--- a/src/mainwindow.cpp
++++ b/src/mainwindow.cpp
+@@ -17,6 +17,9 @@
+ 
+ #include <QTimer>
+ #include <QDebug>
++#ifdef Q_WS_MAEMO_5
++#include <QtMaemo5/QMaemo5InformationBox>
++#endif
+ 
+ #include "fbrequest.h"
+ #include "fberror.h"
+@@ -33,12 +36,13 @@
+ #include "mainwindow.h"
+ #include "ui_mainwindow.h"
+ #include "settingsdialog.h"
++#include "inbox.h"
+ 
+ MainWindow::MainWindow(QWidget *parent) :
+     QMainWindow(parent),
+     m_ui(new Ui::MainWindow),
+-    m_newsFeedModel(new NewsFeedModel(this, true)),
+     m_updatingNewsFeed(false),
++    m_doingLikeDislike(false),
+     m_lastUpdatedNewsFeed(0),
+     m_newsFeedRefreshTimer(new QTimer(this))
+ {
+@@ -47,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
+     setAttribute(Qt::WA_Maemo5StackedWindow);
+ #endif
+     m_ui->setupUi(this);
+-    m_ui->postsListView->setModel(m_newsFeedModel);
++    m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
+     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
+ 
+     // Instantiate model so it's parented to us.
+@@ -57,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
+     connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
+     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
+     connect(m_ui->actionS_ettings, SIGNAL(triggered()), this, SLOT(onSettingsMenuAction()));
++    connect(m_ui->action_Inbox, SIGNAL(triggered()), this, SLOT(onInboxMenuAction()));
+ 
+     // Status
+     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
+@@ -85,6 +90,23 @@ MainWindow::MainWindow(QWidget *parent) :
+     }
+ 
+     connect(m_newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
++
++    m_ui->postsListView->setContextMenuPolicy(Qt::CustomContextMenu);
++    connect(m_ui->postsListView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(contextMenu(const QPoint &)));
++}
++
++void MainWindow::contextMenu(const QPoint &pos)
++{
++    QModelIndex index = m_ui->postsListView->currentIndex();
++    NewsFeedPost *post = static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
++
++    QMenu *menu = new QMenu;
++    if (!post->iLikeThis())
++        menu->addAction(tr("&Like"), this, SLOT(iLikeThis()));
++    else
++        menu->addAction(tr("&Unlike"), this, SLOT(iDislikeThis()));
++
++    menu->exec(this->mapToGlobal(pos));
+ }
+ 
+ MainWindow::~MainWindow()
+@@ -120,6 +142,12 @@ void MainWindow::onSettingsMenuAction()
+     SettingsDialog::instance()->exec();
+ }
+ 
++void MainWindow::onInboxMenuAction()
++{
++    Inbox *inbox = new Inbox(this);
++    inbox->show();
++}
++
+ void MainWindow::updateInterval()
+ {
+     // Fetch interval
+diff --git a/src/mainwindow_likedislike.cpp b/src/mainwindow_likedislike.cpp
+index f78874b..727b537 100644
+--- a/src/mainwindow_likedislike.cpp
++++ b/src/mainwindow_likedislike.cpp
+@@ -17,6 +17,9 @@
+ 
+ #include <QTimer>
+ #include <QDebug>
++#ifdef Q_WS_MAEMO_5
++#include <QtMaemo5/QMaemo5InformationBox>
++#endif
+ 
+ #include "fbrequest.h"
+ #include "fberror.h"
+@@ -49,7 +52,7 @@ void MainWindow::iDislikeThis()
+     Dictionary params;
+ 
+     QModelIndex index = m_ui->postsListView->currentIndex();
+-    NewsFeedPost *post = static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
++    NewsFeedPost *post = static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
+ 
+     params["post_id"] = post->id();
+ 
+@@ -74,7 +77,7 @@ void MainWindow::iLikeThis()
+     Dictionary params;
+ 
+     QModelIndex index = m_ui->postsListView->currentIndex();
+-    NewsFeedPost *post = static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
++    NewsFeedPost *post = static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
+ 
+     params["post_id"] = post->id();
+ 
+@@ -91,7 +94,7 @@ void MainWindow::likeDone(const QVariant &container)
+     m_doingLikeDislike = false;
+ 
+     QModelIndex index = m_ui->postsListView->currentIndex();
+-    NewsFeedPost *post = static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
++    NewsFeedPost *post = static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
+ 
+     post->setILikeThis(true);
+     //setupUi();
+@@ -111,7 +114,7 @@ void MainWindow::dislikeDone(const QVariant &container)
+     m_doingLikeDislike = false;
+ 
+     QModelIndex index = m_ui->postsListView->currentIndex();
+-    NewsFeedPost *post = static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
++    NewsFeedPost *post = static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>());
+ 
+     post->setILikeThis(false);
+     //setupUi();
+diff --git a/src/mainwindow_newsfeed.cpp b/src/mainwindow_newsfeed.cpp
+index cf5fd0f..176463a 100644
+--- a/src/mainwindow_newsfeed.cpp
++++ b/src/mainwindow_newsfeed.cpp
+@@ -38,7 +38,7 @@ void MainWindow::newsFeedListClicked(QModelIndex index)
+     NewsFeedPostView *nfpv = new NewsFeedPostView(this);
+ 
+     // Yes, I *know* this line is ugly.
+-    nfpv->setPost(static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
++    nfpv->setPost(static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
+     nfpv->show();
+ }
+ 
+@@ -97,7 +97,6 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
+ 
+     if (container.type() == QVariant::List) {
+         QVariantList list = container.toList();
+-
+         // Item #0 will be our result set on news items
+         foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
+             QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
+@@ -107,7 +106,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
+             Q_ASSERT(account);
+ 
+             // Create a new newsfeed post
+-            NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
++            NewsFeedPost *np = new NewsFeedPost(FaceBrick::instance()->m_newsFeedModel,
+                                                 account,
+                                                 newsFeedPostData["post_id"].toString(),
+                                                 newsFeedPostData["created_time"].toLongLong(),
+@@ -116,7 +115,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
+             Q_ASSERT(np);
+ 
+             // Seed it into the model
+-            m_newsFeedModel->insertNewsItem(np);
++            FaceBrick::instance()->m_newsFeedModel->insertNewsItem(np);
+ 
+             // Update our 'recent posts' block badger.
+             if (np->createdTime() > m_lastUpdatedNewsFeed)
+diff --git a/src/newsfeed.cpp b/src/newsfeed.cpp
+index e69de29..acd68f8 100644
+--- a/src/newsfeed.cpp
++++ b/src/newsfeed.cpp
+@@ -0,0 +1,180 @@
++#include <QObject>
++#include <QTimer>
++#include <QDebug>
++#include <QWidget>
++#include <QList>
++
++#ifdef Q_WS_MAEMO_5
++#include <QtMaemo5/QMaemo5InformationBox>
++#endif
++
++#include "newsfeed.h"
++
++#include "fbrequest.h"
++#include "fberror.h"
++#include "fblogindialog.h"
++#include "fbsession.h"
++#include "fbpermissiondialog.h"
++#include "facebrick.h"
++#include "facebookaccountmodel.h"
++#include "facebookaccount.h"
++
++#include "newsfeeddelegate.h"
++#include "newsfeedmodel.h"
++#include "newsfeedpost.h"
++
++static NewsFeed *feed = NULL;
++
++NewsFeed *NewsFeed::instance(QWidget *parent)
++{
++    feed = new NewsFeed(parent);
++    return feed;
++}
++
++NewsFeed *NewsFeed::instance()
++{
++    Q_ASSERT(feed);
++
++    return feed;
++}
++
++NewsFeed::NewsFeed(QWidget *parent) :
++    QObject(0),
++    m_updatingNewsFeed(false),
++    m_lastUpdatedNewsFeed(0),
++    m_newsFeedRefreshTimer(new QTimer(parent))
++{
++    // Add timer, get timer interval from settings
++
++    fetchNewsFeed();
++
++}
++
++void NewsFeed::fetchNewsFeed()
++{
++    // Lock
++    if (m_updatingNewsFeed) {
++        qDebug() << "fetchNewsFeed: Already updating...";
++        return;
++    }
++
++    m_updatingNewsFeed = true;
++      /*
++       This needs to be done in a slot on the mainwindow
++            #ifdef Q_WS_MAEMO_5
++                setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
++            #endif*/
++
++    FBRequest* request = FBRequest::request();
++    Dictionary params;
++
++    // Query to fetch news posts
++    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(FaceBrick::instance()->session()->uid()) + " AND type='newsfeed') AND is_hidden = 0";
++
++    if (m_lastUpdatedNewsFeed != 0) {
++        // Fetch all posts newer than the ones we have now
++        queryOne += " AND created_time > " + QString::number(m_lastUpdatedNewsFeed);
++    }
++
++    // Fetch all people that made these posts, combine them into a single FQL multiquery
++    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
++    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
++    params["queries"] = fql;
++
++    qDebug() << "fetchNewsFeed: Sending " << fql;
++
++    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
++    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
++
++    request->call("facebook.fql.multiquery",params);
++}
++
++void NewsFeed::newsFeedLoadingError(const FBError &error)
++{/*
++#ifdef Q_WS_MAEMO_5
++    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
++    QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
++#endif*/
++    m_updatingNewsFeed = false;
++    requestFailedWithFacebookError(error, true);
++}
++
++void NewsFeed::newsFeedLoaded(const QVariant &container)
++{
++/* This needs to be moved to a slot
++#ifdef Q_WS_MAEMO_5
++    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
++#endif*/
++    m_updatingNewsFeed = false;
++
++    if (container.type() == QVariant::List) {
++        QVariantList list = container.toList();
++
++        // Item #0 will be our result set on news items
++        foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
++            QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
++
++            // Fetch (or create) the account that made this newsfeed post
++            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedPostData["actor_id"].toLongLong());
++            Q_ASSERT(account);
++
++            // Create a new newsfeed post
++            NewsFeedPost *np = new NewsFeedPost(FaceBrick::instance()->m_newsFeedModel,
++                                                account,
++                                                newsFeedPostData["post_id"].toString(),
++                                                newsFeedPostData["created_time"].toLongLong(),
++                                                newsFeedPostData["permalink"].toString(),
++                                                newsFeedPostData["message"].toString());
++            Q_ASSERT(np);
++
++            // Seed it into the model
++            FaceBrick::instance()->m_newsFeedModel->insertNewsItem(np);
++
++            // Update our 'recent posts' block badger.
++            if (np->createdTime() > m_lastUpdatedNewsFeed)
++                m_lastUpdatedNewsFeed = np->createdTime();
++
++            // Process like info too.
++            bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
++            np->setILikeThis(iLikeThis);
++
++            // *breathe deeply* ok, and now let's try manage attachments
++            QHash<QString, QVariant> attachmentHash = newsFeedPostData["attachment"].toHash();
++
++            // Facebook... why not just *not* send attachment data if there isn't one?
++            if (attachmentHash.count() == 1)
++                continue;
++
++            // Ignore "sent from my mobile" - there should be a better way to do this
++            if (attachmentHash["href"].toString() == "http://www.facebook.com")
++                continue;
++
++            // yes, apparantly this can happen!
++            if (attachmentHash["media"].toList().count() == 0)
++                continue;
++
++            // GOD DAMMIT I HATE THIS BOXING.
++            QHash<QString, QVariant> mediaInfo = attachmentHash["media"].toList().at(0).toHash();
++            qDebug() << mediaInfo;
++
++            np->setHasAttachment(true);
++            np->setDescription(attachmentHash["description"].toString());
++            np->setAttachmentName(mediaInfo["name"].toString());
++            // TODO: href?
++            np->setThumbnail(mediaInfo["src"].toString());
++        }
++
++        foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
++            QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
++
++            // Get (or create - though this should have already been done above) the account
++            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedUserData["id"].toLongLong());
++            Q_ASSERT(account);
++
++            account->setName(newsFeedUserData["name"].toString());
++            account->setAvatar(newsFeedUserData["pic_square"].toString());
++        }
++    }
++
++    sender()->deleteLater();
++}
+diff --git a/src/newsfeed_errorhandling.cpp b/src/newsfeed_errorhandling.cpp
+index e69de29..ef41f1b 100644
+--- a/src/newsfeed_errorhandling.cpp
++++ b/src/newsfeed_errorhandling.cpp
+@@ -0,0 +1,82 @@
++
++/*
++ * Copyright (C) 2010 Kamilla Bremeraunet <kamilla@bremeraunet.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU Lesser General Public License,
++ * version 2.1, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT ANY
++ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
++ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++#include <QDebug>
++#ifdef Q_WS_MAEMO_5
++#include <QtMaemo5/QMaemo5InformationBox>
++#endif
++
++#include "fberror.h"
++#include "fbpermissiondialog.h"
++
++#include "facebrick.h"
++#include "newsfeed.h"
++
++void NewsFeed::requestFailedWithFacebookError(const FBError &error, bool handled)
++{
++    qDebug() << "facebook error is " << error.code() << " - " << error.description();
++
++    // If it's a permissions error, request permission.
++    if (error.code() == 250) {
++        // Find permission requested
++        // XXX: is there any easier way to do this?
++        QString permission = error.description().split(QChar(' ')).last();
++        qDebug() << "About to request " << permission;
++
++        // Note: this is deallocated in the relevant slots.
++        FBPermissionDialog *d = new FBPermissionDialog(FaceBrick::instance()->session());
++        connect(d, SIGNAL(dialogDidSucceed()), this, SLOT(permissionGranted()));
++        connect(d, SIGNAL(dialogDidCancel()), this, SLOT(permissionDeniedOrCancelled()));
++        connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(permissionRequestFailedWithError(FBError)));
++        d->setPermissionToRequest(permission);
++        d->load();
++        d->show();
++    } else if (!handled) {
++        // If it wasn't handled elsewhere, let the user know
++/*#ifdef Q_WS_MAEMO_5
++        QMaemo5InformationBox::information(this, tr("Facebook error: %1 (%2)").arg(error.code()).arg(error.description()));
++#endif*/
++    }
++
++    sender()->deleteLater();
++}
++
++void NewsFeed::permissionRequestFailedWithError(const FBError &error)
++{
++/*#ifdef Q_WS_MAEMO_5
++    QMaemo5InformationBox::information(this, tr("Error requesting Facebook permission: %1 (%2)").arg(error.code()).arg(error.description()));
++#endif*/
++    qDebug() << "Permission request failed! Error code: " << error.code() << ": " << error.description();
++    sender()->deleteLater();
++
++    // Don't try do anything smart like calling requestFailedWithFacebookError,
++    // because it might just end up getting us back here.
++}
++
++void NewsFeed::permissionGranted()
++{
++    qDebug() << "Permission granted";
++    sender()->deleteLater();
++}
++
++void NewsFeed::permissionDeniedOrCancelled()
++{
++    qDebug() << "Permission denied";
++    sender()->deleteLater();
++}
++
+diff --git a/src/newsfeedmodel.cpp b/src/newsfeedmodel.cpp
+index cebd949..2d20715 100644
+--- a/src/newsfeedmodel.cpp
++++ b/src/newsfeedmodel.cpp
+@@ -68,6 +68,9 @@ QVariant NewsFeedModel::data(const QModelIndex &index, int role) const
+     case NewsFeedModel::TimeRole:
+         return np->timeAsString();
+         break;
++    case Qt::BackgroundRole:
++        return QColor(Qt::transparent);
++        break;
+     }
+ 
+     return QVariant();
+diff --git a/src/newsfeedpostview.cpp b/src/newsfeedpostview.cpp
+index bda7aab..ba53ff5 100644
+--- a/src/newsfeedpostview.cpp
++++ b/src/newsfeedpostview.cpp
+@@ -19,6 +19,8 @@
+ #include <QTextDocument>
+ #include <QDebug>
+ #include <QTimer>
++#include <QAction>
++#include <QObject>
+ #ifdef Q_WS_MAEMO_5
+ #include <QtMaemo5/QMaemo5InformationBox>
+ #endif
+@@ -29,6 +31,7 @@
+ 
+ #include "mainwindow.h"
+ #include "newsfeedpost.h"
++#include "newsfeedmodel.h"
+ #include "facebookaccount.h"
+ #include "newsfeedpostview.h"
+ #include "newsfeeddelegate.h"
+@@ -40,8 +43,6 @@ NewsFeedPostView::NewsFeedPostView(QWidget *parent) :
+     m_ui(new Ui::NewsFeedPostView),
+     m_post(0),
+     m_fetchingComments(false),
+-    m_doingLikeDislike(false),
+-    m_likeAction(new QAction(this)),
+     m_commentRefreshTimer(new QTimer(this))
+ {
+     setAttribute(Qt::WA_DeleteOnClose, true);
+@@ -95,7 +96,6 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
+         disconnect(m_post, SIGNAL(modified()));
+     m_post = post;
+     connect(m_post, SIGNAL(modified()), SLOT(setupUi()));
+-    setupUi();
+ 
+     // Request comments
+     qDebug() << "Viewing post " << m_post->id();
+@@ -103,29 +103,6 @@ void NewsFeedPostView::setPost(NewsFeedPost *post)
+     fetchComments();
+ }
+ 
+-void NewsFeedPostView::setupUi()
+-{
+-    setWindowTitle(m_post->author()->name());
+-
+-    if (m_post->iLikeThis()) {
+-        m_likeAction->deleteLater();
+-        m_likeAction = new QAction(tr("&Unlike post"), this);
+-        connect(m_likeAction, SIGNAL(triggered()), SLOT(iDislikeThis()));
+-
+-        QList<QAction *> actions;
+-        actions.append(m_likeAction);
+-        m_ui->menu_File->addActions(actions);
+-    } else {
+-        m_likeAction->deleteLater();
+-        m_likeAction = new QAction(tr("&Like post"), this);
+-        connect(m_likeAction, SIGNAL(triggered()), SLOT(iLikeThis()));
+-
+-        QList<QAction *> actions;
+-        actions.append(m_likeAction);
+-        m_ui->menu_File->addActions(actions);
+-    }
+-}
+-
+ void NewsFeedPostView::changeEvent(QEvent *e)
+ {
+     QWidget::changeEvent(e);
+diff --git a/src/newsfeedpostview_fetchcomments.cpp b/src/newsfeedpostview_fetchcomments.cpp
+index 2b48ad4..c8b8358 100644
+--- a/src/newsfeedpostview_fetchcomments.cpp
++++ b/src/newsfeedpostview_fetchcomments.cpp
+@@ -42,7 +42,7 @@ void NewsFeedPostView::fetchComments()
+     Dictionary params;
+ 
+     // Query to fetch comments
+-    QString queryOne = "SELECT post_id, fromid, time, text FROM comment WHERE post_id='" + m_post->id() + "'";
++    QString queryOne = "SELECT post_id, fromid, id, time, text FROM comment WHERE post_id='" + m_post->id() + "'";
+ 
+     if (m_post->commentsModel()->newestCreatedTime() != 0)
+         queryOne += " AND time > " + QString::number(m_post->commentsModel()->newestCreatedTime());
+@@ -86,7 +86,9 @@ void NewsFeedPostView::commentsLoaded(const QVariant &container)
+             FacebookAccount *author = FacebookAccountModel::instance()->account(commentData["fromid"].toULongLong());
+             Q_ASSERT(author);
+ 
+-            NewsFeedPost *comment = new NewsFeedPost(m_post, author, QLatin1String(""),
++            qDebug() << "ID IS " + commentData["id"].toString();
++
++            NewsFeedPost *comment = new NewsFeedPost(m_post, author, commentData["id"].toString(),
+                                                      commentData["time"].toLongLong(),
+                                                      QLatin1String(""),
+                                                      commentData["text"].toString());
+diff --git a/src/ui/desktopwidget.ui b/src/ui/desktopwidget.ui
+index e69de29..c1efe8b 100644
+--- a/src/ui/desktopwidget.ui
++++ b/src/ui/desktopwidget.ui
+@@ -0,0 +1,112 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<ui version="4.0">
++ <class>DesktopWidget</class>
++ <widget class="QWidget" name="DesktopWidget">
++  <property name="geometry">
++   <rect>
++    <x>0</x>
++    <y>0</y>
++    <width>316</width>
++    <height>368</height>
++   </rect>
++  </property>
++  <property name="windowTitle">
++   <string>Form</string>
++  </property>
++  <property name="autoFillBackground">
++   <bool>true</bool>
++  </property>
++  <widget class="QWidget" name="verticalLayoutWidget">
++   <property name="geometry">
++    <rect>
++     <x>0</x>
++     <y>0</y>
++     <width>321</width>
++     <height>371</height>
++    </rect>
++   </property>
++   <layout class="QVBoxLayout" name="verticalLayout">
++    <property name="spacing">
++     <number>6</number>
++    </property>
++    <property name="sizeConstraint">
++     <enum>QLayout::SetDefaultConstraint</enum>
++    </property>
++    <property name="margin">
++     <number>9</number>
++    </property>
++    <item>
++     <widget class="QLabel" name="titleLabel">
++      <property name="font">
++       <font>
++        <weight>75</weight>
++        <bold>true</bold>
++       </font>
++      </property>
++      <property name="text">
++       <string>FaceBrick</string>
++      </property>
++      <property name="alignment">
++       <set>Qt::AlignCenter</set>
++      </property>
++     </widget>
++    </item>
++    <item>
++     <widget class="QListView" name="postsListView">
++      <property name="sizePolicy">
++       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
++        <horstretch>0</horstretch>
++        <verstretch>0</verstretch>
++       </sizepolicy>
++      </property>
++      <property name="palette">
++       <palette>
++        <active>
++         <colorrole role="Base">
++          <brush brushstyle="SolidPattern">
++           <color alpha="0">
++            <red>255</red>
++            <green>87</green>
++            <blue>182</blue>
++           </color>
++          </brush>
++         </colorrole>
++        </active>
++        <inactive>
++         <colorrole role="Base">
++          <brush brushstyle="SolidPattern">
++           <color alpha="0">
++            <red>255</red>
++            <green>87</green>
++            <blue>182</blue>
++           </color>
++          </brush>
++         </colorrole>
++        </inactive>
++        <disabled>
++         <colorrole role="Base">
++          <brush brushstyle="SolidPattern">
++           <color alpha="255">
++            <red>255</red>
++            <green>255</green>
++            <blue>255</blue>
++           </color>
++          </brush>
++         </colorrole>
++        </disabled>
++       </palette>
++      </property>
++      <property name="autoFillBackground">
++       <bool>false</bool>
++      </property>
++      <property name="resizeMode">
++       <enum>QListView::Adjust</enum>
++      </property>
++     </widget>
++    </item>
++   </layout>
++  </widget>
++ </widget>
++ <resources/>
++ <connections/>
++</ui>
+diff --git a/src/ui/mainwindow.ui b/src/ui/mainwindow.ui
+index 734ee37..9c60d42 100644
+--- a/src/ui/mainwindow.ui
++++ b/src/ui/mainwindow.ui
+@@ -66,7 +66,7 @@
+      <x>0</x>
+      <y>0</y>
+      <width>321</width>
+-     <height>25</height>
++     <height>23</height>
+     </rect>
+    </property>
+    <widget class="QMenu" name="menu_File">
+@@ -76,6 +76,7 @@
+     <addaction name="action_Synchronise"/>
+     <addaction name="action_Logout"/>
+     <addaction name="actionS_ettings"/>
++    <addaction name="action_Inbox"/>
+    </widget>
+    <addaction name="menu_File"/>
+   </widget>
+@@ -94,6 +95,11 @@
+     <string>S&amp;ettings</string>
+    </property>
+   </action>
++  <action name="action_Inbox">
++   <property name="text">
++    <string>&amp;Inbox</string>
++   </property>
++  </action>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <resources/>

@@ -6,6 +6,8 @@
 
 #include "mainwindow.h"
 #include "facebrick.h"
+#include "newsfeed.h"
+#include "desktopwidget.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,9 +23,12 @@ int main(int argc, char *argv[])
 
     // Initialise us
     FaceBrick::instance(session);
+    NewsFeed::instance(0);
 
-    MainWindow w(0);
+    DesktopWidget w;
     w.show();
+    //MainWindow w(0);
+    //w.show();
 
     int retval = a.exec();
     delete FaceBrick::instance();

@@ -6,15 +6,14 @@ maemo5:* {
 
 TARGET = facebrick
 TEMPLATE = app
-#DESTDIR =
+#DESTDIR = 
 
-SOURCES += src/main.cpp \
+SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/newsfeedmodel.cpp \
     src/newsfeedpost.cpp \
     src/facebookaccountmodel.cpp \
     src/facebookaccount.cpp \
-    src/newsfeed.cpp \
     src/newsfeeddelegate.cpp \
     src/mainwindow_newsfeed.cpp \
     src/mainwindow_errorhandling.cpp \
@@ -22,11 +21,14 @@ SOURCES += src/main.cpp \
     src/newsfeedpostview.cpp \
     src/newsfeedpostview_addcomment.cpp \
     src/newsfeedpostview_fetchcomments.cpp \
-    src/newsfeedpostview_likedislike.cpp \
     src/facebrick.cpp \
     src/newsfeedpostattachment.cpp \
     src/settingsdialog.cpp \
+    src/inbox.cpp \
+    src/inbox_errorhandling.cpp \
+    src/mainwindow_likedislike.cpp \
     src/desktopwidget.cpp \
+    src/newsfeed.cpp \
     src/newsfeed_errorhandling.cpp
 
 HEADERS  += include/mainwindow.h \
@@ -38,20 +40,20 @@ HEADERS  += include/mainwindow.h \
     include/newsfeedpostview.h \
     include/facebrick.h \
     include/settingsdialog.h \
+    include/inbox.h \
     include/desktopwidget.h \
     include/newsfeed.h
 
-FORMS += src/ui/desktopwidget.ui \
-    src/ui/mainwindow.ui \
+FORMS    += src/ui/mainwindow.ui \
     src/ui/newsfeedpostview.ui \
-    src/ui/settingsdialog.ui
-
+    src/ui/settingsdialog.ui \
+    src/ui/desktopwidget.ui
 
 
 INCLUDEPATH += ../libqfacebook/inc/
 INCLUDEPATH += include/
-win32:LIBS += ../debug/libqfacebookconnect.a
-unix:LIBS += /usr/lib/libqfacebookconnect.so
+win32:LIBS += ../libqfacebook/debug/libqfacebookconnect.a
+unix:LIBS += ../libqfacebook/debug/libqfacebookconnect.so
 
 target.path = /usr/bin
 
@@ -67,5 +69,3 @@ maemo5:* {
 
 
 INSTALLS += target
-
-OTHER_FILES +=

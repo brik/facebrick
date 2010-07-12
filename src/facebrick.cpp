@@ -21,6 +21,8 @@
 #include "fbpermissiondialog.h"
 #include "fberror.h"
 
+#include "newsfeedmodel.h"
+
 #include "facebrick.h"
 
 static FaceBrick *sinstance = NULL;
@@ -42,6 +44,7 @@ FaceBrick *FaceBrick::instance()
 
 FaceBrick::FaceBrick(FBSession *session)
     : QObject(0),
+    m_newsFeedModel(new NewsFeedModel(this, true)),
     m_networkAccessManager(new QNetworkAccessManager(this)),
     m_session(session)
 {

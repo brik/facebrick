@@ -35,7 +35,8 @@ const int verticalAvatarPadding = 10;
 const int horizontalAvatarPadding = 20;
 
 NewsFeedDelegate::NewsFeedDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegate(parent),
+    m_fontSizeDifference(0)
 {
     m_postTextCache.setMaxCost(5);
     m_postTimeCache.setMaxCost(10);
@@ -329,4 +330,11 @@ int NewsFeedDelegate::fontSizeDifference() const
     int fontSize = settings.value("fontSize").toInt();
     settings.endGroup();
     return fontSize;
+}
+
+/** This method is used to set a font size difference specific for the widget/window calling it,
+ * as we want the desktop widget to have a smaller font size than the application itself */
+void NewsFeedDelegate::setWidgetFontSize(int fontSize)
+{
+    m_fontSizeDifference = fontSize;
 }

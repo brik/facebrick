@@ -32,6 +32,7 @@ public:
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setWidgetFontSize(int fontSize);
 private:
     mutable QCache<QString, QTextLayout> m_postTextCache;
     mutable QCache<QString, QTextLayout> m_postAuthorCache;
@@ -39,6 +40,7 @@ private:
     mutable QCache<QString, QTextLayout> m_postAttachmentUrlCache;
     mutable QCache<QString, QTextLayout> m_postAttachmentDescriptionCache;
     mutable QSize m_delegateSize;
+    int m_fontSizeDifference;
 
     QTextLayout *getNameTextLayout(const QString &text, const QStyleOptionViewItem &option) const;
     QTextLayout *getStoryTextLayout(const QString &text, const QStyleOptionViewItem &option) const;

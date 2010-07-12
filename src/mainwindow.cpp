@@ -33,6 +33,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
+#include "ui_desktopwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
