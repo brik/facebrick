@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
     connect(m_ui->actionS_ettings, SIGNAL(triggered()), this, SLOT(onSettingsMenuAction()));
+    connect(m_ui->action_Inbox, SIGNAL(triggered()), this, SLOT(onInboxMenuAction()));
 
     // Status
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
@@ -118,6 +119,12 @@ void MainWindow::onLogoutMenuAction()
 void MainWindow::onSettingsMenuAction()
 {
     SettingsDialog::instance()->exec();
+}
+
+void MainWindow::onInboxMenuAction()
+{
+    //Inbox *inbox = new Inbox(this);
+    //inbox->show();
 }
 
 void MainWindow::updateInterval()

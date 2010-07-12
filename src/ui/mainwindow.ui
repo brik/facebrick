@@ -76,6 +76,7 @@
     <addaction name="action_Synchronise"/>
     <addaction name="action_Logout"/>
     <addaction name="actionS_ettings"/>
+    <addaction name="action_Inbox"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
@@ -92,6 +93,11 @@
   <action name="actionS_ettings">
    <property name="text">
     <string>S&amp;ettings</string>
+   </property>
+  </action>
+  <action name="action_Inbox">
+   <property name="text">
+    <string>&amp;Inbox</string>
    </property>
   </action>
  </widget>
