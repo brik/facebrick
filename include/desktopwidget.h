@@ -25,6 +25,7 @@ private slots:
 
 private:
     Ui::DesktopWidget *m_ui;
+    void onRefreshButtonClicked();
     //void timerEvent(QTimerEvent *);
 
 };

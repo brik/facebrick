@@ -54,6 +54,7 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
 
     connect(m_ui->downButton, SIGNAL(clicked()), this, SLOT(onDownButtonClicked()));
     connect(m_ui->upButton, SIGNAL(clicked()), this, SLOT(onUpButtonClicked()));
+    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(onRefreshButtonClicked()));
 
     timerEvent(0);
     startTimer(4000);
@@ -108,4 +109,9 @@ void DesktopWidget::changeEvent(QEvent *e)
 void DesktopWidget::paintEvent ( QPaintEvent * event ){
     QPainter painter(this);
     //painter.fillRect(event->rect(),QColor ( 0,0,0,200));
+}
+
+void DesktopWidget::onRefreshButtonClicked()
+{
+    NewsFeed::instance()->fetchNewsFeed();
 }

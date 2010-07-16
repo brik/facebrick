@@ -68,13 +68,24 @@
      </property>
      <item>
       <widget class="QPushButton" name="upButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>45</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true"> QPushButton {
-     border: 1px solid #404040;
+     border: 1px solid #202020;
      border-radius: 2px;
-     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0 #606060, stop: 1 #404040);
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
+ }
+
+QPushButton:pressed {
+	border: 1px solid #0875bd;
+  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #0875bd, stop: 1 #63d3ff);
  }</string>
        </property>
        <property name="text">
@@ -84,13 +95,24 @@
      </item>
      <item>
       <widget class="QPushButton" name="refreshButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>45</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true"> QPushButton {
-     border: 1px solid #404040;
+     border: 1px solid #202020;
      border-radius: 2px;
-     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0 #606060, stop: 1 #404040);
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
+ }
+
+QPushButton:pressed {
+	border: 1px solid #0875bd;
+  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #0875bd, stop: 1 #63d3ff);
  }</string>
        </property>
        <property name="text">
@@ -100,13 +122,24 @@
      </item>
      <item>
       <widget class="QPushButton" name="downButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true"> QPushButton {
-     border: 1px solid #404040;
+     border: 1px solid #202020;
      border-radius: 2px;
-     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0 #606060, stop: 1 #404040);
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
+ }
+
+QPushButton:pressed {
+	border: 1px solid #0875bd;
+  	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+stop: 0 #0875bd, stop: 1 #63d3ff);
  }</string>
        </property>
        <property name="text">
