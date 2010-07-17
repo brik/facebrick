@@ -15,6 +15,7 @@
 #include "facebrick.h"
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
+#include "fberror.h"
 
 DesktopWidget::DesktopWidget(QWidget *parent) :
     QWidget(parent),
@@ -22,12 +23,12 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
-    /*m_ui->postsListView->setStyleSheet("background-color: rgba( 255, 255, 255, 0% );");
+    m_ui->postsListView->setStyleSheet("background-color: rgba( 255, 255, 255, 0% );");
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_X11NetWmWindowTypeDialog);
 
-    setWindowFlags(windowFlags() | Qt::Dialog);*/
+    setWindowFlags(windowFlags() | Qt::Dialog);
 
     Atom window_type = XInternAtom (QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
     Atom hildonwinType = XInternAtom (QX11Info::display(), "_HILDON_WM_WINDOW_TYPE_HOME_APPLET", False);
@@ -55,6 +56,8 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
     connect(m_ui->downButton, SIGNAL(clicked()), this, SLOT(onDownButtonClicked()));
     connect(m_ui->upButton, SIGNAL(clicked()), this, SLOT(onUpButtonClicked()));
     connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(onRefreshButtonClicked()));
+
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal(FBError)), this, SLOT(newsFeedRefreshError(FBError)));
 
     timerEvent(0);
     startTimer(4000);
@@ -108,10 +111,15 @@ void DesktopWidget::changeEvent(QEvent *e)
 
 void DesktopWidget::paintEvent ( QPaintEvent * event ){
     QPainter painter(this);
-    //painter.fillRect(event->rect(),QColor ( 0,0,0,200));
+    painter.fillRect(event->rect(),QColor ( 0,0,0,200));
 }
 
 void DesktopWidget::onRefreshButtonClicked()
 {
+    qDebug() << "Refresh prrrressed";
     NewsFeed::instance()->fetchNewsFeed();
+}
+
+void DesktopWidget::newsFeedRefreshError()
+{
 }
