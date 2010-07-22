@@ -35,18 +35,6 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
     XChangeProperty(QX11Info::display(), winId(), window_type, XA_ATOM, 32,
                     PropModeReplace, (unsigned char *) &hildonwinType, 1);
 
-    /*Atom appletId = XInternAtom(QX11Info::display(), "_HILDON_APPLET_ID", False);
-    Atom utf8String = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
-    char appletIdStr[] = "PLASMA_APPLET_THING";
-    XChangeProperty(QX11Info::display(), winId(), appletId, utf8String, 8,
-                    PropModeReplace, (unsigned char*)appletIdStr, strlen(appletIdStr));*/
-
-    /*// the following adds a configure button to the widget, which will be send by some X event...
-    Atom hildonAppletSettings = XInternAtom(QX11Info::display(), "_HILDON_APPLET_SETTINGS", False);
-    int value = 1;
-    XChangeProperty(QX11Info::display(), winId(), hildonAppletSettings, XA_CARDINAL, 32,
-                    PropModeReplace, (unsigned char*)&value, 1);*/
-
     m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
 
     NewsFeedDelegate *delegate = new NewsFeedDelegate(this);
@@ -57,7 +45,8 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
     connect(m_ui->upButton, SIGNAL(clicked()), this, SLOT(onUpButtonClicked()));
     connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(onRefreshButtonClicked()));
 
-    connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal(FBError)), this, SLOT(newsFeedRefreshError(FBError)));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal()), this, SLOT(newsFeedRefreshError()));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoaded()), this, SLOT(newsFeedLoaded()));
 
     timerEvent(0);
     startTimer(4000);
@@ -75,7 +64,6 @@ void DesktopWidget::onDownButtonClicked()
     if (index.row() < m_ui->postsListView->model()->rowCount(index) - 1)
     {
         index = index.sibling(index.row() + 1, index.column());
-        qDebug() << "Index: " + QString::number(index.row()) + " max is " + QString::number(m_ui->postsListView->model()->rowCount(index));
 
         m_ui->postsListView->scrollTo(index, QAbstractItemView::EnsureVisible);
         m_ui->postsListView->setCurrentIndex(index);
@@ -86,7 +74,6 @@ void DesktopWidget::onUpButtonClicked()
 {
     QModelIndex index = m_ui->postsListView->currentIndex();
 
-    qDebug() << "Index before: " + QString::number(index.row()) + "index will be " + QString::number(index.row() - 1);
     if (index.row() > 0)
     {
         index = index.sibling(index.row() - 1, index.column());
@@ -116,10 +103,16 @@ void DesktopWidget::paintEvent ( QPaintEvent * event ){
 
 void DesktopWidget::onRefreshButtonClicked()
 {
-    qDebug() << "Refresh prrrressed";
     NewsFeed::instance()->fetchNewsFeed();
+    m_ui->refreshButton->setEnabled(false);
 }
 
 void DesktopWidget::newsFeedRefreshError()
 {
+    m_ui->refreshButton->setEnabled(true);
+}
+
+void DesktopWidget::newsFeedLoaded()
+{
+    m_ui->refreshButton->setEnabled(true);
 }

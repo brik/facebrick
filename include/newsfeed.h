@@ -49,6 +49,9 @@ private:
     long long m_lastUpdatedNewsFeed;
 
     QTimer *m_newsFeedRefreshTimer;
+signals:
+    void newsFeedLoadingErrorSignal();
+    void newsFeedLoaded();
 };
 
 #endif // NEWSFEED_H

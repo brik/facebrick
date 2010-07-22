@@ -3,8 +3,10 @@
 
 #include <QWidget>
 
+#include "fbconnectglobal.h"
 namespace Ui {
     class DesktopWidget;
+    class FBError;
 }
 
 class DesktopWidget : public QWidget
@@ -22,10 +24,12 @@ protected:
 private slots:
     void onDownButtonClicked();
     void onUpButtonClicked();
+    void onRefreshButtonClicked();
+    void newsFeedRefreshError();
+    void newsFeedLoaded();
 
 private:
     Ui::DesktopWidget *m_ui;
-    void onRefreshButtonClicked();
     //void timerEvent(QTimerEvent *);
 
 };

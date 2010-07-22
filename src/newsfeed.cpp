@@ -91,21 +91,20 @@ void NewsFeed::fetchNewsFeed()
 }
 
 void NewsFeed::newsFeedLoadingError(const FBError &error)
-{/*
+{
+    // Emit loading completed
+    emit newsFeedLoadingErrorSignal();
+
 #ifdef Q_WS_MAEMO_5
-    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
-    QMaemo5InformationBox::information(this, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
-#endif*/
+    QMaemo5InformationBox::information(0, tr("Error loading newsfeed: %1 (%2)").arg(error.code()).arg(error.description()));
+#endif
     m_updatingNewsFeed = false;
     requestFailedWithFacebookError(error, true);
 }
 
 void NewsFeed::newsFeedLoaded(const QVariant &container)
 {
-/* This needs to be moved to a slot
-#ifdef Q_WS_MAEMO_5
-    setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
-#endif*/
+    emit newsFeedLoaded();
     m_updatingNewsFeed = false;
 
     if (container.type() == QVariant::List) {
