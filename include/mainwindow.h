@@ -36,8 +36,8 @@ class FBLoginDialog;
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent);
     ~MainWindow();
+    static MainWindow *instance();
 
 public slots:
     /** Generic error handler
@@ -80,6 +80,7 @@ protected:
 private:
     Ui::MainWindow * const m_ui;
 
+    MainWindow(QWidget *parent);
     NewsFeedModel * const m_newsFeedModel;
     bool m_updatingNewsFeed;
     long long m_lastUpdatedNewsFeed;

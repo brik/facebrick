@@ -11,11 +11,14 @@
 #include <X11/X.h>
 #include <X11/Xatom.h>
 
-#include "newsfeed.h"
 #include "facebrick.h"
+#include "fberror.h"
+
+#include "mainwindow.h"
+#include "newsfeedpostview.h"
+#include "newsfeed.h"
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
-#include "fberror.h"
 
 DesktopWidget::DesktopWidget(QWidget *parent) :
     QWidget(parent),
@@ -24,6 +27,8 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
     m_ui->setupUi(this);
 
     m_ui->postsListView->setStyleSheet("background-color: rgba( 255, 255, 255, 0% );");
+    m_ui->postsListView->setFocus();
+    m_ui->postsListView->setFocusPolicy(Qt::StrongFocus);
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_X11NetWmWindowTypeDialog);
@@ -47,6 +52,9 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
 
     connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal()), this, SLOT(newsFeedRefreshError()));
     connect(NewsFeed::instance(), SIGNAL(newsFeedLoaded()), this, SLOT(newsFeedLoaded()));
+
+    // News posts
+    connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
     timerEvent(0);
     startTimer(4000);
@@ -115,4 +123,15 @@ void DesktopWidget::newsFeedRefreshError()
 void DesktopWidget::newsFeedLoaded()
 {
     m_ui->refreshButton->setEnabled(true);
+}
+
+void DesktopWidget::newsFeedListClicked(QModelIndex index)
+{
+    MainWindow::instance()->show();
+
+    NewsFeedPostView *nfpv = new NewsFeedPostView(MainWindow::instance());
+
+    // Yes, I *know* this line is ugly.
+    nfpv->setPost(static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
+    nfpv->show();
 }

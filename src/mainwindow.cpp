@@ -35,6 +35,16 @@
 #include "settingsdialog.h"
 #include "ui_desktopwidget.h"
 
+static MainWindow *win = NULL;
+
+MainWindow *MainWindow::instance()
+{
+    if (win == NULL)
+        win = new MainWindow(0);
+
+    return win;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow),

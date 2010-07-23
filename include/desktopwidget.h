@@ -2,6 +2,7 @@
 #define DESKTOPWIDGET_H
 
 #include <QWidget>
+#include <QModelIndex>
 
 #include "fbconnectglobal.h"
 namespace Ui {
@@ -27,6 +28,7 @@ private slots:
     void onRefreshButtonClicked();
     void newsFeedRefreshError();
     void newsFeedLoaded();
+    void newsFeedListClicked(QModelIndex index);
 
 private:
     Ui::DesktopWidget *m_ui;
