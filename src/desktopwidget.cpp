@@ -52,6 +52,7 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
 
     connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal()), this, SLOT(newsFeedRefreshError()));
     connect(NewsFeed::instance(), SIGNAL(newsFeedLoaded()), this, SLOT(newsFeedLoaded()));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoading()), this, SLOT(newsFeedLoading()));
 
     // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
@@ -134,4 +135,9 @@ void DesktopWidget::newsFeedListClicked(QModelIndex index)
     // Yes, I *know* this line is ugly.
     nfpv->setPost(static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
     nfpv->show();
+}
+
+void DesktopWidget::newsFeedLoading()
+{
+    m_ui->refreshButton->setEnabled(false);
 }

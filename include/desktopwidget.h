@@ -29,6 +29,7 @@ private slots:
     void newsFeedRefreshError();
     void newsFeedLoaded();
     void newsFeedListClicked(QModelIndex index);
+    void newsFeedLoading();
 
 private:
     Ui::DesktopWidget *m_ui;
