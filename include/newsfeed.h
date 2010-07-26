@@ -13,7 +13,6 @@ class NewsFeed : public QObject
 {
     Q_OBJECT
 public:
-    static NewsFeed *instance(QWidget *);
     static NewsFeed *instance();
 
 public slots:
@@ -27,6 +26,7 @@ private slots:
 
     void newsFeedLoadingError(const FBError &error);
     void newsFeedLoaded(const QVariant&);
+    void updateInterval();
 
 private:
     NewsFeed(QWidget *parent = 0);
@@ -52,6 +52,7 @@ private:
 signals:
     void newsFeedLoadingErrorSignal();
     void newsFeedLoaded();
+    void newsFeedLoading();
 };
 
 #endif // NEWSFEED_H

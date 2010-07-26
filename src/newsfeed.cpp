@@ -22,18 +22,14 @@
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
 #include "newsfeedpost.h"
+#include "settingsdialog.h"
 
 static NewsFeed *feed = NULL;
 
-NewsFeed *NewsFeed::instance(QWidget *parent)
-{
-    feed = new NewsFeed(parent);
-    return feed;
-}
-
 NewsFeed *NewsFeed::instance()
 {
-    Q_ASSERT(feed);
+    if (feed == NULL)
+        feed = new NewsFeed(0);
 
     return feed;
 }
@@ -48,10 +44,28 @@ NewsFeed::NewsFeed(QWidget *parent) :
 
     fetchNewsFeed();
 
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval > 0) {
+        int timer = 1000 * 60 * updateInterval; // 1 sec * 60 * number of minutes
+        m_newsFeedRefreshTimer->setInterval(timer);
+        m_newsFeedRefreshTimer->start();
+    }
+
+    connect(m_newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
+
+    // Timer
+    connect(SettingsDialog::instance(), SIGNAL(updateIntervalChanged()), this, SLOT(updateInterval()));
 }
 
 void NewsFeed::fetchNewsFeed()
 {
+    emit newsFeedLoading();
+
     // Lock
     if (m_updatingNewsFeed) {
         qDebug() << "fetchNewsFeed: Already updating...";
@@ -177,4 +191,21 @@ void NewsFeed::newsFeedLoaded(const QVariant &container)
     }
 
     sender()->deleteLater();
+}
+
+void NewsFeed::updateInterval()
+{
+    // Fetch interval
+    QSettings settings("FaceBrick", "FaceBrick");
+    settings.beginGroup("settings");
+    int updateInterval = settings.value("updateInterval").toInt();
+    settings.endGroup();
+
+    if (updateInterval == 0)
+        m_newsFeedRefreshTimer->stop();
+    else {
+        int timer = 1000 * 60 * updateInterval;
+        m_newsFeedRefreshTimer->setInterval(timer);
+        m_newsFeedRefreshTimer->start();
+    }
 }
