@@ -28,6 +28,7 @@
 #include "newsfeeddelegate.h"
 #include "newsfeedmodel.h"
 #include "newsfeedpost.h"
+#include "newsfeed.h"
 #include "facebookaccountmodel.h"
 #include "facebookaccount.h"
 #include "mainwindow.h"
@@ -47,25 +48,21 @@ MainWindow *MainWindow::instance()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::MainWindow),
-    m_newsFeedModel(new NewsFeedModel(this, true)),
-    m_updatingNewsFeed(false),
-    m_lastUpdatedNewsFeed(0),
-    m_newsFeedRefreshTimer(new QTimer(this))
+    m_ui(new Ui::MainWindow)
 {
 #ifdef Q_WS_MAEMO_5
     setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
     m_ui->setupUi(this);
-    m_ui->postsListView->setModel(m_newsFeedModel);
+    m_ui->postsListView->setModel(FaceBrick::instance()->m_newsFeedModel);
     m_ui->postsListView->setItemDelegate(new NewsFeedDelegate(this));
 
     // Instantiate model so it's parented to us.
     FacebookAccountModel::instance(this);
 
     // Menu
-    connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
+    connect(m_ui->action_Synchronise, SIGNAL(triggered()), NewsFeed::instance(), SLOT(fetchNewsFeed()));
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
     connect(m_ui->actionS_ettings, SIGNAL(triggered()), this, SLOT(onSettingsMenuAction()));
 
@@ -78,24 +75,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
 
-    // Timer
-    connect(SettingsDialog::instance(), SIGNAL(updateIntervalChanged()), this, SLOT(updateInterval()));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoadingErrorSignal()), this, SLOT(newsFeedLoadingError()));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoaded()), this, SLOT(newsFeedLoaded()));
+    connect(NewsFeed::instance(), SIGNAL(newsFeedLoading()), this, SLOT(newsFeedLoading()));
 
-    fetchNewsFeed();
-
-    // Fetch interval
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int updateInterval = settings.value("updateInterval").toInt();
-    settings.endGroup();
-
-    if (updateInterval > 0) {
-        int timer = 1000 * 60 * updateInterval; // 1 sec * 60 * number of minutes
-        m_newsFeedRefreshTimer->setInterval(timer);
-        m_newsFeedRefreshTimer->start();
-    }
-
-    connect(m_newsFeedRefreshTimer, SIGNAL(timeout()), SLOT(fetchNewsFeed()));
+    NewsFeed::instance()->fetchNewsFeed();
 }
 
 MainWindow::~MainWindow()
@@ -129,21 +113,4 @@ void MainWindow::onLogoutMenuAction()
 void MainWindow::onSettingsMenuAction()
 {
     SettingsDialog::instance()->exec();
-}
-
-void MainWindow::updateInterval()
-{
-    // Fetch interval
-    QSettings settings("FaceBrick", "FaceBrick");
-    settings.beginGroup("settings");
-    int updateInterval = settings.value("updateInterval").toInt();
-    settings.endGroup();
-
-    if (updateInterval == 0)
-        m_newsFeedRefreshTimer->stop();
-    else {
-        int timer = 1000 * 60 * updateInterval;
-        m_newsFeedRefreshTimer->setInterval(timer);
-        m_newsFeedRefreshTimer->start();
-    }
 }

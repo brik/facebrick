@@ -53,9 +53,9 @@ private slots:
     void statusUpdateError(const FBError &error);
     void statusUpdated(const QVariant &);
 
-    void fetchNewsFeed();
-    void newsFeedLoadingError(const FBError &error);
-    void newsFeedLoaded(const QVariant&);
+    void newsFeedLoadingError();
+    void newsFeedLoaded();
+    void newsFeedLoading();
     void newsFeedListClicked(QModelIndex);
 
     /** Called when a request to elevate permissions fails
@@ -73,7 +73,6 @@ private slots:
 
     void sessionDidLogout();
 
-    void updateInterval();
 protected:
     void changeEvent(QEvent *e);
 
@@ -81,11 +80,6 @@ private:
     Ui::MainWindow * const m_ui;
 
     MainWindow(QWidget *parent);
-    NewsFeedModel * const m_newsFeedModel;
-    bool m_updatingNewsFeed;
-    long long m_lastUpdatedNewsFeed;
-
-    QTimer *m_newsFeedRefreshTimer;
 };
 
 #endif // MAINWINDOW_H

@@ -25,6 +25,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "newsfeed.h"
 
 
 void MainWindow::sendStatusUpdate()
@@ -69,7 +70,7 @@ void MainWindow::statusUpdated(const QVariant &)
     m_ui->statusText->setText(QLatin1String(""));
 
     // Trigger a check for our own post
-    fetchNewsFeed();
+    NewsFeed::instance()->fetchNewsFeed();
 
     sender()->deleteLater();
 }
