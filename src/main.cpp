@@ -23,15 +23,24 @@ int main(int argc, char *argv[])
 
     // Initialise us
     FaceBrick::instance(session);
-    NewsFeed::instance(0);
+    NewsFeed::instance();
 
-    DesktopWidget w;
-    w.show();
-    //MainWindow w(0);
-    //w.show();
+    DesktopWidget *w = 0;
+
+    if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "desktop") {
+        w = new DesktopWidget;
+        qDebug() << QCoreApplication::arguments().at(0);
+        qDebug() << QCoreApplication::arguments().at(1);
+        w->show();
+    }
+    else {
+        MainWindow::instance()->show();
+    }
 
     int retval = a.exec();
     delete FaceBrick::instance();
+    delete NewsFeed::instance();
     delete session;
+    delete w;
     return retval;
 }
