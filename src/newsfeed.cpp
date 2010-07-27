@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2010 Kamilla Bremeraunet <kamilla@bremeraunet.com>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU Lesser General Public License,
+ * version 2.1, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <QObject>
 #include <QTimer>
 #include <QDebug>
@@ -64,6 +81,7 @@ NewsFeed::NewsFeed(QWidget *parent) :
 
 void NewsFeed::fetchNewsFeed()
 {
+    // Emit signal to let windows using it display a loading signal
     emit newsFeedLoading();
 
     // Lock
@@ -73,11 +91,6 @@ void NewsFeed::fetchNewsFeed()
     }
 
     m_updatingNewsFeed = true;
-      /*
-       This needs to be done in a slot on the mainwindow
-            #ifdef Q_WS_MAEMO_5
-                setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
-            #endif*/
 
     FBRequest* request = FBRequest::request();
     Dictionary params;
