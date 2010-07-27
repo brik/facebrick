@@ -29,8 +29,6 @@ int main(int argc, char *argv[])
 
     if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "desktop") {
         w = new DesktopWidget;
-        qDebug() << QCoreApplication::arguments().at(0);
-        qDebug() << QCoreApplication::arguments().at(1);
         w->show();
     }
     else {
