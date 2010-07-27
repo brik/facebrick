@@ -38,7 +38,7 @@ void MainWindow::newsFeedListClicked(QModelIndex index)
     NewsFeedPostView *nfpv = new NewsFeedPostView(this);
 
     // Yes, I *know* this line is ugly.
-    nfpv->setPost(static_cast<NewsFeedPost *>(m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
+    nfpv->setPost(static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
     nfpv->show();
 }
 
