@@ -64,7 +64,6 @@
      border-radius: 2px;
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
-	border-image: url(:/desktopwidget/images/up.png) -10 -18 -10 -18;
  }
 
 QPushButton:pressed {
@@ -92,18 +91,12 @@ stop: 0 #0875bd, stop: 1 #63d3ff);
      border-radius: 2px;
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
-	border-image: url(:/desktopwidget/images/refresh.png) -3 -20 -3 -20;
  }
 
 QPushButton:pressed {
 	border: 1px solid #0875bd;
   	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
 stop: 0 #0875bd, stop: 1 #63d3ff);
-	border-image: url(:/desktopwidget/images/cross.png) -3 -20 -3 -20;
- }
-
-QPushButton:disabled {
-	border-image: url(:/desktopwidget/images/cross.png) -3 -20 -3 -20;
  }</string>
        </property>
        <property name="text">
@@ -125,7 +118,6 @@ QPushButton:disabled {
      border-radius: 2px;
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,                                   stop: 0 #404040, stop: 1 #202020);
      max-height: 60px;
-	border-image: url(:/desktopwidget/images/down.png) -10 -18 -10 -18;
  }
 
 QPushButton:pressed {

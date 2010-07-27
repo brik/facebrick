@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPalette>
+#include <QIcon>
 
 #include <QX11Info>
 #include <X11/Xlib.h>
@@ -26,9 +27,11 @@ DesktopWidget::DesktopWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
+    m_ui->refreshButton->setIcon(QIcon::fromTheme("general_refresh"));
+    m_ui->upButton->setIcon(QIcon::fromTheme("keyboard_move_up"));
+    m_ui->downButton->setIcon(QIcon::fromTheme("keyboard_move_down"));
+
     m_ui->postsListView->setStyleSheet("background-color: rgba( 255, 255, 255, 0% );");
-    m_ui->postsListView->setFocus();
-    m_ui->postsListView->setFocusPolicy(Qt::StrongFocus);
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_X11NetWmWindowTypeDialog);
@@ -114,16 +117,19 @@ void DesktopWidget::onRefreshButtonClicked()
 {
     NewsFeed::instance()->fetchNewsFeed();
     m_ui->refreshButton->setEnabled(false);
+    m_ui->refreshButton->setIcon(QIcon::fromTheme("general_stop"));
 }
 
 void DesktopWidget::newsFeedRefreshError()
 {
     m_ui->refreshButton->setEnabled(true);
+    m_ui->refreshButton->setIcon(QIcon::fromTheme("general_refresh"));
 }
 
 void DesktopWidget::newsFeedLoaded()
 {
     m_ui->refreshButton->setEnabled(true);
+    m_ui->refreshButton->setIcon(QIcon::fromTheme("general_refresh"));
 }
 
 void DesktopWidget::newsFeedListClicked(QModelIndex index)
@@ -132,7 +138,6 @@ void DesktopWidget::newsFeedListClicked(QModelIndex index)
 
     NewsFeedPostView *nfpv = new NewsFeedPostView(MainWindow::instance());
 
-    // Yes, I *know* this line is ugly.
     nfpv->setPost(static_cast<NewsFeedPost *>(FaceBrick::instance()->m_newsFeedModel->data(index, NewsFeedModel::PostRole).value<void *>()));
     nfpv->show();
 }
