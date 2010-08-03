@@ -1,6 +1,8 @@
 #include <QtGui/QApplication>
 #include <QDebug>
 
+#include "qmaemo5homescreenadaptor.h"
+
 #include "fbsession.h"
 #include "fblogindialog.h"
 
@@ -25,11 +27,14 @@ int main(int argc, char *argv[])
     FaceBrick::instance(session);
     NewsFeed::instance();
 
-    DesktopWidget *w = 0;
+    DesktopWidget w;
 
-    if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "desktop") {
-        w = new DesktopWidget;
-        w->show();
+    if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "desktop") {     
+        QMaemo5HomescreenAdaptor *adaptor = new QMaemo5HomescreenAdaptor(&w);
+        adaptor->setSettingsAvailable(true);
+        QObject::connect(adaptor, SIGNAL(settingsRequested()), &w, SLOT(showSettingsDialog()));
+
+        w.show();
     }
     else {
         MainWindow::instance()->show();
@@ -39,6 +44,5 @@ int main(int argc, char *argv[])
     delete FaceBrick::instance();
     delete NewsFeed::instance();
     delete session;
-    delete w;
     return retval;
 }

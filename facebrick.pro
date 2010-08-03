@@ -27,7 +27,8 @@ SOURCES += src/main.cpp \
     src/newsfeedpostattachment.cpp \
     src/settingsdialog.cpp \
     src/desktopwidget.cpp \
-    src/newsfeed_errorhandling.cpp
+    src/newsfeed_errorhandling.cpp \
+    src/qmaemo5homescreenadaptor.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \
@@ -39,7 +40,8 @@ HEADERS  += include/mainwindow.h \
     include/facebrick.h \
     include/settingsdialog.h \
     include/desktopwidget.h \
-    include/newsfeed.h
+    include/newsfeed.h \
+    include/qmaemo5homescreenadaptor.h
 
 FORMS += src/ui/desktopwidget.ui \
     src/ui/mainwindow.ui \
