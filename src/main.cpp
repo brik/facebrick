@@ -29,15 +29,14 @@ int main(int argc, char *argv[])
 
     DesktopWidget w;
 
-    if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "desktop") {     
-        QMaemo5HomescreenAdaptor *adaptor = new QMaemo5HomescreenAdaptor(&w);
-        adaptor->setSettingsAvailable(true);
-        QObject::connect(adaptor, SIGNAL(settingsRequested()), &w, SLOT(showSettingsDialog()));
-
-        w.show();
+    if (QCoreApplication::arguments().count() > 1 && QCoreApplication::arguments().at(1) == "main") {
+        MainWindow::instance()->show();
     }
     else {
-        MainWindow::instance()->show();
+        QMaemo5HomescreenAdaptor *adaptor = new QMaemo5HomescreenAdaptor(&w);
+        adaptor->setSettingsAvailable(false);
+
+        w.show();
     }
 
     int retval = a.exec();
