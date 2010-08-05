@@ -27,12 +27,7 @@ FacebookAccountModel *FacebookAccountModel::instance(QObject *parent)
 {
     static FacebookAccountModel *myinstance = 0;
 
-    //if (myinstance == 0 && parent == 0) {
-    //    // not allowed to not parent at least once.
-    //    return 0;
-    //} else if (!myinstance) {
     if (!myinstance) {
-        // create instance
         myinstance = new FacebookAccountModel(parent);
     }
 

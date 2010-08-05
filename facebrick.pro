@@ -7,7 +7,7 @@ maemo5:* {
 TARGET = facebrick
 TEMPLATE = app
 
-SOURCES += src/main.cpp \
+SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/newsfeedmodel.cpp \
     src/newsfeedpost.cpp \
