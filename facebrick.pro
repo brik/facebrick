@@ -6,7 +6,6 @@ maemo5:* {
 
 TARGET = facebrick
 TEMPLATE = app
-#DESTDIR =
 
 SOURCES += src/main.cpp \
         src/mainwindow.cpp \
@@ -55,19 +54,20 @@ INCLUDEPATH += include/
 win32:LIBS += ../debug/libqfacebookconnect.a
 unix:LIBS += /usr/lib/libqfacebookconnect.so
 
-target.path = /usr/bin
+
+target.path = /opt/facebrick
 
 maemo5:* {
-    INSTALLS += desktop icon
-    desktop.path =  /usr/share/applications/hildon
-    desktop.files += facebrick.desktop
+    INSTALLS += desktop main icon
+
+    desktop.path = /usr/share/applications/hildon-home
+    desktop.files = facebrickdesktop.desktop
+
+    main.path = /usr/share/applications/hildon
+    main.files = facebrick.desktop
 
     icon.path = /usr/share/pixmaps
     icon.files += facebrick.png
 }
 
-
-
 INSTALLS += target
-
-OTHER_FILES +=

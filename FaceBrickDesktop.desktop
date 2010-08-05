@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=FaceBrick
+Type=qt
+X-Path=/opt/facebrick/facebrick
+X-Multiple-Instances=false
+X-home-applet-minwidth=250
+X-home-applet-minheight=150

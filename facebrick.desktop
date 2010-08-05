@@ -3,5 +3,5 @@ Encoding=UTF-8
 Version=0.1
 Type=Application
 Name=FaceBrick
-Exec=/usr/bin/facebrick
+Exec=/opt/facebrick/facebrick main
 Icon=facebrick
