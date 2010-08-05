@@ -1,13 +1,13 @@
 Source: facebrick
-Section: user/network 
+Section: user/network
 Priority: optional
 Maintainer: Robin Burchell <viroteck@viroteck.net>
-Build-Depends: debhelper (>= 5), libqt4-dev
+Build-Depends: debhelper (>= 5), libqt4-dev, libhildon1-dev, libhildondesktop1-dev
 Standards-Version: 3.7.2
 
 Package: facebrick
 Architecture: any
-Depends: libqt4-gui, libqt4-xmlpatterns, libqt4-xml, libqt4-webkit, libqt4-network, libqt4-maemo5, libc6 (>= 2.5.0-1), libgcc1 (>= 1:4.2.1), libstdc++6 (>= 4.2.1), libqfacebook
+Depends: libqt4-gui, libqt4-xmlpatterns, libqt4-xml, libqt4-webkit, libqt4-network, libqt4-maemo5, libc6 (>= 2.5.0-1), libgcc1 (>= 1:4.2.1), libstdc++6 (>= 4.2.1), libqfacebook, qt4-homescreen-loader
 Description: A Maemo Facebook client.
  A Maemo Facebook client offering a rich
  UI experience/integration with Maemo features.
