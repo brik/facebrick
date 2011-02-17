@@ -26,6 +26,7 @@
 
 #include "facebookaccount.h"
 #include "facebrick.h"
+#include "qfacebook.h"
 
 FacebookAccount::FacebookAccount(QObject *parent, FBUID uid)
     : QObject(parent),
@@ -64,7 +65,8 @@ void FacebookAccount::setAvatar(const QUrl &url)
     m_avatarUrl = url.toString();
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
-    QNetworkReply *reply = FaceBrick::instance()->networkManager()->get(request);
+
+    QNetworkReply *reply = FaceBrick::instance()->m_facebook->get(url);
     connect(reply, SIGNAL(finished()), SLOT(onAvatarDownloaded()));
 
     // modified() is emitted when avatar download is done.
@@ -74,6 +76,31 @@ void FacebookAccount::onAvatarDownloaded()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     Q_ASSERT(reply);
+
+    QByteArray data;
+    QUrl redir;
+    if (!reply) {
+        qDebug() << "cast fail";
+        return;
+    }
+    if (reply->error() != QNetworkReply::NoError) {
+        qDebug() << "Picture get fail!";
+        reply->deleteLater();
+        reply = 0;
+        return;
+    }
+
+    qDebug() << reply;
+    redir = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+
+    qDebug() << redir;
+    // Facebook is redirecting the picture request
+    if(!redir.isEmpty()) {
+        qDebug() << "Redirecting picture request to " + redir.toString();
+        setAvatar(redir);
+        // not finished yet!
+        return;
+    }
 
     QImage temporary = QImage::fromData(reply->readAll());
 
@@ -86,4 +113,38 @@ void FacebookAccount::onAvatarDownloaded()
 
     reply->deleteLater();
     emit modified();
+
+    /*QByteArray data;
+    QUrl redir;
+    if (!reply) {
+        qDebug() << "Cast to qnetwork reply fail!";
+        goto onfinished;
+    }
+    if (reply->error() != QNetworkReply::NoError) {
+        qDebug() << "Picture get fail!";
+        reply->deleteLater();
+        reply = 0;
+
+        goto onfinished;
+    }
+
+    redir = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    // Facebook is redirecting the picture request
+    if(!redir.isEmpty()) {
+        qDebug() << "Redirecting picture request to " + redir.toString();
+        reply = qfaceBook->get(redir);
+        if (reply)
+            connect(reply, SIGNAL(finished()), this, SLOT(onPictureReady()));
+        // not finished yet!
+        return;
+    }
+
+    qDebug() << "######### Parsed picture:";
+    data = reply->readAll();
+    m_picture = QImage::fromData(data, "JPEG");
+
+    onfinished:
+    if (m_isLoaded)
+        emit finished();
+    m_isLoaded = true;*/
 }

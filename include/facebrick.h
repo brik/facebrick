@@ -19,27 +19,40 @@
 #define FACEBRICK_H
 
 #include <QObject>
+
 class QNetworkAccessManager;
 class FBSession;
 class FBError;
+class GetConnection;
+class QFacebook;
 
 class FaceBrick : public QObject
 {
 Q_OBJECT
 public:
-    static FaceBrick *instance(FBSession *session);
+    static FaceBrick *instance(QString client_id, QString client_secret);
     static FaceBrick *instance();
 
+    void setToken(QString token);
+    QString getToken();
+    QString *getClientId();
+    void createConnection();
+
     QNetworkAccessManager *networkManager() const;
-    FBSession *session() const;
+    GetConnection *m_connection;
+    QFacebook *m_facebook;
+    QString *m_clientId;
+    QString *m_clientSecret;
+    QString m_token;
 private slots:
     void unableToGetStreamRead();
     void errorRequestingPermission(const FBError &error);
 private:
-    FaceBrick(FBSession *session);
+    FaceBrick(QString client_id, QString client_secret);
 
     QNetworkAccessManager * const m_networkAccessManager;
-    FBSession * const m_session;
+    //FBSession * const m_session;
+
 };
 
 #endif // FACEBRICK_H

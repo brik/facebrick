@@ -22,14 +22,16 @@
 #include "fberror.h"
 
 #include "facebrick.h"
+#include "getconnection.h"
+#include "qfacebook.h"
 
 static FaceBrick *sinstance = NULL;
 
-FaceBrick *FaceBrick::instance(FBSession *session)
+FaceBrick *FaceBrick::instance(QString client_id, QString client_secret)
 {
     Q_ASSERT(sinstance == NULL);
 
-    sinstance = new FaceBrick(session);
+    sinstance = new FaceBrick(client_id, client_secret);
     return sinstance;
 }
 
@@ -40,19 +42,12 @@ FaceBrick *FaceBrick::instance()
     return sinstance;
 }
 
-FaceBrick::FaceBrick(FBSession *session)
+FaceBrick::FaceBrick(QString client_id, QString client_secret)
     : QObject(0),
     m_networkAccessManager(new QNetworkAccessManager(this)),
-    m_session(session)
+    m_clientId(new QString(client_id)),
+    m_clientSecret(new QString(client_secret))
 {
-    // Request stream_read permissions (needed to show stupid newsfeed, and stupid FB API won't tell us we don't have it.)
-    // TODO: it might be nice to investigate if we can check if we have this perm already to avoid showing multiple times.
-    // TODO: permission dialog is leaked, see note in constructor
-    FBPermissionDialog *d = new FBPermissionDialog(m_session);
-    connect(d, SIGNAL(dialogDidCancel()), this, SLOT(unableToGetStreamRead()));
-    connect(d, SIGNAL(dialogDidFailWithError(FBError)), this, SLOT(errorRequestingPermission(FBError)));
-    d->setPermissionToRequest("read_stream");
-    d->show();
 }
 
 QNetworkAccessManager *FaceBrick::networkManager() const
@@ -60,9 +55,25 @@ QNetworkAccessManager *FaceBrick::networkManager() const
     return m_networkAccessManager;
 }
 
-FBSession *FaceBrick::session() const
+void FaceBrick::setToken(QString token)
 {
-    return m_session;
+    m_token = token;
+    m_facebook = new QFacebook(token, this);
+}
+
+QString FaceBrick::getToken()
+{
+    return m_token;
+}
+
+QString *FaceBrick::getClientId()
+{
+    return m_clientId;
+}
+
+void FaceBrick::createConnection()
+{
+    m_connection = new GetConnection(0, m_token);
 }
 
 void FaceBrick::errorRequestingPermission(const FBError &error)

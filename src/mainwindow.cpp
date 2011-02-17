@@ -22,7 +22,7 @@
 #include "fberror.h"
 #include "fblogindialog.h"
 #include "fbsession.h"
-#include "fbpermissiondialog.h"
+//#include "fbpermissiondialog.h"
 #include "facebrick.h"
 
 #include "newsfeeddelegate.h"
@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Instantiate model so it's parented to us.
     FacebookAccountModel::instance(this);
 
+    FaceBrick::instance()->createConnection();
+
     // Menu
     connect(m_ui->action_Synchronise, SIGNAL(triggered()), this, SLOT(fetchNewsFeed()));
     connect(m_ui->action_Logout, SIGNAL(triggered()), this, SLOT(onLogoutMenuAction()));
@@ -62,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->updateStatusButton, SIGNAL(clicked()), this, SLOT(sendStatusUpdate()));
 
     // Session
-    connect(FaceBrick::instance()->session(), SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
+    //connect(FaceBrick::instance()->session(), SIGNAL(sessionDidLogout()), this, SLOT(sessionDidLogout()));
 
     // News posts
     connect(m_ui->postsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(newsFeedListClicked(QModelIndex)));
@@ -112,7 +114,8 @@ void MainWindow::sessionDidLogout()
 
 void MainWindow::onLogoutMenuAction()
 {
-    FaceBrick::instance()->session()->logout();
+    // TODO new logout
+    //FaceBrick::instance()->session()->logout();
 }
 
 void MainWindow::onSettingsMenuAction()

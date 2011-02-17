@@ -24,7 +24,10 @@ SOURCES += src/main.cpp\
     src/newsfeedpostview_likedislike.cpp \
     src/facebrick.cpp \
     src/newsfeedpostattachment.cpp \
-    src/settingsdialog.cpp
+    src/settingsdialog.cpp \
+    src/getconnection.cpp \
+    src/fblogindialog.cpp \
+    src/fbdialog.cpp
 
 HEADERS  += include/mainwindow.h \
     include/newsfeedmodel.h \
@@ -34,12 +37,21 @@ HEADERS  += include/mainwindow.h \
     include/newsfeeddelegate.h \
     include/newsfeedpostview.h \
     include/facebrick.h \
-    include/settingsdialog.h
+    include/settingsdialog.h \
+    include/graphapi.h \
+    include/getconnection.h \
+    include/fblogindialog.h \
+    include/fbdialog.h
 
 FORMS    += src/ui/mainwindow.ui \
     src/ui/newsfeedpostview.ui \
     src/ui/settingsdialog.ui
 
+
+INCLUDEPATH += ../qfacebook/src
+INCLUDEPATH += include/
+win32:LIBS += ../qfacebook/lib/libqfacebook.a
+unix:LIBS += ../qfacebook/lib/libqfacebook.so
 
 INCLUDEPATH += ../libqfacebook/inc/
 INCLUDEPATH += include/
@@ -56,7 +68,5 @@ maemo5:* {
     icon.path = /usr/share/pixmaps
     icon.files += facebrick.png
 }
-
-
 
 INSTALLS += target

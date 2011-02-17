@@ -33,6 +33,8 @@
 #include "ui_mainwindow.h"
 #include "newsfeedpostview.h"
 
+#include "getconnection.h"
+
 void MainWindow::newsFeedListClicked(QModelIndex index)
 {
     NewsFeedPostView *nfpv = new NewsFeedPostView(this);
@@ -55,7 +57,10 @@ void MainWindow::fetchNewsFeed()
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, true);
 #endif
 
-    FBRequest* request = FBRequest::request();
+    connect (FaceBrick::instance()->m_connection, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
+
+    FaceBrick::instance()->m_connection->load("me", "home");
+    /*FBRequest* request = FBRequest::request();
     Dictionary params;
 
     // Query to fetch news posts
@@ -75,7 +80,9 @@ void MainWindow::fetchNewsFeed()
 
     connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
     connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
-    request->call("facebook.fql.multiquery",params);
+    request->call("facebook.fql.multiquery",params);*/
+
+
 }
 
 void MainWindow::newsFeedLoadingError(const FBError &error)
@@ -95,64 +102,70 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 #endif
     m_updatingNewsFeed = false;
 
-    if (container.type() == QVariant::List) {
-        QVariantList list = container.toList();
+    qDebug() << "newsfeed loaded";
 
-        // Item #0 will be our result set on news items
-        foreach (const QVariant &newsFeedPostHash, list.at(0).toHash().begin().value().toList()) {
-            QHash<QString, QVariant> newsFeedPostData = newsFeedPostHash.toHash();
+    foreach (const QVariant &newsFeedPostHash, container.toMap()["data"].toList()) {
+        QMap<QString, QVariant> newsFeedPostData = newsFeedPostHash.toMap();
 
-            // Fetch (or create) the account that made this newsfeed post
-            FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedPostData["actor_id"].toLongLong());
-            Q_ASSERT(account);
+        qDebug() << newsFeedPostData["from"].toMap()["name"].toString();
 
-            // Create a new newsfeed post
-            NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
-                                                account,
-                                                newsFeedPostData["post_id"].toString(),
-                                                newsFeedPostData["created_time"].toLongLong(),
-                                                newsFeedPostData["permalink"].toString(),
-                                                newsFeedPostData["message"].toString());
-            Q_ASSERT(np);
+        // Fetch (or create) the account that made this newsfeed post
+        FacebookAccount *account = FacebookAccountModel::instance()->account(newsFeedPostData["from"].toMap()["id"].toLongLong());
+        Q_ASSERT(account);
 
-            // Seed it into the model
-            m_newsFeedModel->insertNewsItem(np);
+        // Create a new newsfeed post
+        NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
+                                            account,
+                                            newsFeedPostData["id"].toString(),
+                                            newsFeedPostData["created_time"].toLongLong(),
+                                            newsFeedPostData["link"].toString(),
+                                            newsFeedPostData["message"].toString());
 
-            // Update our 'recent posts' block badger.
-            if (np->createdTime() > m_lastUpdatedNewsFeed)
-                m_lastUpdatedNewsFeed = np->createdTime();
+        account->setName(newsFeedPostData["from"].toMap()["name"].toString());
 
-            // Process like info too.
-            bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
-            np->setILikeThis(iLikeThis);
+        QUrl imageUrl = "http://graph.facebook.com/" + newsFeedPostData["from"].toMap()["id"].toString() + "/picture";
+        account->setAvatar(imageUrl);
 
-            // *breathe deeply* ok, and now let's try manage attachments
-            QHash<QString, QVariant> attachmentHash = newsFeedPostData["attachment"].toHash();
+        Q_ASSERT(np);
 
-            // Facebook... why not just *not* send attachment data if there isn't one?
-            if (attachmentHash.count() == 1)
-                continue;
+        // Seed it into the model
+        m_newsFeedModel->insertNewsItem(np);
+/*
+        // Update our 'recent posts' block badger.
+        if (np->createdTime() > m_lastUpdatedNewsFeed)
+            m_lastUpdatedNewsFeed = np->createdTime();
 
-            // Ignore "sent from my mobile" - there should be a better way to do this
-            if (attachmentHash["href"].toString() == "http://www.facebook.com")
-                continue;
+        // Process like info too.
+        bool iLikeThis = newsFeedPostData["likes"].toHash()["user_likes"].toString() == "1";
+        np->setILikeThis(iLikeThis);
 
-            // yes, apparantly this can happen!
-            if (attachmentHash["media"].toList().count() == 0)
-                continue;
+        // *breathe deeply* ok, and now let's try manage attachments
+        QHash<QString, QVariant> attachmentHash = newsFeedPostData["attachment"].toHash();
 
-            // GOD DAMMIT I HATE THIS BOXING.
-            QHash<QString, QVariant> mediaInfo = attachmentHash["media"].toList().at(0).toHash();
-            qDebug() << mediaInfo;
+        // Facebook... why not just *not* send attachment data if there isn't one?
+        if (attachmentHash.count() == 1)
+            continue;
 
-            np->setHasAttachment(true);
-            np->setDescription(attachmentHash["description"].toString());
-            np->setAttachmentName(mediaInfo["name"].toString());
-            // TODO: href?
-            np->setThumbnail(mediaInfo["src"].toString());
-        }
+        // Ignore "sent from my mobile" - there should be a better way to do this
+        if (attachmentHash["href"].toString() == "http://www.facebook.com")
+            continue;
 
-        foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
+        // yes, apparantly this can happen!
+        if (attachmentHash["media"].toList().count() == 0)
+            continue;
+
+        // GOD DAMMIT I HATE THIS BOXING.
+        QHash<QString, QVariant> mediaInfo = attachmentHash["media"].toList().at(0).toHash();
+        qDebug() << mediaInfo;
+
+        np->setHasAttachment(true);
+        np->setDescription(attachmentHash["description"].toString());
+        np->setAttachmentName(mediaInfo["name"].toString());
+        // TODO: href?
+        np->setThumbnail(mediaInfo["src"].toString());*/
+    }
+
+        /*foreach (const QVariant &newsFeedUserHash, list.at(1).toHash().begin().value().toList()) {
             QHash<QString, QVariant> newsFeedUserData = newsFeedUserHash.toHash();
 
             // Get (or create - though this should have already been done above) the account
@@ -161,8 +174,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 
             account->setName(newsFeedUserData["name"].toString());
             account->setAvatar(newsFeedUserData["pic_square"].toString());
-        }
-    }
-
+      // }
+*/
     sender()->deleteLater();
 }
