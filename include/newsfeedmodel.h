@@ -20,7 +20,7 @@
 
 #include <QAbstractListModel>
 
-#include "fbconnectglobal.h"
+//#include "fbconnectglobal.h"
 
 class NewsFeedPost;
 class FacebookAccount;
@@ -45,7 +45,7 @@ public:
     int rowCount(const QModelIndex&) const;
     QVariant data(const QModelIndex&, int) const;
     void insertNewsItem(NewsFeedPost * const newsItem);
-    long long newestCreatedTime() const;
+    QDateTime newestCreatedTime() const;
     void fontSizeChanged();
 private slots:
     void onChildModified();

@@ -58,31 +58,8 @@ void MainWindow::fetchNewsFeed()
 #endif
 
     connect (FaceBrick::instance()->m_connection, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
-
+    // connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
     FaceBrick::instance()->m_connection->load("me", "home");
-    /*FBRequest* request = FBRequest::request();
-    Dictionary params;
-
-    // Query to fetch news posts
-    QString queryOne = "SELECT post_id, actor_id, target_id, message, permalink, created_time, likes, attachment FROM stream WHERE filter_key in (SELECT filter_key FROM stream_filter WHERE uid=" + QString::number(FaceBrick::instance()->session()->uid()) + " AND type='newsfeed') AND is_hidden = 0";
-
-    if (m_lastUpdatedNewsFeed != 0) {
-        // Fetch all posts newer than the ones we have now
-        queryOne += " AND created_time > " + QString::number(m_lastUpdatedNewsFeed);
-    }
-
-    // Fetch all people that made these posts, combine them into a single FQL multiquery
-    QString queryTwo = "SELECT id, name, url, pic_square FROM profile WHERE id IN (SELECT actor_id FROM #query1)";
-    QString fql = "{\"query1\":\"" + queryOne + "\",\"queryTwo\":\"" + queryTwo + "\"}";
-    params["queries"] = fql;
-
-    qDebug() << "fetchNewsFeed: Sending " << fql;
-
-    connect (request, SIGNAL(requestDidLoad(QVariant)), this, SLOT(newsFeedLoaded(QVariant)));
-    connect (request, SIGNAL(requestFailedWithFacebookError(FBError)), this, SLOT(newsFeedLoadingError(FBError)));
-    request->call("facebook.fql.multiquery",params);*/
-
-
 }
 
 void MainWindow::newsFeedLoadingError(const FBError &error)
@@ -101,7 +78,6 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
     setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
     m_updatingNewsFeed = false;
-
     qDebug() << "newsfeed loaded";
 
     foreach (const QVariant &newsFeedPostHash, container.toMap()["data"].toList()) {
@@ -117,7 +93,7 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
         NewsFeedPost *np = new NewsFeedPost(m_newsFeedModel,
                                             account,
                                             newsFeedPostData["id"].toString(),
-                                            newsFeedPostData["created_time"].toLongLong(),
+                                            newsFeedPostData["created_time"].toDateTime(),
                                             newsFeedPostData["link"].toString(),
                                             newsFeedPostData["message"].toString());
 
@@ -125,11 +101,11 @@ void MainWindow::newsFeedLoaded(const QVariant &container)
 
         QUrl imageUrl = "http://graph.facebook.com/" + newsFeedPostData["from"].toMap()["id"].toString() + "/picture";
         account->setAvatar(imageUrl);
-
         Q_ASSERT(np);
 
         // Seed it into the model
         m_newsFeedModel->insertNewsItem(np);
+
 /*
         // Update our 'recent posts' block badger.
         if (np->createdTime() > m_lastUpdatedNewsFeed)

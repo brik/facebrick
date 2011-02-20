@@ -22,7 +22,7 @@
 #include "newsfeedmodel.h"
 
 NewsFeedPost::NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
-                           long long createdTime, const QString &url, const QString &message)
+                           QDateTime createdTime, const QString &url, const QString &message)
     : QObject(parent),
     m_createdTime(createdTime),
     m_account(account),
@@ -54,14 +54,14 @@ FacebookAccount *NewsFeedPost::author() const
     return m_account;
 }
 
-long long NewsFeedPost::createdTime() const
+QDateTime NewsFeedPost::createdTime() const
 {
     return m_createdTime;
 }
 
 QString NewsFeedPost::timeAsString() const
 {
-    QDateTime dateTime = QDateTime::fromTime_t(m_createdTime);
+    QDateTime dateTime = m_createdTime;
     QDateTime now = QDateTime::currentDateTime();
 
     int seconds = dateTime.secsTo(now);

@@ -21,8 +21,9 @@
 #include <QObject>
 #include <QPixmap>
 #include <QUrl>
+#include <QDateTime>
 
-#include "fbconnectglobal.h"
+//#include "fbconnectglobal.h"
 
 class FacebookAccount;
 class NewsFeedModel;
@@ -32,12 +33,12 @@ class NewsFeedPost : public QObject
 Q_OBJECT
 public:
     explicit NewsFeedPost(QObject *parent, FacebookAccount *account, const QString &postId,
-                          long long createdTime, const QString &url, const QString &message);
+                          QDateTime createdTime, const QString &url, const QString &message);
 
     const QString &url() const;
     const QString &message() const;
     FacebookAccount *author() const;
-    long long createdTime() const;
+    QDateTime createdTime() const;
     QString timeAsString() const;
     const QString &id() const;
     NewsFeedModel *commentsModel() const;
@@ -58,7 +59,7 @@ signals:
 private slots:
     void onThumbnailDownloaded();
 private:
-    long long m_createdTime;
+    QDateTime m_createdTime;
     FacebookAccount *m_account;
     QString m_url;
     QString m_message;

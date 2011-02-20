@@ -115,10 +115,10 @@ void NewsFeedModel::onChildModified()
     }
 }
 
-long long NewsFeedModel::newestCreatedTime() const
+QDateTime NewsFeedModel::newestCreatedTime() const
 {
     if (m_posts.count() == 0)
-        return 0;
+        return QDateTime::fromString("1/1/1970");
 
     if (m_newestAtTop)
         return m_posts.at(0)->createdTime();
